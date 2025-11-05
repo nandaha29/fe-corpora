@@ -227,11 +227,11 @@ export default function SubculturesGalleryPage() {
         </Badge>
 
         <h1 className="text-4xl font-extrabold text-foreground mb-2">
-          Jelajahi Subkultur Budaya
+          Explore Cultural Subcultures
         </h1>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-          Setiap subkultur memiliki karakter dan tradisi unik yang memperkaya identitas budaya Jawa Timur.
-          Pilih salah satu wilayah untuk menjelajah lebih jauh.
+          Each subculture has unique characteristics and traditions that enrich the cultural identity of East Java.
+          Choose one region to explore further.
         </p>
 
         {/* === Search Bar === */}

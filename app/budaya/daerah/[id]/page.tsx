@@ -702,7 +702,7 @@ export default function RegionDetailPage() {
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
-                  Galeri Foto
+                  Photo Gallery
                 </a>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">/</li>
@@ -781,7 +781,7 @@ export default function RegionDetailPage() {
                 return (
                   <div className="space-y-6">
                     <h2 className="text-2xl font-bold text-foreground">
-                      Sekilas tentang {displayName}
+                      About {displayName}
                     </h2>
                     <p className="text-base leading-relaxed text-muted-foreground">
                       {history}
@@ -941,7 +941,7 @@ export default function RegionDetailPage() {
               <Model3DSection
                 models={models3D}
                 title="3D Cultural Artifacts & Environments"
-                description={`Jelajahi model 3D interaktif dari artefak budaya dan lingkungan suku ${subcultureData.profile?.displayName}.`}
+                description={`Explore interactive 3D models of cultural artifacts and the environment of the ${subcultureData.profile?.displayName} tribe.`}
                 subcultureName={subcultureData.profile?.displayName}
                 showControls={true}
                 autoRotate={true}
@@ -956,8 +956,8 @@ export default function RegionDetailPage() {
             >
               <YouTubeSection
                 videos={youtubeVideos}
-                title="Video Dokumentasi Budaya"
-                description={`Tonton video dokumentasi budaya dan kehidupan sehari-hari suku ${subcultureData.profile?.displayName}.`}
+                title="Cultural Documentation Videos"
+                description={`Watch cultural documentation videos and daily life of the ${subcultureData.profile?.displayName} tribe.`}
                 subcultureName={subcultureData.profile?.displayName}
                 autoPlay={false}
                 showThumbnails={true}

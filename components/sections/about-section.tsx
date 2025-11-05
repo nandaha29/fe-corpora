@@ -25,14 +25,14 @@ interface AboutSectionProps {
 
 export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
   const defaultMembers = [
-    { name: "Rizky Pratama", role: "Koordinator Riset" },
-    { name: "Sari Wulandari", role: "Kurator Konten" },
-    { name: "Bima Nugraha", role: "Pengembang Frontend" },
-    { name: "Dewi Anindya", role: "Desain UI/UX" },
-    { name: "Haryo Putra", role: "Pengembang Backend" },
-    { name: "Nadia Safitri", role: "Dokumentasi & Arsip" },
-    { name: "Galih Mahendra", role: "Analis Data" },
-    { name: "Putri Larasati", role: "Relasi Komunitas" },
+    { name: "Rizky Pratama", role: "Research Coordinator" },
+    { name: "Sari Wulandari", role: "Content Curator" },
+    { name: "Bima Nugraha", role: "Frontend Developer" },
+    { name: "Dewi Anindya", role: "UI/UX Designer" },
+    { name: "Haryo Putra", role: "Backend Developer" },
+    { name: "Nadia Safitri", role: "Documentation & Archives" },
+    { name: "Galih Mahendra", role: "Data Analyst" },
+    { name: "Putri Larasati", role: "Community Relations" },
   ];
 
   const displayTeam = team

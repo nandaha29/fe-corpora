@@ -153,14 +153,14 @@ export default function GalleryPage() {
 
           <AnimatedReveal animation="fade-up" delay={400}>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Gallery Budaya
-              <span className="text-primary block">Jawa Timur</span>
+              Cultural Gallery
+              <span className="text-primary block">East Java</span>
             </h1>
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={600}>
             <p className="text-lg text-muted-foreground max-w-3xl">
-              Jelajahi koleksi foto dan dokumentasi kegiatan budaya dari berbagai leksikon dan acara budaya di Jawa Timur.
+              Explore photo collections and documentation of cultural activities from various lexicons and cultural events in East Java.
             </p>
           </AnimatedReveal>
 

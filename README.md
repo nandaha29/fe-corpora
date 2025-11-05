@@ -1,4 +1,4 @@
-# Warisan Budaya Jawa Timur - Cultural Heritage of East Java
+# Cultural Heritage of East Java
 
 A modern, interactive web application showcasing the rich cultural heritage of East Java, Indonesia. Built with Next.js 14, TypeScript, and Tailwind CSS, featuring smooth animations, parallax effects, and responsive design.
 
@@ -10,7 +10,7 @@ A modern, interactive web application showcasing the rich cultural heritage of E
 - **Modern UI Components**: Built with shadcn/ui component library
 - **Accessibility First**: WCAG compliant with proper ARIA labels and keyboard navigation
 - **Performance Optimized**: Fast loading with Next.js 14 App Router and optimized images
-- **Glossary Pages**: List at `/budaya/daerah/-` with clear per-card “Rincian” buttons, Detail at `/budaya/daerah/-/[term]` with profile-like layout (image, description, cultural info)
+- **Glossary Pages**: List at `/budaya/daerah/-` with clear per-card "Details" buttons, Detail at `/budaya/daerah/-/[term]` with profile-like layout (image, description, cultural info)
 - **Cultural Map**: `/peta-budaya` now includes a prominent button to the glossary
 - **Smooth UX**: Page transitions and button-triggered smooth scrolling with reduced-motion support
 - **Tickers**: Continuous logo ticker (showcase) and a dedicated team ticker section with hover-to-pause
@@ -27,7 +27,7 @@ A modern, interactive web application showcasing the rich cultural heritage of E
 1. **Clone the repository**
    \`\`\`bash
    git clone <repository-url>
-   cd warisan-budaya-jawa-timur
+   cd cultural-heritage-east-java
    \`\`\`
 
 2. **Install dependencies**

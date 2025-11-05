@@ -92,7 +92,7 @@ export default function SubcultureDemoPage() {
         {/* Gallery Section */}
         <section id="photo-gallery" className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
           <h2 className="text-2xl font-bold text-foreground mb-6">
-            Galeri Foto
+            Photo Gallery
           </h2>
 
           {/* Main Carousel Display */}
@@ -195,7 +195,7 @@ export default function SubcultureDemoPage() {
           <Model3DSection
             models={models3D}
             title="3D Cultural Artifacts & Environments"
-            description={`Jelajahi model 3D interaktif dari artefak budaya dan lingkungan suku ${subcultureData.profile.displayName}.`}
+            description={`Explore interactive 3D models of cultural artifacts and the environment of the ${subcultureData.profile.displayName} tribe.`}
             subcultureName={subcultureData.profile.displayName}
             showControls={true}
             autoRotate={true}
@@ -207,8 +207,8 @@ export default function SubcultureDemoPage() {
         <section id="youtube-videos">
           <YouTubeSection
             videos={youtubeVideos}
-            title="Video Dokumentasi Budaya"
-            description={`Tonton video dokumentasi budaya dan kehidupan sehari-hari suku ${subcultureData.profile.displayName}.`}
+            title="Cultural Documentation Videos"
+            description={`Watch cultural documentation videos and daily life of the ${subcultureData.profile.displayName} tribe.`}
             subcultureName={subcultureData.profile.displayName}
             autoPlay={false}
             showThumbnails={true}

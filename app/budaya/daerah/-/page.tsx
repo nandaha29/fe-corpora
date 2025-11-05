@@ -558,10 +558,10 @@ export default function AllCulturalWordsPage() {
         </Badge>
 
         <h1 className="text-4xl font-extrabold text-foreground mb-2">
-          Jelajahi Leksikon Budaya
+          Explore Cultural Lexicon
         </h1>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-          Temukan kekayaan istilah dan tradisi dari berbagai sub-budaya Jawa Timur.
+          Discover the richness of terms and traditions from various East Java sub-cultures.
         </p>
 
         {/* Filter + Search */}

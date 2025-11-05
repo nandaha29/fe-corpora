@@ -67,7 +67,7 @@ export function ContactSection() {
           <AnimatedReveal animation="slide-right" delay={800}>
             <div className="space-y-8">
               <div>
-                <h3 className="text-2xl font-bold mb-6">Informasi Kontak</h3>
+                <h3 className="text-2xl font-bold mb-6">Contact Information</h3>
 
                 <div className="space-y-6">
                   {/* <div className="flex items-start space-x-4">

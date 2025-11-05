@@ -507,12 +507,12 @@ export default function AboutPage() {
         {/* CTA Section */}
         <section className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 rounded-xl p-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Mulai Jelajahi Budaya Jawa Timur
+            Start Exploring East Java Culture
           </h2>
           
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Bergabunglah dengan ribuan pengguna lain dalam melestarikan dan 
-            mengenal warisan budaya yang kaya dari Jawa Timur.
+            Join thousands of other users in preserving and
+            learning about the rich cultural heritage of East Java.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -530,7 +530,7 @@ export default function AboutPage() {
               variant="outline"
               onClick={() => handleNavClick("kontak")}
             >
-              Hubungi Kami
+              Contact Us
             </Button>
           </div>
         </section>
