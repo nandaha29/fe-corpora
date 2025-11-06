@@ -49,12 +49,31 @@ interface SubcultureData {
     slug: string;
   }>;
   heroImage: string | null;
-  videoUrl?: string; // Added this field
+  videoUrl?: string;
   culture: {
     name: string;
     province: string;
     region: string;
   };
+  subcultureAssets?: Array<{
+    subcultureId: number;
+    assetId: number;
+    assetRole: string;
+    createdAt: string;
+    asset: {
+      assetId: number;
+      namaFile: string;
+      tipe: string;
+      penjelasan: string;
+      url: string;
+      fileSize: string;
+      hashChecksum: string;
+      metadataJson: string;
+      status: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+  }>;
 }
 
 interface ApiErrorResponse {
@@ -111,6 +130,9 @@ export default function RegionDetailPage() {
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
   const AUTOPLAY_DURATION = 5000;
 
+  // ✅ NEW: State untuk banner image
+  const [bannerImage, setBannerImage] = useState<string | null>(null);
+
   // Fetch subculture data
   useEffect(() => {
     const fetchSubcultureData = async () => {
@@ -147,6 +169,24 @@ export default function RegionDetailPage() {
 
         const successResponse = result as ApiSuccessResponse;
         setSubcultureData(successResponse.data);
+        
+        // ✅ NEW: Extract banner image dari subcultureAssets
+        if (successResponse.data.subcultureAssets) {
+          const bannerAsset = successResponse.data.subcultureAssets.find(
+            asset => asset.assetRole === "BANNER" || asset.assetRole === "banner"
+          );
+          
+          if (bannerAsset && bannerAsset.asset.url) {
+            setBannerImage(bannerAsset.asset.url);
+            console.log("🎨 Banner image found:", bannerAsset.asset.url);
+          } else {
+            console.log("⚠️ No banner asset found, using heroImage fallback");
+            setBannerImage(successResponse.data.heroImage);
+          }
+        } else {
+          setBannerImage(successResponse.data.heroImage);
+        }
+        
         setError(null);
         setErrorDetails(null);
 
@@ -165,6 +205,7 @@ export default function RegionDetailPage() {
           technicalError: err instanceof Error ? err.toString() : "Unknown error",
         });
         setSubcultureData(null);
+        setBannerImage(null);
       } finally {
         setLoading(false);
       }
@@ -608,14 +649,18 @@ export default function RegionDetailPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       <Navigation onNavClick={handleNavClick} />
 
-      {/* Hero Section */}
+      {/* ✅ UPDATED: Hero Section dengan banner image dari API */}
       <section aria-label="Hero" className="relative overflow-hidden border-b border-border">
         <div className="relative">
           <img
-            src={subcultureData.heroImage || "/placeholder.svg"}
-            alt={`${regionId} cultural landscape`}
+            src={bannerImage || subcultureData.heroImage || "/placeholder.svg"}
+            alt={`${subcultureData.profile?.displayName || regionId} cultural landscape`}
             className="h-[65vh] md:h-[80vh] w-full object-cover"
             crossOrigin="anonymous"
+            onError={(e) => {
+              console.error("Banner image failed to load, using fallback");
+              e.currentTarget.src = "/east-java-temple-sunset-landscape-with-traditional.jpg";
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
