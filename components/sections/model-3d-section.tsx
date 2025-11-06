@@ -36,9 +36,9 @@ export function Model3DSection({
   description,
   subcultureName,
   className,
-  showControls = false, // Changed default to false
+  showControls = false,
   autoRotate = true,
-  height = "600px",
+  height = "450px",
 }: Model3DSectionProps) {
   const [currentModelIndex, setCurrentModelIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -64,20 +64,18 @@ export function Model3DSection({
 
   const goToPrevious = () => {
     setCurrentModelIndex((prev) => (prev === 0 ? models.length - 1 : prev - 1))
-    setIsLoading(true) // Reset loading when changing models
+    setIsLoading(true)
   }
 
   const goToNext = () => {
     setCurrentModelIndex((prev) => (prev + 1) % models.length)
-    setIsLoading(true) // Reset loading when changing models
+    setIsLoading(true)
   }
 
-  // Handle iframe load event
   const handleIframeLoad = () => {
     setIsLoading(false)
   }
 
-  // Reset loading when model changes
   useEffect(() => {
     setIsLoading(true)
   }, [currentModelIndex])
@@ -85,14 +83,14 @@ export function Model3DSection({
   return (
     <section className={cn("space-y-6", className)}>
       {/* Header */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex-1">
-            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            <h3 className="text-xl md:text-2xl font-bold text-foreground mb-2">
               {title}
             </h3>
             {description && (
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {description || `Explore interactive 3D models of cultural artifacts and environments from ${subcultureName || 'the region'}.`}
               </p>
             )}
@@ -131,12 +129,11 @@ export function Model3DSection({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
-        className="space-y-4"
+        className="space-y-3"
       >
         {/* Model Container */}
         <Card className="overflow-hidden border-border bg-card/60 backdrop-blur-sm">
           <div className="relative w-full bg-gradient-to-br from-muted/50 to-muted/20">
-            {/* 3D Iframe */}
             <div 
               className="relative w-full" 
               style={{ height }}
@@ -153,12 +150,12 @@ export function Model3DSection({
               />
             </div>
 
-            {/* Loading Indicator - Only show while loading */}
+            {/* Loading Indicator */}
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-muted/20 pointer-events-none">
-                <div className="text-center space-y-4">
-                  <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                  <p className="text-sm text-muted-foreground font-medium">Loading 3D Model...</p>
+                <div className="text-center space-y-3">
+                  <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                  <p className="text-xs text-muted-foreground font-medium">Loading 3D Model...</p>
                 </div>
               </div>
             )}
@@ -167,19 +164,19 @@ export function Model3DSection({
 
         {/* Model Details */}
         <Card className="bg-card/60 backdrop-blur-sm border-border">
-          <div className="p-6 space-y-4">
+          <div className="p-4 space-y-3">
             <div>
-              <h4 className="text-xl font-bold text-foreground mb-2">
+              <h4 className="text-lg font-bold text-foreground mb-2">
                 {currentModel.title}
               </h4>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {currentModel.description}
               </p>
             </div>
 
             {/* Tags */}
             {currentModel.tags && currentModel.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
+              <div className="flex flex-wrap gap-2 pt-3 border-t border-border">
                 {currentModel.tags.map((tag, idx) => (
                   <Badge key={idx} variant="outline" className="text-xs">
                     {tag}
@@ -189,7 +186,7 @@ export function Model3DSection({
             )}
 
             {/* Interaction Tips */}
-            <div className="pt-4 border-t border-border">
+            <div className="pt-3 border-t border-border">
               <p className="text-xs text-muted-foreground mb-2 font-medium">
                 Interaction Tips:
               </p>
@@ -218,12 +215,12 @@ export function Model3DSection({
 
       {/* Model Thumbnails */}
       {hasMultipleModels && (
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-foreground">
+        <div className="space-y-3">
+          <h4 className="text-base font-semibold text-foreground">
             More 3D Models
           </h4>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {models.map((model, index) => (
               <motion.button
                 key={model.id}
@@ -282,4 +279,4 @@ export function Model3DSection({
       )}
     </section>
   )
-} 
+}
