@@ -16,6 +16,40 @@ import { YouTubeSection, type YouTubeVideo } from "@/components/sections/youtube
 import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
 
 interface SearchResult {
+  leksikonId: number;
+  kataLeksikon: string;
+  ipa: string;
+  transliterasi: string;
+  maknaEtimologi: string;
+  maknaKultural: string;
+  commonMeaning: string;
+  translation: string;
+  varian: string;
+  translationVarians: string | null;
+  deskripsiLain: string | null;
+  domainKodifikasi: {
+    domainKodifikasiId: number;
+    kode: string;
+    namaDomain: string;
+    penjelasan: string;
+    subculture: {
+      subcultureId: number;
+      namaSubculture: string;
+      slug: string;
+      culture: {
+        cultureId: number;
+        namaBudaya: string;
+        provinsi: string;
+        kotaDaerah: string;
+      };
+    };
+  };
+  contributor: {
+    contributorId: number;
+    namaContributor: string;
+    institusi: string;
+  };
+  leksikonAssets: any[];
   term: string;
   definition: string;
   category: string;
@@ -96,15 +130,6 @@ export default function RegionDetailPage() {
   // Lexicon state for server-side search
   const [lexiconItems, setLexiconItems] = useState<SearchResult[]>([]);
   const [lexiconLoading, setLexiconLoading] = useState(false);
-  const [lexiconPagination, setLexiconPagination] = useState<{
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  } | null>(null);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
 
   const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
   const [isGalleryAutoPlaying, setIsGalleryAutoPlaying] = useState(true);
@@ -319,23 +344,72 @@ export default function RegionDetailPage() {
     return videos;
   }, [subcultureData]);
 
-  // Search functionality - server-side
+  // Search functionality - fetch all lexicon entries for subculture on load
   useEffect(() => {
     const fetchLexiconData = async () => {
-      if (!regionId) return;
+      // Don't fetch if subculture data is not loaded yet
+      if (!subcultureData?.subcultureId) {
+        return;
+      }
 
+      // If no search query, fetch all entries for this subculture
+      if (!searchQuery.trim()) {
+        setLexiconLoading(true);
+
+        try {
+          const searchParams = new URLSearchParams();
+          searchParams.append('subculture_id', subcultureData.subcultureId.toString());
+
+          const response = await fetch(
+            `https://be-corpora.vercel.app/api/v1/search/advanced?${searchParams.toString()}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
+
+          if (result.success && result.data) {
+            const lexicons = result.data;
+            const mappedItems = lexicons.map((entry: any) => ({
+              ...entry,
+              // Add computed fields for compatibility
+              term: entry.kataLeksikon,
+              definition: entry.commonMeaning || entry.translation || entry.maknaKultural,
+              category: entry.domainKodifikasi?.namaDomain || "",
+              region: entry.domainKodifikasi?.subculture?.namaSubculture || "",
+              slug: entry.kataLeksikon
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/(^-|-$)/g, ""),
+            }));
+
+            setLexiconItems(mappedItems);
+          } else {
+            setLexiconItems([]);
+          }
+        } catch (error) {
+          console.error('Initial lexicon load error:', error);
+          setLexiconItems([]);
+        } finally {
+          setLexiconLoading(false);
+        }
+        return;
+      }
+
+      // If there is a search query, search within the subculture
       setLexiconLoading(true);
 
       try {
-        const params = new URLSearchParams();
-        if (searchQuery.trim()) {
-          params.append('search', searchQuery.trim());
-        }
-        params.append('page', currentPage.toString());
-        params.append('limit', ITEMS_PER_PAGE.toString());
+        const searchParams = new URLSearchParams();
+        searchParams.append('kata', searchQuery.trim());
+        searchParams.append('subculture_id', subcultureData.subcultureId.toString());
 
         const response = await fetch(
-          `https://be-corpora.vercel.app/api/v1/public/subcultures/${regionId}/lexicon?${params.toString()}`
+          `https://be-corpora.vercel.app/api/v1/search/advanced?${searchParams.toString()}`
         );
 
         if (!response.ok) {
@@ -345,37 +419,29 @@ export default function RegionDetailPage() {
         const result = await response.json();
 
         if (result.success && result.data) {
-          const lexicons = result.data.lexicons || [];
+          const lexicons = result.data;
           const mappedItems = lexicons.map((entry: any) => ({
-            term: entry.term,
-            definition: entry.definition,
-            category: entry.category || "",
-            region: subcultureData?.culture?.name || subcultureData?.culture?.region || regionId,
-            slug: entry.slug ||
-              (entry.term || "")
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/[^\w\s-]/g, "")
-                .toLowerCase()
-                .replace(/\s+/g, "-")
-                .replace(/(^-|-$)/g, ""),
+            ...entry,
+            // Add computed fields for compatibility
+            term: entry.kataLeksikon,
+            definition: entry.commonMeaning || entry.translation || entry.maknaKultural,
+            category: entry.domainKodifikasi?.namaDomain || "",
+            region: entry.domainKodifikasi?.subculture?.namaSubculture || "",
+            slug: entry.kataLeksikon
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/(^-|-$)/g, ""),
           }));
 
           setLexiconItems(mappedItems);
-          setLexiconPagination({
-            total: result.data.total,
-            page: result.data.page,
-            limit: result.data.limit,
-            totalPages: Math.ceil(result.data.total / result.data.limit)
-          });
         } else {
           setLexiconItems([]);
-          setLexiconPagination(null);
         }
       } catch (error) {
-        console.error('Lexicon search error:', error);
+        console.error('Advanced search error:', error);
         setLexiconItems([]);
-        setLexiconPagination(null);
       } finally {
         setLexiconLoading(false);
       }
@@ -383,7 +449,7 @@ export default function RegionDetailPage() {
 
     const debounceTimer = setTimeout(fetchLexiconData, searchQuery ? 300 : 0);
     return () => clearTimeout(debounceTimer);
-  }, [searchQuery, currentPage, regionId, subcultureData]);
+  }, [searchQuery, subcultureData?.subcultureId]);
 
   // Scroll handling
   useEffect(() => {
@@ -414,73 +480,11 @@ export default function RegionDetailPage() {
   }, []);
 
   useEffect(() => {
-    setCurrentPage(1);
+    // No longer needed since we removed pagination
   }, [searchQuery]);
 
   // Use server-side data for display
   const displayItems = lexiconItems;
-  const paginatedItems = displayItems; // Already paginated from server
-
-  // Computed pagination helpers
-  const hasPrev = lexiconPagination ? lexiconPagination.page > 1 : false;
-  const hasNext = lexiconPagination ? lexiconPagination.page < lexiconPagination.totalPages : false;
-
-  const goToPage = (page: number) => {
-    setCurrentPage(page);
-    const element = document.getElementById("search-and-explore");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  const goToPreviousPage = () => {
-    if (lexiconPagination && lexiconPagination.page > 1) {
-      goToPage(lexiconPagination.page - 1);
-    }
-  };
-
-  const goToNextPage = () => {
-    if (lexiconPagination && lexiconPagination.page < lexiconPagination.totalPages) {
-      goToPage(lexiconPagination.page + 1);
-    }
-  };
-
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    const maxPagesToShow = 5;
-    const currentPage = lexiconPagination?.page || 1;
-    const totalPages = lexiconPagination?.totalPages || 0;
-    
-    if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        pages.push(1);
-        pages.push('...');
-        pages.push(currentPage - 1);
-        pages.push(currentPage);
-        pages.push(currentPage + 1);
-        pages.push('...');
-        pages.push(totalPages);
-      }
-    }
-    
-    return pages;
-  };
 
   function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
     e.preventDefault();
@@ -744,7 +748,6 @@ export default function RegionDetailPage() {
                 <button
                   onClick={() => {
                     setShowLexiconOnly(true);
-                    setCurrentPage(1);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   className={`px-3 py-2 rounded-md text-sm transition-colors inline-block ${
@@ -975,33 +978,35 @@ export default function RegionDetailPage() {
               <div className="flex flex-col gap-4" role="search">
                 <div>
                   <h2 className="text-xl font-bold text-foreground mb-2">
-                    Search Lexicon
+                    {subcultureData.profile?.displayName} Cultural Lexicon
                   </h2>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Search across terms, definitions, transliterations, and more
-                    to find exactly what you're looking for.
+                    Browse all lexicon entries for {subcultureData.profile?.displayName}. Use the search box below to filter terms by word, meaning,
+                    transliteration, or cultural context specific to this subculture.
                   </p>
                 </div>
                 <SearchInput
-                  aria-label={`Search terms in ${regionId}`}
-                  placeholder={`Search terms, definitions, transliterations...`}
+                  aria-label={`Search within ${subcultureData.profile?.displayName} cultural lexicon`}
+                  placeholder={`Search terms, meanings, transliterations in ${subcultureData.profile?.displayName}...`}
                   value={searchQuery}
                   onChange={setSearchQuery}
                   onClear={() => setSearchQuery("")}
-                  resultCount={lexiconPagination?.total || 0}
+                  resultCount={displayItems.length}
                   showResultCount={true}
                 />
               </div>
             </section>
 
-            <section aria-label="Daftar istilah" className="scroll-mt-24">
+            <section aria-label="Lexicon search results" className="scroll-mt-24">
               {(() => {
                 if (lexiconLoading) {
                   return (
                     <div className="flex items-center justify-center py-12">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                        <p className="text-muted-foreground">Searching lexicon...</p>
+                        <p className="text-muted-foreground">
+                          {searchQuery ? `Searching ${subcultureData.profile?.displayName} lexicon...` : `Loading ${subcultureData.profile?.displayName} lexicon...`}
+                        </p>
                       </div>
                     </div>
                   );
@@ -1011,7 +1016,7 @@ export default function RegionDetailPage() {
                   <>
                     {/* Items Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      {paginatedItems.map((entry, i) => {
+                      {displayItems.map((entry, i) => {
                         const termSlug = entry.term
                           .normalize("NFD")
                           .replace(/[\u0300-\u036f]/g, "")
@@ -1022,28 +1027,58 @@ export default function RegionDetailPage() {
                         return (
                           <article
                             key={`${entry.term}-${i}`}
-                            className="rounded-xl shadow-sm border bg-card/60 border-border overflow-hidden"
+                            className="rounded-xl shadow-sm border bg-card/60 border-border overflow-hidden hover:shadow-md transition-shadow"
                           >
                             <div className="px-4 py-3">
-                              <h3 className="font-semibold text-foreground">
-                                {entry.term}
-                              </h3>
-                              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                {entry.definition}
+                              <div className="flex items-start justify-between mb-2">
+                                <h3 className="font-semibold text-foreground text-lg">
+                                  {entry.kataLeksikon}
+                                </h3>
+                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                                  {entry.domainKodifikasi?.subculture?.namaSubculture}
+                                </span>
+                              </div>
+
+                              {entry.transliterasi && (
+                                <p className="text-sm text-muted-foreground mb-1">
+                                  <span className="font-medium">Transliteration:</span> {entry.transliterasi}
+                                </p>
+                              )}
+
+                              {entry.ipa && (
+                                <p className="text-sm text-muted-foreground mb-2 font-mono">
+                                  <span className="font-medium">IPA:</span> {entry.ipa}
+                                </p>
+                              )}
+
+                              <p className="text-sm text-muted-foreground line-clamp-3 mb-2">
+                                {entry.commonMeaning || entry.translation || entry.maknaKultural}
                               </p>
+
+                              {entry.domainKodifikasi?.namaDomain && (
+                                <p className="text-xs text-primary/70 mb-2">
+                                  Category: {entry.domainKodifikasi.namaDomain}
+                                </p>
+                              )}
+
+                              {entry.varian && entry.varian !== "Belum ditemukan varian atau sinonim dari Ancak wilayah yang lain." && (
+                                <p className="text-xs text-muted-foreground">
+                                  <span className="font-medium">Variants:</span> {entry.varian}
+                                </p>
+                              )}
                             </div>
 
                             <div className="px-4 pb-4">
                               <Link
                                 href={`/budaya/daerah/-/${termSlug}`}
-                                aria-label={`Lihat rincian untuk istilah ${entry.term}`}
+                                aria-label={`View details for term ${entry.kataLeksikon}`}
                                 className="block"
                               >
                                 <Button
                                   size="lg"
                                   className="w-full bg-primary text-white hover:bg-primary/90 rounded-md py-3 cursor-pointer"
                                 >
-                                  Detail &nbsp;→
+                                  View Details &nbsp;→
                                 </Button>
                               </Link>
                             </div>
@@ -1055,92 +1090,22 @@ export default function RegionDetailPage() {
                         <div className="text-center py-12 col-span-full">
                           <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
                           <h3 className="text-lg font-semibold text-foreground mb-2">
-                            {searchQuery ? "No results found" : "Belum ada entri"}
+                            {searchQuery ? "No results found" : "No lexicon entries available"}
                           </h3>
                           <p className="text-muted-foreground">
                             {searchQuery
-                              ? `No lexicon entries match "${searchQuery}". Try different keywords.`
-                              : "Glosarium untuk subkultur ini belum tersedia."}
+                              ? `No lexicon entries match "${searchQuery}". Try different keywords or check spelling.`
+                              : `The ${subcultureData.profile?.displayName} lexicon database is currently empty.`}
                           </p>
                         </div>
                       )}
                     </div>
 
-                    {/* Pagination Controls */}
-                    {displayItems.length > 0 && (lexiconPagination?.totalPages || 0) > 1 && (
-                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-4 bg-card/40 rounded-xl border border-border">
-                        {/* Info */}
-                        <div className="text-sm text-muted-foreground">
-                          Showing {lexiconPagination ? (lexiconPagination.page - 1) * lexiconPagination.limit + 1 : 0}-{lexiconPagination ? Math.min(lexiconPagination.page * lexiconPagination.limit, lexiconPagination.total) : 0} of {lexiconPagination?.total || 0} entries
-                        </div>
-
-                        {/* Pagination Buttons */}
-                        <div className="flex items-center gap-2">
-                          {/* Previous Button */}
-                          <button
-                            onClick={goToPreviousPage}
-                            disabled={!hasPrev}
-                            className={`px-3 py-2 rounded-lg border transition-all cursor-pointer ${
-                              !hasPrev
-                                ? "border-border/50 text-muted-foreground cursor-not-allowed opacity-50"
-                                : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
-                            }`}
-                            aria-label="Previous page"
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                          </button>
-
-                          {/* Page Numbers */}
-                          <div className="flex items-center gap-1">
-                            {getPageNumbers().map((pageNum, idx) => {
-                              if (pageNum === '...') {
-                                return (
-                                  <span
-                                    key={`ellipsis-${idx}`}
-                                    className="px-3 py-2 text-muted-foreground"
-                                  >
-                                    ...
-                                  </span>
-                                );
-                              }
-
-                              const page = pageNum as number;
-                              return (
-                                <button
-                                  key={page}
-                                  onClick={() => goToPage(page)}
-                                  className={`min-w-[40px] px-3 py-2 rounded-lg border transition-all cursor-pointer ${
-                                    lexiconPagination?.page === page
-                                      ? "bg-primary text-primary-foreground border-primary font-semibold"
-                                      : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
-                                  }`}
-                                  aria-label={`Go to page ${page}`}
-                                  aria-current={lexiconPagination?.page === page ? "page" : undefined}
-                                >
-                                  {page}
-                                </button>
-                              );
-                            })}
-                          </div>
-
-                          {/* Next Button */}
-                          <button
-                            onClick={goToNextPage}
-                            disabled={!hasNext}
-                            className={`px-3 py-2 rounded-lg border transition-all cursor-pointer ${
-                              !hasNext
-                                ? "border-border/50 text-muted-foreground cursor-not-allowed opacity-50"
-                                : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
-                            }`}
-                            aria-label="Next page"
-                          >
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
-                        </div>
-
-                        {/* Mobile: Page Info */}
-                        <div className="sm:hidden text-sm text-muted-foreground">
-                          Page {lexiconPagination?.page || 0} of {lexiconPagination?.totalPages || 0}
+                    {/* Results Summary */}
+                    {displayItems.length > 0 && (
+                      <div className="mt-6 p-4 bg-card/40 rounded-xl border border-border">
+                        <div className="text-sm text-muted-foreground text-center">
+                          Found {displayItems.length} lexicon entries
                         </div>
                       </div>
                     )}
