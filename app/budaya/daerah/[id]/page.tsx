@@ -2,23 +2,31 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  MapPin,
-  ChevronLeft,
-  ChevronRight,
-  AlertCircle,
-  RefreshCw,
-  X,
-  Maximize2,
-} from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { SearchInput } from "@/components/search-input";
+import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/layout/navigation";
-import { useNavigation } from "@/hooks/use-navigation";
+import {
+  ArrowLeft,
+  Loader2,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  AlertCircle,
+  X,
+  Maximize2,
+  RefreshCw, // ✅ TAMBAHKAN INI
+  MapPin, // ✅ TAMBAHKAN INI
+} from "lucide-react";
 import { Footer } from "@/components/layout/footer";
+import { useNavigation } from "@/hooks/use-navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { SearchInput } from "@/components/search-input";
+import { Input } from "@/components/ui/input";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Model3DSection,
   type Model3D,
@@ -45,6 +53,7 @@ interface SubcultureData {
     displayName: string;
     history: string;
     highlights: any[];
+    salamKhas?: string; 
   };
   galleryImages: Array<{
     url: string;
@@ -438,33 +447,58 @@ export default function RegionDetailPage() {
     return () => clearTimeout(debounceTimer);
   }, [searchQuery, currentPage, regionId, subcultureData]);
 
-  // Scroll handling
+  // ✅ PERBAIKAN: Scroll handling yang lebih akurat
   useEffect(() => {
     const handleScroll = () => {
       const headerHeight = 64;
       setIsNavSticky(window.scrollY > headerHeight);
+
+      // Skip jika sedang mode lexicon only
+      if (showLexiconOnly) return;
 
       const sections = [
         "region-profile",
         "photo-gallery",
         "viewer-3d",
         "youtube-videos",
-        "search-and-explore",
       ];
+
+      // Get scroll position with offset
+      const scrollPosition = window.scrollY + 200;
+
+      // Find active section
+      let currentActive = "region-profile"; // Default
+
       for (const sectionId of sections) {
         const element = document.getElementById(sectionId);
         if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 200) {
-            setActiveSection(sectionId);
+          const elementTop = element.offsetTop;
+          const elementBottom = elementTop + element.offsetHeight;
+
+          if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
+            currentActive = sectionId;
+            break;
           }
         }
       }
+
+      setActiveSection(currentActive);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Run once on mount
+
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [showLexiconOnly]);
+
+  // ✅ PERBAIKAN: Reset active section saat lexicon only
+  useEffect(() => {
+    if (showLexiconOnly) {
+      setActiveSection("");
+    } else {
+      setActiveSection("region-profile");
+    }
+  }, [showLexiconOnly]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -540,20 +574,22 @@ export default function RegionDetailPage() {
     return pages;
   };
 
-  function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
-    e.preventDefault();
-    const el = document.getElementById(id);
-    if (!el) return;
-    const SCROLL_OFFSET = 96;
-    const top =
-      el.getBoundingClientRect().top + window.pageYOffset - SCROLL_OFFSET;
-    window.scrollTo({ top, behavior: "smooth" });
-    if (history.replaceState) {
-      history.replaceState(null, "", `#${id}`);
-    } else {
-      window.location.hash = `#${id}`;
+  // ✅ PERBAIKAN: Handler untuk manual click navigation
+  const handleSectionClick = (sectionId: string) => {
+    setActiveSection(sectionId);
+    setShowLexiconOnly(false);
+
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const navbarHeight = 96;
+      const elementPosition = element.offsetTop - navbarHeight;
+
+      window.scrollTo({
+        top: elementPosition,
+        behavior: "smooth",
+      });
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -672,13 +708,13 @@ export default function RegionDetailPage() {
       <Navigation onNavClick={handleNavClick} />
 
       {/* Hero Section */}
-      <section
+        <section
         aria-label="Hero"
         className="relative overflow-hidden border-b border-border"
       >
         <div className="relative">
           <img
-            src={subcultureData.heroImage || "/placeholder.svg"}
+            src={subcultureData?.heroImage || "/placeholder.svg"}
             alt={`${regionId} cultural landscape`}
             className="h-[65vh] md:h-[80vh] w-full object-cover"
             crossOrigin="anonymous"
@@ -708,14 +744,15 @@ export default function RegionDetailPage() {
               </ol>
             </motion.nav>
 
+            {/* ✅ GANTI BAGIAN INI - Gunakan salamKhas dari API */}
             <motion.h1
               className="text-4xl md:text-6xl font-extrabold text-white max-w-3xl leading-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
             >
-              Discover the Living Tapestry of{" "}
-              {subcultureData.profile?.displayName || regionId}
+              {subcultureData?.profile?.salamKhas || 
+               `Discover the Living Tapestry of ${subcultureData?.profile?.displayName || regionId}`}
             </motion.h1>
 
             <motion.p
@@ -733,7 +770,7 @@ export default function RegionDetailPage() {
       </section>
 
       <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
-        {/* Navigation Tabs */}
+        {/* ✅ PERBAIKAN: Navigation Tabs dengan handler yang benar */}
         <nav
           aria-label="Halaman sub-bab"
           className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 border-b border-border transition-shadow duration-200 ${
@@ -743,77 +780,61 @@ export default function RegionDetailPage() {
           <div className="container mx-auto px-4">
             <ul className="flex gap-2 overflow-x-auto py-2 no-scrollbar items-center">
               <li>
-                <a
-                  href="#region-profile"
-                  onClick={(e) => {
-                    scrollToSection(e, "region-profile");
-                    setShowLexiconOnly(false);
-                  }}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block ${
+                <button
+                  onClick={() => handleSectionClick("region-profile")}
+                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block cursor-pointer ${
                     activeSection === "region-profile" && !showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
                   Profile Subculture
-                </a>
+                </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
                 /
               </li>
               <li>
-                <a
-                  href="#photo-gallery"
-                  onClick={(e) => {
-                    scrollToSection(e, "photo-gallery");
-                    setShowLexiconOnly(false);
-                  }}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block ${
+                <button
+                  onClick={() => handleSectionClick("photo-gallery")}
+                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block cursor-pointer ${
                     activeSection === "photo-gallery" && !showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
                   Photo Gallery
-                </a>
+                </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
                 /
               </li>
               <li>
-                <a
-                  href="#viewer-3d"
-                  onClick={(e) => {
-                    scrollToSection(e, "viewer-3d");
-                    setShowLexiconOnly(false);
-                  }}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block ${
+                <button
+                  onClick={() => handleSectionClick("viewer-3d")}
+                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block cursor-pointer ${
                     activeSection === "viewer-3d" && !showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
                   Model 3D
-                </a>
+                </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
                 /
               </li>
               <li>
-                <a
-                  href="#youtube-videos"
-                  onClick={(e) => {
-                    scrollToSection(e, "youtube-videos");
-                    setShowLexiconOnly(false);
-                  }}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block ${
+                <button
+                  onClick={() => handleSectionClick("youtube-videos")}
+                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block cursor-pointer ${
                     activeSection === "youtube-videos" && !showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
                   Youtube Video
-                </a>
+                </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
                 /
@@ -822,10 +843,11 @@ export default function RegionDetailPage() {
                 <button
                   onClick={() => {
                     setShowLexiconOnly(true);
+                    setActiveSection("");
                     setCurrentPage(1);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block ${
+                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block cursor-pointer ${
                     showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
@@ -840,12 +862,12 @@ export default function RegionDetailPage() {
 
         {!showLexiconOnly ? (
           <>
-            {/* ✅ Region Profile & Gallery Section with Rich Text Editor */}
+            {/* Region Profile & Gallery Section */}
             <section
               id="region-profile"
               className="grid lg:grid-cols-2 gap-8 scroll-mt-24 items-start"
             >
-              {/* ✅ Profile Text with Rich Text Editor - Left Side - Scrollable */}
+              {/* Profile Text with Rich Text Editor - Left Side - Scrollable */}
               <div className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
                 {(() => {
                   const profile = subcultureData.profile;
@@ -864,11 +886,11 @@ export default function RegionDetailPage() {
                       <h2 className="text-2xl font-bold text-foreground">
                         About {displayName}
                       </h2>
-                      
-                      {/* ✅ Rich Text Viewer with Scroll */}
+
+                      {/* Rich Text Viewer with Scroll */}
                       <div className="max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-                        <RichTextViewer 
-                          content={convertSubcultureHistory(history)} 
+                        <RichTextViewer
+                          content={convertSubcultureHistory(history)}
                           className="rich-text-profile"
                         />
                       </div>
