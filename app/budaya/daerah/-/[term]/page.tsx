@@ -1,4 +1,4 @@
-// app/budaya/daerah/-/[term]/page.tsx
+// app/budaya/daerah/-/[term]/page.tsx/page.tsx
 "use client"
 
 import { use, useState, useEffect, useRef, useCallback } from "react";
@@ -24,6 +24,10 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Home,
+  Info,
+  Sparkles,
+  Library,
 } from "lucide-react";
 import { Footer } from "@/components/layout/footer";
 import { useNavigation } from "@/hooks/use-navigation";
@@ -179,12 +183,10 @@ export default function CulturalWordDetailPage({
         if (result.success) {
           let foundEntry = null;
 
-          // Strategy 1: Exact slug match
           foundEntry = result.data.find(
             (item: any) => slugify(item.term) === resolvedParams.term
           );
 
-          // Strategy 2: Case-insensitive match
           if (!foundEntry) {
             foundEntry = result.data.find(
               (item: any) =>
@@ -193,7 +195,6 @@ export default function CulturalWordDetailPage({
             );
           }
 
-          // Strategy 3: Partial match
           if (!foundEntry) {
             foundEntry = result.data.find((item: any) => {
               const itemSlug = slugify(item.term);
@@ -205,34 +206,23 @@ export default function CulturalWordDetailPage({
           }
 
           if (foundEntry) {
-            console.log("📦 Raw Entry Data:", foundEntry);
-            console.log("🖼️ Gallery Images Field:", foundEntry.galleryImages);
-            console.log("📁 Lexikon Assets:", foundEntry.leksikonAssets);
-
             setEntry(foundEntry);
 
-            // 🎨 Process Gallery Images
             const processedImages: GalleryImage[] = [];
 
-            // 1. Extract dari galleryImages field (prioritas pertama)
             if (foundEntry.galleryImages && Array.isArray(foundEntry.galleryImages)) {
               const directImages: GalleryImage[] = foundEntry.galleryImages.map((img: any, idx: number) => ({
                 url: img.url || img,
                 description: img.description || `${foundEntry.term} - Image ${idx + 1}`,
                 caption: img.caption || `Cultural heritage of ${foundEntry.term}`,
               }));
-              console.log("📸 Direct Gallery Images:", directImages);
               processedImages.push(...directImages);
             }
 
-            // 2. Extract dari leksikonAssets
             if (
               foundEntry.leksikonAssets &&
               Array.isArray(foundEntry.leksikonAssets)
             ) {
-              console.log("🔍 Processing leksikonAssets:", foundEntry.leksikonAssets);
-
-              // Extract audio (PRONUNCIATION)
               const audioAsset = foundEntry.leksikonAssets.find(
                 (asset: LexiconAsset) =>
                   asset.assetRole === "PRONUNCIATION" &&
@@ -242,43 +232,25 @@ export default function CulturalWordDetailPage({
               if (audioAsset && audioAsset.asset.url) {
                 setHasAudioFile(true);
                 setAudioUrl(audioAsset.asset.url);
-                console.log("🔊 Audio found:", audioAsset.asset.url);
               }
 
-              // 🎨 Extract images (FOTO atau IMAGE atau GALLERY role) - PERBAIKAN
               const imageAssets = foundEntry.leksikonAssets.filter(
                 (asset: LexiconAsset) => {
-                  // Check if it's an image type
                   const isImageType = 
                     asset.asset.tipe === "FOTO" || 
                     asset.asset.tipe === "IMAGE" ||
                     asset.asset.tipe === "GAMBAR" ||
                     asset.asset.tipe === "PHOTO";
                   
-                  // Check if it has gallery role
                   const isGalleryRole = 
                     asset.assetRole === "GALLERY" || 
                     asset.assetRole === "FOTO" ||
                     asset.assetRole === "IMAGE" ||
                     asset.assetRole === "PHOTO";
                   
-                  // Debug log untuk setiap asset
-                  console.log(`🔍 Asset ${asset.asset.assetId}:`, {
-                    name: asset.asset.namaFile,
-                    tipe: asset.asset.tipe,
-                    role: asset.assetRole,
-                    isImageType,
-                    isGalleryRole,
-                    willInclude: isImageType || isGalleryRole,
-                    url: asset.asset.url
-                  });
-                  
-                  // Return true if either condition is met
                   return isImageType || isGalleryRole;
                 }
               );
-
-              console.log("🎨 Found Image Assets:", imageAssets);
 
               const assetImages: GalleryImage[] = imageAssets.map((asset: LexiconAsset) => ({
                 url: asset.asset.url,
@@ -287,10 +259,8 @@ export default function CulturalWordDetailPage({
                 assetId: asset.asset.assetId,
               }));
 
-              console.log("🖼️ Processed Asset Images:", assetImages);
               processedImages.push(...assetImages);
 
-              // Extract videos
               const videoAssets = foundEntry.leksikonAssets.filter(
                 (asset: LexiconAsset) => asset.asset.tipe === "VIDEO"
               );
@@ -315,9 +285,7 @@ export default function CulturalWordDetailPage({
                 );
 
               setYoutubeVideos(videos);
-              console.log("🎬 YouTube Videos:", videos);
 
-              // Extract 3D models
               const modelAssets = foundEntry.leksikonAssets.filter(
                 (asset: LexiconAsset) => asset.asset.tipe === "MODEL_3D"
               );
@@ -340,22 +308,15 @@ export default function CulturalWordDetailPage({
               );
 
               setModels3D(models);
-              console.log("🎭 3D Models:", models);
             }
 
-            // Remove duplicates based on URL
             const uniqueImages = processedImages.filter((img, index, self) =>
               index === self.findIndex((t) => t.url === img.url)
             );
 
-            console.log("✅ Final Gallery Images:", uniqueImages);
-            console.log("📊 Total unique images:", uniqueImages.length);
-
             setGalleryImages(uniqueImages);
 
-            // Fallback: Jika tidak ada gambar sama sekali
             if (uniqueImages.length === 0) {
-              console.log("⚠️ No gallery images found, using placeholder");
               setGalleryImages([
                 {
                   url: "/placeholder.svg",
@@ -365,7 +326,6 @@ export default function CulturalWordDetailPage({
               ]);
             }
           } else {
-            console.error("Entry not found for term:", resolvedParams.term);
             notFound();
           }
         } else {
@@ -382,7 +342,6 @@ export default function CulturalWordDetailPage({
     fetchEntry();
   }, [resolvedParams.term]);
 
-  // Cleanup audio on unmount
   useEffect(() => {
     return () => {
       if (audioInstance) {
@@ -393,7 +352,6 @@ export default function CulturalWordDetailPage({
     };
   }, [audioInstance]);
 
-  // Audio handler
   const handlePlayAudio = async () => {
     if (!audioUrl) {
       setAudioError("Audio file not available for this term");
@@ -449,7 +407,6 @@ export default function CulturalWordDetailPage({
     }
   };
 
-  // Gallery auto-play logic
   const startAutoPlay = useCallback(() => {
     if (autoPlayRef.current) {
       clearInterval(autoPlayRef.current);
@@ -487,7 +444,6 @@ export default function CulturalWordDetailPage({
     };
   }, [isGalleryAutoPlaying, startAutoPlay, stopAutoPlay, galleryImages.length]);
 
-  // Reset gallery index if out of bounds
   useEffect(() => {
     if (currentGalleryIndex >= galleryImages.length && galleryImages.length > 0) {
       setCurrentGalleryIndex(0);
@@ -523,7 +479,6 @@ export default function CulturalWordDetailPage({
     setIsGalleryAutoPlaying((prev) => !prev);
   };
 
-  // Lightbox functions
   const openLightbox = (index: number) => {
     setCurrentGalleryIndex(index);
     setIsLightboxOpen(true);
@@ -555,494 +510,411 @@ export default function CulturalWordDetailPage({
     caption: `Cultural heritage of ${entry.term}`
   };
 
-  console.log("🎬 Render - Gallery Images Count:", galleryImages.length);
-  console.log("🎬 Render - Current Image:", currentGalleryImage);
+  // Check if media sections have content
+  const hasGallery = galleryImages.length > 0 && galleryImages[0].url !== "/placeholder.svg";
+  const hasVideos = youtubeVideos.length > 0;
+  const has3DModels = models3D.length > 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+      {/* Compact Header */}
       <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4 flex flex-col gap-4 relative">
-          {/* Navigation */}
-          <div className="flex items-center justify-between">
-            <Link
-              href={`/budaya/daerah/${regionId}`}
-              aria-label={`Back to ${regionId} glossary`}
-            >
-              <Button
-                variant="ghost"
-                className="px-2 py-1 gap-2 inline-flex items-center"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span className="text-sm">Back to {regionId}</span>
-              </Button>
-            </Link>
-
-            <Link href="/budaya/daerah/-" aria-label="View all glossaries">
-              <Button
-                variant="outline"
-                className="px-3 py-2 gap-2 inline-flex items-center hover:bg-primary/10"
-              >
-                <span className="text-sm hidden sm:inline">
-                  Lexicons Glossarium
-                </span>
-                <span className="text-sm sm:hidden">All</span>
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Link href={`/budaya/daerah/${regionId}`}>
+                <Button variant="ghost" size="sm" className="px-2 py-1 h-8 gap-1">
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="text-xs">{regionId}</span>
+                </Button>
+              </Link>
+              <span className="text-muted-foreground text-xs">/</span>
+              <Link href="/budaya/daerah/-">
+                <Button variant="ghost" size="sm" className="px-2 py-1 h-8 gap-1">
+                  <span className="text-xs">All Lexicons</span>
+                </Button>
+              </Link>
+            </div>
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="px-2 py-1 h-8">
+                <Home className="w-4 h-4" />
               </Button>
             </Link>
           </div>
 
-          {/* Header content */}
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-foreground text-balance">
-                    {entry.term}
-                  </h1>
-
-                  {/* Audio Button */}
-                  <div className="relative">
-                    <Button
-                      onClick={handlePlayAudio}
-                      disabled={audioLoading || !hasAudioFile}
-                      variant="ghost"
-                      size="sm"
-                      className={`h-9 w-9 p-0 transition-all ${
-                        hasAudioFile
-                          ? "hover:bg-primary/10 cursor-pointer"
-                          : "opacity-50 cursor-not-allowed"
-                      }`}
-                      title={
-                        !hasAudioFile
-                          ? "Audio not available"
-                          : isPlaying
-                          ? "Stop pronunciation"
-                          : "Play pronunciation"
-                      }
-                    >
-                      {audioLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                      ) : !hasAudioFile ? (
-                        <VolumeX className="w-5 h-5 text-muted-foreground" />
-                      ) : isPlaying ? (
-                        <div className="relative">
-                          <Volume2 className="w-5 h-5 text-primary" />
-                          <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                          </span>
-                        </div>
-                      ) : (
-                        <Volume2 className="w-5 h-5 text-foreground hover:text-primary transition-colors" />
-                      )}
-                    </Button>
-                  </div>
-                </div>
-
-                <Badge
-                  variant="outline"
-                  className="text-xs font-mono bg-muted/50 text-muted-foreground border-border/50"
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h1 className="text-xl font-bold text-foreground truncate">
+                  {entry.term}
+                </h1>
+                <Button
+                  onClick={handlePlayAudio}
+                  disabled={audioLoading || !hasAudioFile}
+                  variant="ghost"
+                  size="sm"
+                  className={`h-7 w-7 p-0 ${
+                    hasAudioFile ? "hover:bg-primary/10 cursor-pointer" : "opacity-50 cursor-not-allowed"
+                  }`}
                 >
+                  {audioLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  ) : !hasAudioFile ? (
+                    <VolumeX className="w-4 h-4 text-muted-foreground" />
+                  ) : isPlaying ? (
+                    <div className="relative">
+                      <Volume2 className="w-4 h-4 text-primary" />
+                      <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                      </span>
+                    </div>
+                  ) : (
+                    <Volume2 className="w-4 h-4 text-foreground hover:text-primary transition-colors" />
+                  )}
+                </Button>
+                <Badge variant="outline" className="text-xs font-mono bg-muted/50">
                   {entry.domain}
                 </Badge>
               </div>
-
               {entry.details.transliteration && (
-                <p className="text-sm text-muted-foreground font-mono">
-                  Transliteration:{" "}
-                  <span className="text-foreground">
-                    {entry.details.transliteration}
-                  </span>
+                <p className="text-xs text-muted-foreground font-mono">
+                  {entry.details.transliteration}
                 </p>
               )}
-
-              {audioError && (
-                <div className="mt-2 flex items-center gap-2 bg-destructive/10 border border-destructive/20 rounded-md px-3 py-2">
-                  <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
-                  <p className="text-xs text-destructive">{audioError}</p>
-                </div>
-              )}
-
-              {isPlaying && !audioError && (
-                <div className="mt-2 flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-md px-3 py-2">
-                  <div className="flex gap-1">
-                    <div
-                      className="w-1 h-3 bg-primary rounded-full animate-pulse"
-                      style={{ animationDelay: "0ms" }}
-                    />
-                    <div
-                      className="w-1 h-3 bg-primary rounded-full animate-pulse"
-                      style={{ animationDelay: "150ms" }}
-                    />
-                    <div
-                      className="w-1 h-3 bg-primary rounded-full animate-pulse"
-                      style={{ animationDelay: "300ms" }}
-                    />
-                  </div>
-                  <p className="text-xs text-primary font-medium">
-                    Playing pronunciation...
-                  </p>
-                </div>
-              )}
-
-              <p className="text-sm text-muted-foreground mt-1">
-                Subculture: {entry.subculture.name} ({entry.subculture.province})
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Contributor: {entry.contributor}
-              </p>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
-        {/* Definition */}
-        <section className="grid grid-cols-1 gap-4">
-          <Card className="bg-card/60 border-border">
-            <CardHeader>
-              <CardTitle className="text-foreground flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-primary" />
-                Definition
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
-                {entry.definition}
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* 🎨 Photo Gallery Section */}
-        {galleryImages.length > 0 && (
-          <section id="photo-gallery" aria-label="Visual Gallery" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                  <ImageIcon className="w-5 h-5 text-primary" />
-                  Visual Gallery
-                </h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Explore visual representations and contexts
-                </p>
-              </div>
-              <Badge variant="secondary" className="text-xs">
-                {galleryImages.length} Images
-              </Badge>
-            </div>
-
-            {/* Main Carousel Display */}
-            <div className="relative rounded-xl overflow-hidden border border-border bg-background/50 mb-4 group">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentGalleryIndex}
-                  initial={{ opacity: 0, x: 100 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                  transition={{ duration: 0.5 }}
-                  className="relative aspect-video cursor-pointer"
-                  onClick={() => openLightbox(currentGalleryIndex)}
-                >
-                  <img
-                    src={currentGalleryImage.url || "/placeholder.svg"}
-                    alt={currentGalleryImage.description || `${entry.term} - Image ${currentGalleryIndex + 1}`}
-                    className="w-full h-full object-cover"
-                  />
+      <main className="container mx-auto px-4 py-6">
+        {/* ✅ DYNAMIC GRID LAYOUT */}
+        <div className="grid grid-cols-12 gap-6">
+          
+          {/* LEFT COLUMN - Main Content (8 columns on desktop) */}
+          <div className="col-span-12 lg:col-span-8 space-y-6">
+            
+            {/* Hero Image/Gallery - Full Width */}
+            {hasGallery && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="relative rounded-xl overflow-hidden border border-border bg-background/50 shadow-lg"
+              >
+                <div className="relative aspect-[21/9] cursor-pointer group" onClick={() => openLightbox(currentGalleryIndex)}>
+                  <AnimatePresence mode="wait">
+                    <motion.img
+                      key={currentGalleryIndex}
+                      src={currentGalleryImage.url || "/placeholder.svg"}
+                      alt={currentGalleryImage.description}
+                      className="w-full h-full object-cover"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </AnimatePresence>
                   
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <motion.h3
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                      className="text-2xl font-bold mb-2"
-                    >
-                      {currentGalleryImage.description || entry.term}
-                    </motion.h3>
-                    <motion.p
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="text-sm text-gray-200"
-                    >
-                      {currentGalleryImage.caption || `Cultural heritage of ${entry.subculture.name}`}
-                    </motion.p>
+                    <h2 className="text-2xl font-bold mb-1">{currentGalleryImage.description || entry.term}</h2>
+                    <p className="text-sm text-gray-200">{currentGalleryImage.caption}</p>
                   </div>
 
-                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
+                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs">
                     {currentGalleryIndex + 1} / {galleryImages.length}
                   </div>
 
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="bg-black/50 backdrop-blur-sm rounded-full p-3">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-black/50 backdrop-blur-sm rounded-full p-4">
                       <Maximize2 className="w-6 h-6 text-white" />
                     </div>
                   </div>
-                </motion.div>
-              </AnimatePresence>
 
-              {/* Navigation Arrows */}
-              {galleryImages.length > 1 && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goToPreviousImage();
-                    }}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all hover:scale-110 z-10"
-                    aria-label="Previous image"
-                  >
-                    <ChevronLeft className="w-6 h-6" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goToNextImage();
-                    }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all hover:scale-110 z-10"
-                    aria-label="Next image"
-                  >
-                    <ChevronRight className="w-6 h-6" />
-                  </button>
-                </>
+                  {galleryImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); goToPreviousImage(); }}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all z-10"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); goToNextImage(); }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all z-10"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Thumbnail Strip */}
+                {galleryImages.length > 1 && (
+                  <div className="p-4 bg-card/80 border-t border-border">
+                    <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pb-2">
+                      {galleryImages.map((img, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => goToImage(idx)}
+                          className={`relative rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${
+                            idx === currentGalleryIndex
+                              ? "border-primary shadow-lg scale-105"
+                              : "border-border hover:border-primary/50"
+                          }`}
+                        >
+                          <div className="w-20 h-14">
+                            <img src={img.url || "/placeholder.svg"} alt={img.description} className="w-full h-full object-cover" />
+                          </div>
+                          {idx === currentGalleryIndex && (
+                            <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                              <div className="w-2 h-2 bg-primary rounded-full" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* Definition Card - Prominent */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-lg">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
+                      <BookOpen className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Contructed Meaning</CardTitle>
+                      <p className="text-xs text-muted-foreground">Primary meaning and context</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm leading-relaxed text-foreground font-medium">
+                    {entry.definition}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Two Column Grid - Reference & Variants */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Cultural Reference */}
+              {entry.details.culturalMeaning && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <Card className="h-full bg-card/60 hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                          <Quote className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <CardTitle className="text-base">Cultural Reference</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="relative pl-3 border-l-2 border-emerald-500/30">
+                        <p className="text-sm leading-relaxed text-muted-foreground">
+                          {entry.details.culturalMeaning}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               )}
 
-              {/* Auto-play toggle */}
-              {galleryImages.length > 1 && (
-                <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleAutoPlay();
-                    }}
-                    className="bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm hover:bg-black/70 transition-colors"
-                  >
-                    {isGalleryAutoPlaying ? "⏸ Pause" : "▶ Play"}
-                  </button>
-                </div>
+              {/* Variants */}
+              {entry.details.translationVariants && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <Card className="h-full bg-card/60 hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                          <Sparkles className="w-5 h-5 text-amber-600" />
+                        </div>
+                        <CardTitle className="text-base">Variants</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        {entry.details.translationVariants}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               )}
             </div>
 
-            {/* Thumbnail Navigation */}
-            {galleryImages.length > 1 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {galleryImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => goToImage(idx)}
-                    className={`relative rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
-                      idx === currentGalleryIndex
-                        ? "border-primary shadow-lg scale-105"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                  >
-                    <div className="aspect-video">
-                      <img
-                        src={img.url || "/placeholder.svg"}
-                        alt={img.description || `${entry.term} - Thumbnail ${idx + 1}`}
-                        className="w-full h-full object-cover"
-                      />
+            {/* 3D Models Section - Full Width */}
+            {has3DModels && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <Model3DSection
+                  models={models3D}
+                  title="3D Cultural Artifacts"
+                  description={`Interactive 3D models related to "${entry.term}"`}
+                  subcultureName={entry.subculture.name}
+                  showControls={true}
+                  autoRotate={true}
+                  height="500px"
+                />
+              </motion.div>
+            )}
+
+            {/* YouTube Videos Section - Full Width */}
+            {hasVideos && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <YouTubeSection
+                  videos={youtubeVideos}
+                  title="Video Documentation"
+                  description={`Watch videos related to "${entry.term}"`}
+                  subcultureName={entry.subculture.name}
+                  autoPlay={false}
+                  showThumbnails={true}
+                  columns={2}
+                />
+              </motion.div>
+            )}
+
+          </div>
+
+          {/* RIGHT SIDEBAR - Metadata & References (4 columns on desktop) */}
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            
+            {/* Metadata Card - Sticky */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="lg:sticky lg:top-24"
+            >
+              <Card className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                      <Info className="w-5 h-5 text-blue-600" />
                     </div>
-                    {idx === currentGalleryIndex && (
-                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                    <CardTitle className="text-base">Metadata</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center pb-2 border-b border-border/50">
+                      <span className="text-xs text-muted-foreground">Subculture</span>
+                      <Badge variant="secondary" className="text-xs">
+                        {entry.subculture.name}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center pb-2 border-b border-border/50">
+                      <span className="text-xs text-muted-foreground">Province</span>
+                      <span className="text-xs font-medium">{entry.subculture.province}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-2 border-b border-border/50">
+                      <span className="text-xs text-muted-foreground">Domain</span>
+                      <Badge variant="outline" className="text-xs">
+                        {entry.domain}
+                      </Badge>
+                    </div>
+                    {/* <div className="flex justify-between items-center pb-2 border-b border-border/50">
+                      <span className="text-xs text-muted-foreground">Contributor</span>
+                      <span className="text-xs font-medium">{entry.contributor}</span>
+                    </div> */}
+                    {entry.details.ipa && (
+                      <div className="flex justify-between items-center pb-2 border-b border-border/50">
+                        <span className="text-xs text-muted-foreground">IPA</span>
+                        <span className="text-xs font-mono">{entry.details.ipa}</span>
                       </div>
                     )}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                      <p className="text-white text-xs truncate">
-                        {img.description || `Image ${idx + 1}`}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+                  </div>
 
-            {/* Progress indicator */}
-            {isGalleryAutoPlaying && galleryImages.length > 1 && (
-              <div className="mt-4">
-                <div className="w-full bg-muted/30 rounded-full h-1 overflow-hidden">
-                  <motion.div
-                    key={`progress-${currentGalleryIndex}`}
-                    className="h-full bg-primary"
-                    initial={{ width: "0%" }}
-                    animate={{ width: "100%" }}
-                    transition={{
-                      duration: AUTOPLAY_DURATION / 1000,
-                      ease: "linear",
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Lightbox Modal */}
-        <AnimatePresence>
-          {isLightboxOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
-              onClick={closeLightbox}
-            >
-              <button
-                onClick={closeLightbox}
-                className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition-colors z-10"
-                aria-label="Close lightbox"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goToPreviousImage();
-                }}
-                className="absolute left-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors z-10"
-                aria-label="Previous image"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goToNextImage();
-                }}
-                className="absolute right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors z-10"
-                aria-label="Next image"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-
-              <motion.div
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.9 }}
-                className="relative max-w-6xl w-full"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <img
-                  src={currentGalleryImage.url || "/placeholder.svg"}
-                  alt={`${entry.term} - Full size`}
-                  className="w-full h-auto rounded-lg"
-                />
-
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-lg">
-                  <p className="text-white text-lg font-medium">
-                    {entry.term}
-                  </p>
-                  <p className="text-white/70 text-sm mt-1">
-                    {currentGalleryIndex + 1} of {galleryImages.length}
-                  </p>
-                </div>
-              </motion.div>
+                  {/* Quick Actions */}
+                  <div className="pt-3 space-y-2">
+                    {/* <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                      <ExternalLink className="w-3 h-3 mr-2" />
+                      View in Context
+                    </Button> */}
+                  
+                  </div>
+                </CardContent>
+              </Card>
             </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* 3D Models Section */}
-        {models3D.length > 0 && (
-          <section id="viewer-3d" className="scroll-mt-24">
-            <Model3DSection
-              models={models3D}
-              title="3D Cultural Artifacts & Environments"
-              description={`Jelajahi model 3D interaktif terkait "${entry.term}"`}
-              subcultureName={entry.subculture.name}
-              showControls={true}
-              autoRotate={true}
-              height="600px"
-            />
-          </section>
-        )}
-
-        {/* YouTube Videos Section */}
-        {youtubeVideos.length > 0 && (
-          <section id="youtube-videos" className="scroll-mt-24">
-            <YouTubeSection
-              videos={youtubeVideos}
-              title="Video Dokumentasi Budaya"
-              description={`Tonton video dokumentasi terkait "${entry.term}"`}
-              subcultureName={entry.subculture.name}
-              autoPlay={false}
-              showThumbnails={true}
-              columns={3}
-            />
-          </section>
-        )}
-
-        {/* Reference Section (Cultural Meaning) */}
-        {entry.details.culturalMeaning && (
-          <section aria-label="Reference" className="grid grid-cols-1 gap-4">
-            <Card className="bg-card/60 border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground flex items-center gap-2">
-                  <Quote className="w-5 h-5 text-primary" />
-                  Reference
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="relative pl-4 border-l-2 border-primary/30">
-                  <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
-                    {entry.details.culturalMeaning}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-        )}
-
-        {/* Variants Section (Translation Variants) */}
-        {entry.details.translationVariants && (
-          <section aria-label="Variants" className="grid grid-cols-1 gap-4">
-            <Card className="bg-card/60 border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Variants</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
-                  {entry.details.translationVariants}
-                </p>
-              </CardContent>
-            </Card>
-          </section>
-        )}
-
-        {/* Information Availability Section (leksikonReferensis) */}
-        {entry.leksikonReferensis && entry.leksikonReferensis.length > 0 && (
-          <section aria-label="Information Availability" className="grid grid-cols-1 gap-4">
-            <Card className="bg-card/60 border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
-                  Information Availability
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {entry.leksikonReferensis.map((ref, idx) => (
-                    <div
-                      key={idx}
-                      className="p-4 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-foreground mb-1">
-                            {ref.referensi.judul}
-                          </h4>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {ref.referensi.penulis} ({ref.referensi.tahunTerbit})
+            {/* Information Sources - Scrollable */}
+            {entry.leksikonReferensis && entry.leksikonReferensis.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Card className="bg-card/60">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                        <Library className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">Sources</CardTitle>
+                        <p className="text-xs text-muted-foreground">{entry.leksikonReferensis.length} references</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
+                      {entry.leksikonReferensis.map((ref, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group"
+                        >
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <h4 className="font-semibold text-sm text-foreground line-clamp-2 flex-1">
+                              {ref.referensi.judul}
+                            </h4>
+                            {ref.referensi.url && (
+                              <a
+                                href={ref.referensi.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                  <ExternalLink className="w-3 h-3" />
+                                </Button>
+                              </a>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            {ref.referensi.penulis} • {ref.referensi.tahunTerbit}
                           </p>
                           {ref.referensi.penjelasan && (
-                            <p className="text-sm text-muted-foreground mb-2">
+                            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                               {ref.referensi.penjelasan}
                             </p>
                           )}
-                          <div className="flex items-center gap-2 flex-wrap">
+                          <div className="flex gap-1 flex-wrap">
                             <Badge variant="outline" className="text-xs">
                               {ref.referensi.tipeReferensi}
                             </Badge>
@@ -1051,27 +923,71 @@ export default function CulturalWordDetailPage({
                             </Badge>
                           </div>
                         </div>
-                        {ref.referensi.url && (
-                          <a
-                            href={ref.referensi.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-shrink-0"
-                          >
-                            <Button variant="ghost" size="sm">
-                              <ExternalLink className="w-4 h-4" />
-                            </Button>
-                          </a>
-                        )}
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-        )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+          </div>
+
+        </div>
       </main>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {isLightboxOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+            onClick={closeLightbox}
+          >
+            <button
+              onClick={closeLightbox}
+              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition-colors z-10"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <button
+              onClick={(e) => { e.stopPropagation(); goToPreviousImage(); }}
+              className="absolute left-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors z-10"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            <button
+              onClick={(e) => { e.stopPropagation(); goToNextImage(); }}
+              className="absolute right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors z-10"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="relative max-w-6xl w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={currentGalleryImage.url || "/placeholder.svg"}
+                alt={`${entry.term} - Full size`}
+                className="w-full h-auto rounded-lg"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-lg">
+                <p className="text-white text-lg font-medium">{entry.term}</p>
+                <p className="text-white/70 text-sm mt-1">
+                  {currentGalleryIndex + 1} of {galleryImages.length}
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer onNavClick={handleNavClick} />
     </div>
