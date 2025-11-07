@@ -239,17 +239,17 @@ export default function RegionDetailPage() {
     // Fallback images
     return [
       {
-        url: "/subculture-gallery-1.jpg",
+        url: "/traditional-east-java-handicrafts-and-batik-art.jpg",
         description: "Traditional Architecture",
         caption: "Historic buildings showcasing traditional design",
       },
       {
-        url: "/subculture-gallery-2.jpg",
+        url: "/traditional-east-java-handicrafts-and-batik-art.jpg",
         description: "Cultural Ceremonies",
         caption: "Local ceremonies and traditional practices",
       },
       {
-        url: "/subculture-gallery-3.jpg",
+        url: "/traditional-east-java-handicrafts-and-batik-art.jpg",
         description: "Daily Life",
         caption: "Everyday activities and community life",
       },
@@ -867,39 +867,7 @@ export default function RegionDetailPage() {
               id="region-profile"
               className="grid lg:grid-cols-2 gap-8 scroll-mt-24 items-start"
             >
-              {/* Profile Text with Rich Text Editor - Left Side - Scrollable */}
-              <div className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
-                {(() => {
-                  const profile = subcultureData.profile;
-                  if (!profile)
-                    return (
-                      <p className="text-sm text-muted-foreground">
-                        Detailed profile for this subculture is not yet
-                        available.
-                      </p>
-                    );
-
-                  const { displayName, history } = profile;
-
-                  return (
-                    <div className="space-y-6">
-                      <h2 className="text-2xl font-bold text-foreground">
-                        About {displayName}
-                      </h2>
-
-                      {/* Rich Text Viewer with Scroll */}
-                      <div className="max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-                        <RichTextViewer
-                          content={convertSubcultureHistory(history)}
-                          className="rich-text-profile"
-                        />
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Gallery - Right Side - Sticky */}
+              {/* Gallery - Left Side - Sticky */}
               <div className="lg:sticky lg:top-24">
                 <div
                   id="photo-gallery"
@@ -1055,6 +1023,38 @@ export default function RegionDetailPage() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Profile Text with Rich Text Editor - Right Side - Scrollable */}
+              <div className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
+                {(() => {
+                  const profile = subcultureData.profile;
+                  if (!profile)
+                    return (
+                      <p className="text-sm text-muted-foreground">
+                        Detailed profile for this subculture is not yet
+                        available.
+                      </p>
+                    );
+
+                  const { displayName, history } = profile;
+
+                  return (
+                    <div className="space-y-6">
+                      <h2 className="text-2xl font-bold text-foreground">
+                        About {displayName}
+                      </h2>
+
+                      {/* Rich Text Viewer with Scroll */}
+                      <div className="max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                        <RichTextViewer
+                          content={convertSubcultureHistory(history)}
+                          className="rich-text-profile"
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </section>
 
@@ -1263,18 +1263,18 @@ export default function RegionDetailPage() {
                         return (
                           <article
                             key={`${entry.term}-${i}`}
-                            className="rounded-xl shadow-sm border bg-card/60 border-border overflow-hidden"
+                            className="rounded-xl shadow-sm border bg-card/60 border-border overflow-hidden flex flex-col"
                           >
-                            <div className="px-4 py-3">
+                            <div className="px-4 py-3 flex-grow">
                               <h3 className="font-semibold text-foreground">
-                                {entry.term}
+                                {entry.term.charAt(0).toUpperCase() + entry.term.slice(1)}
                               </h3>
                               <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                                 {entry.definition}
                               </p>
                             </div>
 
-                            <div className="px-4 pb-4">
+                            <div className="px-4 pb-4 mt-auto">
                               <Link
                                 href={`/budaya/daerah/-/${termSlug}`}
                                 aria-label={`Lihat rincian untuk istilah ${entry.term}`}
