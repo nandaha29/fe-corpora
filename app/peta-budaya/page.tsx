@@ -321,7 +321,7 @@ export default function PetaBudayaPage() {
                     variant="outline" 
                     className="w-full sm:w-auto bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 cursor-pointer whitespace-nowrap"
                   >
-                    Lexicons Glosarium
+                    Glosarium
                   </Button>
                 </Link>
 
