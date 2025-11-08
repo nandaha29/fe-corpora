@@ -45,6 +45,8 @@ interface SearchResult {
   category: string;
   region: string;
   slug: string;
+  lexiconId?: string | number;
+  translation?: string;
 }
 
 interface SubcultureData {
@@ -129,6 +131,8 @@ export default function RegionDetailPage() {
     limit: number;
     totalPages: number;
   } | null>(null);
+  // Store translations fetched from individual lexicon API
+  const [lexiconTranslations, setLexiconTranslations] = useState<Record<string, string>>({});
 
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
@@ -404,24 +408,31 @@ export default function RegionDetailPage() {
 
         if (result.success && result.data) {
           const lexicons = result.data.lexicons || [];
-          const mappedItems = lexicons.map((entry: any) => ({
-            term: entry.term,
-            definition: entry.definition,
-            category: entry.category || "",
-            region:
-              subcultureData?.culture?.name ||
-              subcultureData?.culture?.region ||
-              regionId,
-            slug:
-              entry.slug ||
-              (entry.term || "")
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/[^\w\s-]/g, "")
-                .toLowerCase()
-                .replace(/\s+/g, "-")
-                .replace(/(^-|-$)/g, ""),
-          }));
+          const mappedItems = lexicons.map((entry: any) => {
+            const lexiconId = entry.lexiconId || entry.id || entry.leksikonId;
+            const translation = entry.details?.translation || "";
+            
+            return {
+              term: entry.term,
+              definition: entry.definition || "",
+              category: entry.category || "",
+              region:
+                subcultureData?.culture?.name ||
+                subcultureData?.culture?.region ||
+                regionId,
+              slug:
+                entry.slug ||
+                (entry.term || "")
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/[^\w\s-]/g, "")
+                  .toLowerCase()
+                  .replace(/\s+/g, "-")
+                  .replace(/(^-|-$)/g, ""),
+              lexiconId: lexiconId,
+              translation: translation,
+            };
+          });
 
           setLexiconItems(mappedItems);
           setLexiconPagination({
@@ -430,6 +441,44 @@ export default function RegionDetailPage() {
             limit: result.data.limit,
             totalPages: Math.ceil(result.data.total / result.data.limit),
           });
+
+          // Fetch translations from individual lexicon API for entries that don't have translation
+          const entriesToFetch = mappedItems.filter(
+            (item: SearchResult) => item.lexiconId && !item.translation
+          );
+
+          if (entriesToFetch.length > 0) {
+            // Fetch translations in parallel
+            Promise.all(
+              entriesToFetch.map(async (item: SearchResult) => {
+                if (!item.lexiconId) return null;
+                try {
+                  const detailResponse = await fetch(
+                    `https://be-corpora.vercel.app/api/v1/public/lexicons/${item.lexiconId}`
+                  );
+                  if (!detailResponse.ok) return null;
+                  const detailResult = await detailResponse.json();
+                  if (detailResult.success && detailResult.data) {
+                    const translation = detailResult.data.details?.translation || "";
+                    return { lexiconId: item.lexiconId.toString(), translation };
+                  }
+                } catch (error) {
+                  console.error(`Error fetching translation for ${item.lexiconId}:`, error);
+                }
+                return null;
+              })
+            ).then((translations) => {
+              const translationMap: Record<string, string> = {};
+              translations.forEach((t) => {
+                if (t) {
+                  translationMap[t.lexiconId] = t.translation;
+                }
+              });
+              if (Object.keys(translationMap).length > 0) {
+                setLexiconTranslations((prev) => ({ ...prev, ...translationMap }));
+              }
+            });
+          }
         } else {
           setLexiconItems([]);
           setLexiconPagination(null);
@@ -453,7 +502,7 @@ export default function RegionDetailPage() {
       const headerHeight = 64;
       setIsNavSticky(window.scrollY > headerHeight);
 
-      // Skip jika sedang mode lexicon only
+      // Skip if in lexicon only mode
       if (showLexiconOnly) return;
 
       const sections = [
@@ -491,7 +540,7 @@ export default function RegionDetailPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [showLexiconOnly]);
 
-  // ✅ PERBAIKAN: Reset active section saat lexicon only
+  // ✅ PERBAIKAN: Reset active section when lexicon only
   useEffect(() => {
     if (showLexiconOnly) {
       setActiveSection("");
@@ -574,7 +623,7 @@ export default function RegionDetailPage() {
     return pages;
   };
 
-  // ✅ PERBAIKAN: Handler untuk manual click navigation
+  // ✅ PERBAIKAN: Handler for manual click navigation
   const handleSectionClick = (sectionId: string) => {
     setActiveSection(sectionId);
     setShowLexiconOnly(false);
@@ -761,9 +810,7 @@ export default function RegionDetailPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              Navigate an elegant cultural map to explore regions, traditions,
-              artifacts, and events—curated to reveal identity, history, and
-              significance with clarity and beauty.
+             “Om, (Brahmā, Visnū, Sivā), I wish for eternal well-being”
             </motion.p>
           </div>
         </div>
@@ -772,7 +819,7 @@ export default function RegionDetailPage() {
       <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
         {/* ✅ PERBAIKAN: Navigation Tabs dengan handler yang benar */}
         <nav
-          aria-label="Halaman sub-bab"
+          aria-label="Subsection pages"
           className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 border-b border-border transition-shadow duration-200 ${
             isNavSticky ? "shadow-md" : ""
           }`}
@@ -1233,7 +1280,7 @@ export default function RegionDetailPage() {
               </div>
             </section>
 
-            <section aria-label="Daftar istilah" className="scroll-mt-24">
+            <section aria-label="Term list" className="scroll-mt-24">
               {(() => {
                 if (lexiconLoading) {
                   return (
@@ -1260,6 +1307,16 @@ export default function RegionDetailPage() {
                           .replace(/[^a-z0-9]+/g, "-")
                           .replace(/(^-|-$)/g, "");
 
+                        // Get translation: prefer fetched translation from API, then entry.translation, fallback to definition
+                        const lexiconIdStr = entry.lexiconId?.toString();
+                        const fetchedTranslation = lexiconIdStr ? lexiconTranslations[lexiconIdStr] : undefined;
+                        // Use translation from API if available, otherwise use entry.translation, fallback to definition
+                        const translation = 
+                          (fetchedTranslation && fetchedTranslation.trim()) || 
+                          (entry.translation && entry.translation.trim()) || 
+                          entry.definition || 
+                          "No translation available";
+
                         return (
                           <article
                             key={`${entry.term}-${i}`}
@@ -1270,21 +1327,21 @@ export default function RegionDetailPage() {
                                 {entry.term.charAt(0).toUpperCase() + entry.term.slice(1)}
                               </h3>
                               <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                {entry.definition}
+                                {translation}
                               </p>
                             </div>
 
                             <div className="px-4 pb-4 mt-auto">
                               <Link
                                 href={`/budaya/daerah/-/${termSlug}`}
-                                aria-label={`Lihat rincian untuk istilah ${entry.term}`}
+                                aria-label={`View details for term ${entry.term}`}
                                 className="block"
                               >
                                 <Button
                                   size="lg"
                                   className="w-full bg-primary text-white hover:bg-primary/90 rounded-md py-3 cursor-pointer"
                                 >
-                                  Detail &nbsp;→
+                                  View Details &nbsp;→
                                 </Button>
                               </Link>
                             </div>
@@ -1298,12 +1355,12 @@ export default function RegionDetailPage() {
                           <h3 className="text-lg font-semibold text-foreground mb-2">
                             {searchQuery
                               ? "No results found"
-                              : "Belum ada entri"}
+                              : "No entries available"}
                           </h3>
                           <p className="text-muted-foreground">
                             {searchQuery
                               ? `No lexicon entries match "${searchQuery}". Try different keywords.`
-                              : "Glosarium untuk subkultur ini belum tersedia."}
+                              : "The glossary for this subculture is not yet available."}
                           </p>
                         </div>
                       )}

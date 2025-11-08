@@ -1,13 +1,13 @@
 // app/budaya/daerah/-/page.tsx
-"use client"
+"use client";
 
-import { use, useState, useEffect, useRef, useCallback } from "react"
-import Link from "next/link"
-import { notFound } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Navigation } from "@/components/layout/navigation"
+import { use, useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Navigation } from "@/components/layout/navigation";
 import {
   ArrowLeft,
   Loader2,
@@ -17,132 +17,132 @@ import {
   Home,
   AlertCircle,
   X,
-} from "lucide-react"
-import { Footer } from "@/components/layout/footer"
-import { useNavigation } from "@/hooks/use-navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import { Input } from "@/components/ui/input"
-import { useRouter, useSearchParams } from "next/navigation"
+} from "lucide-react";
+import { Footer } from "@/components/layout/footer";
+import { useNavigation } from "@/hooks/use-navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface LexiconAsset {
-  leksikonId: number
-  assetId: number
-  assetRole: string
-  createdAt: string
+  leksikonId: number;
+  assetId: number;
+  assetRole: string;
+  createdAt: string;
   asset: {
-    assetId: number
-    namaFile: string
-    tipe: string
-    penjelasan: string
-    url: string
-    fileSize: string
-    hashChecksum: string
-    metadataJson: string
-    status: string
-    createdAt: string
-    updatedAt: string
-  }
+    assetId: number;
+    namaFile: string;
+    tipe: string;
+    penjelasan: string;
+    url: string;
+    fileSize: string;
+    hashChecksum: string;
+    metadataJson: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+  };
 }
 
 interface ContributorDetail {
-  contributorId: number
-  namaContributor: string
-  institusi: string
-  email: string
-  expertiseArea: string
-  contactInfo: string
-  isCoordinator: boolean
-  statusCoordinator: string
-  registeredAt: string
+  contributorId: number;
+  namaContributor: string;
+  institusi: string;
+  email: string;
+  expertiseArea: string;
+  contactInfo: string;
+  isCoordinator: boolean;
+  statusCoordinator: string;
+  registeredAt: string;
 }
 
 interface DomainKodifikasi {
-  domainKodifikasiId: number
-  kode: string
-  namaDomain: string
-  penjelasan: string
-  subcultureId: number
-  status: string
-  createdAt: string
-  updatedAt: string
+  domainKodifikasiId: number;
+  kode: string;
+  namaDomain: string;
+  penjelasan: string;
+  subcultureId: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
   subculture: {
-    subcultureId: number
-    namaSubculture: string
-    slug: string
-    salam_khas: string
-    penjelasan: string
-    cultureId: number
-    status: string
-    statusKonservasi: string
-    createdAt: string
-    updatedAt: string
+    subcultureId: number;
+    namaSubculture: string;
+    slug: string;
+    salam_khas: string;
+    penjelasan: string;
+    cultureId: number;
+    status: string;
+    statusKonservasi: string;
+    createdAt: string;
+    updatedAt: string;
     culture: {
-      cultureId: number
-      namaBudaya: string
-      pulauAsal: string
-      provinsi: string
-      kotaDaerah: string
-      klasifikasi: string
-      karakteristik: string
-      statusKonservasi: string
-      latitude: number
-      longitude: number
-      status: string
-      createdAt: string
-      updatedAt: string
-    }
-  }
+      cultureId: number;
+      namaBudaya: string;
+      pulauAsal: string;
+      provinsi: string;
+      kotaDaerah: string;
+      klasifikasi: string;
+      karakteristik: string;
+      statusKonservasi: string;
+      latitude: number;
+      longitude: number;
+      status: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+  };
 }
 
 interface OriginalLexiconEntry {
-  term: string
-  definition: string
-  regionKey: string
+  term: string;
+  definition: string;
+  regionKey: string;
   subculture: {
-    name: string
-    province: string
-  }
-  domain: string
-  contributor: string
+    name: string;
+    province: string;
+  };
+  domain: string;
+  contributor: string;
   details: {
-    ipa: string
-    transliteration: string
-    etymology: string
-    culturalMeaning: string
-    commonMeaning: string
-    translation: string
-    variants: string
-    translationVariants: string
-    otherDescription: string
-  }
-  audioFile?: string
-  leksikonAssets?: LexiconAsset[]
+    ipa: string;
+    transliteration: string;
+    etymology: string;
+    culturalMeaning: string;
+    commonMeaning: string;
+    translation: string;
+    variants: string;
+    translationVariants: string;
+    otherDescription: string;
+  };
+  audioFile?: string;
+  leksikonAssets?: LexiconAsset[];
 }
 
 interface AdvancedLexiconEntry {
-  leksikonId: number
-  kataLeksikon: string
-  ipa: string
-  transliterasi: string
-  maknaEtimologi: string
-  maknaKultural: string
-  commonMeaning: string
-  translation: string
-  varian: string
-  translationVarians: string | null
-  deskripsiLain: string | null
-  domainKodifikasiId: number
-  statusPreservasi: string
-  contributorId: number
-  status: string
-  createdAt: string
-  updatedAt: string
-  domainKodifikasi: DomainKodifikasi
-  contributor: ContributorDetail
-  leksikonAssets: any[]
+  leksikonId: number;
+  kataLeksikon: string;
+  ipa: string;
+  transliterasi: string;
+  maknaEtimologi: string;
+  maknaKultural: string;
+  commonMeaning: string;
+  translation: string;
+  varian: string;
+  translationVarians: string | null;
+  deskripsiLain: string | null;
+  domainKodifikasiId: number;
+  statusPreservasi: string;
+  contributorId: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  domainKodifikasi: DomainKodifikasi;
+  contributor: ContributorDetail;
+  leksikonAssets: any[];
 }
 
-type LexiconEntry = OriginalLexiconEntry | AdvancedLexiconEntry
+type LexiconEntry = OriginalLexiconEntry | AdvancedLexiconEntry;
 
 function slugify(input: string) {
   return input
@@ -151,253 +151,278 @@ function slugify(input: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9\s-]/g, "")
     .trim()
-    .replace(/\s+/g, "-")
+    .replace(/\s+/g, "-");
 }
 
 function isAdvancedEntry(entry: LexiconEntry): entry is AdvancedLexiconEntry {
-  return 'kataLeksikon' in entry && 'domainKodifikasi' in entry
+  return "kataLeksikon" in entry && "domainKodifikasi" in entry;
 }
 
 function normalizeLexiconEntry(entry: LexiconEntry): {
-  term: string
-  definition: string
-  subcultureName: string
-  province: string
-  domain: string
-  contributor: string
-  regionKey: string
+  term: string;
+  definition: string;
+  subcultureName: string;
+  province: string;
+  domain: string;
+  contributor: string;
+  regionKey: string;
 } {
   if (isAdvancedEntry(entry)) {
     return {
-      term: entry.kataLeksikon || 'Unknown',
-      definition: entry.commonMeaning || entry.maknaKultural || 'No definition available',
-      subcultureName: entry.domainKodifikasi?.subculture?.namaSubculture || 'Unknown',
-      province: entry.domainKodifikasi?.subculture?.culture?.provinsi || 'Unknown',
-      domain: entry.domainKodifikasi?.namaDomain || 'General',
-      contributor: entry.contributor?.namaContributor || 'Anonymous',
-      regionKey: entry.domainKodifikasi?.subculture?.slug || 'unknown',
-    }
+      term: entry.kataLeksikon || "Unknown",
+      definition:
+        entry.commonMeaning || entry.maknaKultural || "No definition available",
+      subcultureName:
+        entry.domainKodifikasi?.subculture?.namaSubculture || "Unknown",
+      province:
+        entry.domainKodifikasi?.subculture?.culture?.provinsi || "Unknown",
+      domain: entry.domainKodifikasi?.namaDomain || "General",
+      contributor: entry.contributor?.namaContributor || "Anonymous",
+      regionKey: entry.domainKodifikasi?.subculture?.slug || "unknown",
+    };
   }
-  
+
   return {
-    term: entry.term || 'Unknown',
-    definition: entry.definition || 'No definition available',
-    subcultureName: entry.subculture?.name || 'Unknown',
-    province: entry.subculture?.province || 'Unknown',
-    domain: entry.domain || 'General',
-    contributor: entry.contributor || 'Anonymous',
-    regionKey: entry.regionKey || 'unknown',
-  }
+    term: entry.term || "Unknown",
+    definition: entry.definition || "No definition available",
+    subcultureName: entry.subculture?.name || "Unknown",
+    province: entry.subculture?.province || "Unknown",
+    domain: entry.domain || "General",
+    contributor: entry.contributor || "Anonymous",
+    regionKey: entry.regionKey || "unknown",
+  };
 }
 
 export default function AllCulturalWordsPage() {
-  const { handleNavClick } = useNavigation()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  
-  const [region, setRegion] = useState<string>("all")
-  const [searchQuery, setSearchQuery] = useState<string>("")
-  // 🔧 FIX: Ubah tipe state dari OriginalLexiconEntry[] menjadi LexiconEntry[]
-  const [allLexicons, setAllLexicons] = useState<LexiconEntry[]>([])
-  const [filteredLexicons, setFilteredLexicons] = useState<LexiconEntry[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [isSearching, setIsSearching] = useState(false)
+  const { handleNavClick } = useNavigation();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [currentPage, setCurrentPage] = useState(1)
-  const ITEMS_PER_PAGE = 12
+  const [region, setRegion] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  // 🔧 FIX: Ubah tipe state dari OriginalLexiconEntry[] menjadi LexiconEntry[]
+  const [allLexicons, setAllLexicons] = useState<LexiconEntry[]>([]);
+  const [filteredLexicons, setFilteredLexicons] = useState<LexiconEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
 
   // ✅ FIX: Gunakan ref untuk track query yang sedang di-process
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const currentQueryRef = useRef<string>("")
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const currentQueryRef = useRef<string>("");
 
-  const referrer = searchParams.get('from')
+  const referrer = searchParams.get("from");
 
   const handleBack = () => {
     if (referrer) {
-      router.push(referrer)
+      router.push(referrer);
     } else if (window.history.length > 2) {
-      router.back()
+      router.back();
     } else {
-      router.push('/')
+      router.push("/");
     }
-  }
+  };
 
   const getBackButtonText = () => {
-    if (!referrer) return 'Kembali'
-    if (referrer === '/') return 'Kembali ke Beranda'
-    if (referrer === '/peta-budaya') return 'Kembali ke Peta Budaya'
-    if (referrer.startsWith('/budaya/daerah/') && referrer !== '/budaya/daerah/-') {
-      return 'Kembali ke Glosarium'
+    if (!referrer) return "Back";
+    if (referrer === "/") return "Kembali ke Beranda";
+    if (referrer === "/peta-budaya") return "Kembali ke Peta Budaya";
+    if (
+      referrer.startsWith("/budaya/daerah/") &&
+      referrer !== "/budaya/daerah/-"
+    ) {
+      return "Kembali ke Glosarium";
     }
-    if (referrer === '/budaya') return 'Kembali ke Budaya'
-    return 'Kembali'
-  }
+    if (referrer === "/budaya") return "Kembali ke Budaya";
+    return "Kembali";
+  };
 
   // Fetch all lexicons on initial load
   useEffect(() => {
     const fetchAllLexicons = async () => {
       try {
-        setLoading(true)
-        setError(null)
-        
-        const response = await fetch('https://be-corpora.vercel.app/api/v1/public/lexicons', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch(
+          "https://be-corpora.vercel.app/api/v1/public/lexicons",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
-        const result = await response.json()
-        
+
+        const result = await response.json();
+
         if (result.success && Array.isArray(result.data)) {
-          const validLexicons = result.data.filter((item: any) => 
-            item && 
-            typeof item.term === 'string' && 
-            item.term.trim() !== ''
-          )
+          const validLexicons = result.data.filter(
+            (item: any) =>
+              item && typeof item.term === "string" && item.term.trim() !== ""
+          );
           // 🔧 FIX: Langsung simpan sebagai LexiconEntry[]
-          setAllLexicons(validLexicons as LexiconEntry[])
-          setFilteredLexicons(validLexicons as LexiconEntry[])
+          setAllLexicons(validLexicons as LexiconEntry[]);
+          setFilteredLexicons(validLexicons as LexiconEntry[]);
         } else {
-          throw new Error('Invalid data format')
+          throw new Error("Invalid data format");
         }
       } catch (err) {
-        console.error('Fetch error:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load lexicons')
-        setAllLexicons([])
-        setFilteredLexicons([])
+        console.error("Fetch error:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load lexicons"
+        );
+        setAllLexicons([]);
+        setFilteredLexicons([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchAllLexicons()
-  }, [])
+    fetchAllLexicons();
+  }, []);
 
   // ✅ FIX: Function untuk apply filter by region
-  const applyRegionFilter = useCallback((data: LexiconEntry[], regionFilter: string): LexiconEntry[] => {
-    if (regionFilter === "all") {
-      return data
-    }
-    
-    return data.filter((entry) => {
-      if (isAdvancedEntry(entry)) {
-        return entry.domainKodifikasi?.subculture?.slug === regionFilter
+  const applyRegionFilter = useCallback(
+    (data: LexiconEntry[], regionFilter: string): LexiconEntry[] => {
+      if (regionFilter === "all") {
+        return data;
       }
-      return entry.regionKey === regionFilter
-    })
-  }, [])
+
+      return data.filter((entry) => {
+        if (isAdvancedEntry(entry)) {
+          return entry.domainKodifikasi?.subculture?.slug === regionFilter;
+        }
+        return entry.regionKey === regionFilter;
+      });
+    },
+    []
+  );
 
   // ✅ FIX: Improved search with better state management
   useEffect(() => {
     // Clear previous timer
     if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
+      clearTimeout(debounceTimerRef.current);
     }
 
     // Update current query ref
-    currentQueryRef.current = searchQuery
+    currentQueryRef.current = searchQuery;
 
     const performSearch = async () => {
-      const trimmedQuery = searchQuery.trim()
-      
-      console.log('🔍 Search Effect:', { 
+      const trimmedQuery = searchQuery.trim();
+
+      console.log("🔍 Search Effect:", {
         searchQuery,
         trimmedQuery,
         trimmedLength: trimmedQuery.length,
         currentQueryRef: currentQueryRef.current,
-        region
-      })
-      
+        region,
+      });
+
       // ✅ CRITICAL FIX: Check if query is empty
       if (trimmedQuery.length === 0) {
-        console.log('📋 EMPTY QUERY - Resetting to all data')
-        setIsSearching(false)
-        
+        console.log("📋 EMPTY QUERY - Resetting to all data");
+        setIsSearching(false);
+
         // Apply region filter to all data
-        const results = applyRegionFilter([...allLexicons], region)
-        
-        console.log('✅ Reset complete:', results.length, 'results')
-        setFilteredLexicons(results)
-        return
+        const results = applyRegionFilter([...allLexicons], region);
+
+        console.log("✅ Reset complete:", results.length, "results");
+        setFilteredLexicons(results);
+        return;
       }
 
       // ✅ Only search if query has content
-      console.log('🌐 Performing search for:', trimmedQuery)
-      setIsSearching(true)
-      
+      console.log("🌐 Performing search for:", trimmedQuery);
+      setIsSearching(true);
+
       try {
         const response = await fetch(
-          `https://be-corpora.vercel.app/api/v1/search/advanced?kata=${encodeURIComponent(trimmedQuery)}`,
+          `https://be-corpora.vercel.app/api/v1/search/advanced?kata=${encodeURIComponent(
+            trimmedQuery
+          )}`,
           {
-            method: 'GET',
+            method: "GET",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
           }
-        )
+        );
 
         // ✅ CRITICAL: Check if query changed during API call
         if (currentQueryRef.current.trim() !== trimmedQuery) {
-          console.log('⚠️ Query changed during API call, ignoring results')
-          return
+          console.log("⚠️ Query changed during API call, ignoring results");
+          return;
         }
 
         if (!response.ok) {
-          throw new Error(`Search failed: ${response.status}`)
+          throw new Error(`Search failed: ${response.status}`);
         }
 
-        const result = await response.json()
+        const result = await response.json();
 
         // ✅ CRITICAL: Double check query hasn't changed
         if (currentQueryRef.current.trim() !== trimmedQuery) {
-          console.log('⚠️ Query changed after API response, ignoring results')
-          return
+          console.log("⚠️ Query changed after API response, ignoring results");
+          return;
         }
 
         if (result.success && Array.isArray(result.data)) {
           // 🔧 FIX: Cast result.data sebagai LexiconEntry[] dan apply region filter
-          const searchResults = result.data as LexiconEntry[]
-          const results = applyRegionFilter(searchResults, region)
-          
-          console.log('✅ API Results:', results.length)
-          setFilteredLexicons(results)
+          const searchResults = result.data as LexiconEntry[];
+          const results = applyRegionFilter(searchResults, region);
+
+          console.log("✅ API Results:", results.length);
+          setFilteredLexicons(results);
         } else {
-          console.log('⚠️ API returned no results')
-          setFilteredLexicons([])
+          console.log("⚠️ API returned no results");
+          setFilteredLexicons([]);
         }
       } catch (err) {
-        console.error('Search error:', err)
-        
+        console.error("Search error:", err);
+
         // ✅ Check query hasn't changed before applying fallback
         if (currentQueryRef.current.trim() !== trimmedQuery) {
-          console.log('⚠️ Query changed during error, skipping fallback')
-          return
+          console.log("⚠️ Query changed during error, skipping fallback");
+          return;
         }
-        
+
         // Fallback to client-side search
-        const query = trimmedQuery.toLowerCase()
+        const query = trimmedQuery.toLowerCase();
         let results = allLexicons.filter((entry) => {
           // 🔧 FIX: Gunakan normalized entry untuk consistent search
-          const normalized = normalizeLexiconEntry(entry)
-          
-          const termMatch = normalized.term?.toLowerCase().includes(query)
-          const definitionMatch = normalized.definition?.toLowerCase().includes(query)
-          const domainMatch = normalized.domain?.toLowerCase().includes(query)
-          const subcultureMatch = normalized.subcultureName?.toLowerCase().includes(query)
-          const contributorMatch = normalized.contributor?.toLowerCase().includes(query)
-          
+          const normalized = normalizeLexiconEntry(entry);
+
+          const termMatch = normalized.term?.toLowerCase().includes(query);
+          const definitionMatch = normalized.definition
+            ?.toLowerCase()
+            .includes(query);
+          const domainMatch = normalized.domain?.toLowerCase().includes(query);
+          const subcultureMatch = normalized.subcultureName
+            ?.toLowerCase()
+            .includes(query);
+          const contributorMatch = normalized.contributor
+            ?.toLowerCase()
+            .includes(query);
+
           // Untuk AdvancedEntry, search di field tambahan
           if (isAdvancedEntry(entry)) {
-            const transliterasiMatch = entry.transliterasi?.toLowerCase().includes(query)
-            const ipaMatch = entry.ipa?.toLowerCase().includes(query)
-            const kulturalMatch = entry.maknaKultural?.toLowerCase().includes(query)
-            
+            const transliterasiMatch = entry.transliterasi
+              ?.toLowerCase()
+              .includes(query);
+            const ipaMatch = entry.ipa?.toLowerCase().includes(query);
+            const kulturalMatch = entry.maknaKultural
+              ?.toLowerCase()
+              .includes(query);
+
             return (
               termMatch ||
               definitionMatch ||
@@ -407,14 +432,20 @@ export default function AllCulturalWordsPage() {
               transliterasiMatch ||
               ipaMatch ||
               kulturalMatch
-            )
+            );
           }
-          
+
           // Untuk OriginalEntry, search di details
-          const transliterationMatch = entry.details?.transliteration?.toLowerCase().includes(query)
-          const ipaMatch = entry.details?.ipa?.toLowerCase().includes(query)
-          const commonMeaningMatch = entry.details?.commonMeaning?.toLowerCase().includes(query)
-          const culturalMeaningMatch = entry.details?.culturalMeaning?.toLowerCase().includes(query)
+          const transliterationMatch = entry.details?.transliteration
+            ?.toLowerCase()
+            .includes(query);
+          const ipaMatch = entry.details?.ipa?.toLowerCase().includes(query);
+          const commonMeaningMatch = entry.details?.commonMeaning
+            ?.toLowerCase()
+            .includes(query);
+          const culturalMeaningMatch = entry.details?.culturalMeaning
+            ?.toLowerCase()
+            .includes(query);
 
           return (
             termMatch ||
@@ -426,103 +457,107 @@ export default function AllCulturalWordsPage() {
             commonMeaningMatch ||
             culturalMeaningMatch ||
             contributorMatch
-          )
-        })
-        
+          );
+        });
+
         // Apply region filter
-        results = applyRegionFilter(results, region)
-        
-        console.log('✅ Fallback Results:', results.length)
-        setFilteredLexicons(results)
+        results = applyRegionFilter(results, region);
+
+        console.log("✅ Fallback Results:", results.length);
+        setFilteredLexicons(results);
       } finally {
         // ✅ Only stop loading if query hasn't changed
         if (currentQueryRef.current.trim() === trimmedQuery) {
-          setIsSearching(false)
+          setIsSearching(false);
         }
       }
-    }
+    };
 
     // Set new debounce timer
-    debounceTimerRef.current = setTimeout(performSearch, 300)
+    debounceTimerRef.current = setTimeout(performSearch, 300);
 
     // Cleanup
     return () => {
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
+        clearTimeout(debounceTimerRef.current);
       }
-    }
-  }, [searchQuery, region, allLexicons, applyRegionFilter])
+    };
+  }, [searchQuery, region, allLexicons, applyRegionFilter]);
 
   // 🔧 FIX: Get unique regions dari allLexicons dengan proper type handling
-  const regions = Array.from(new Set(
-    allLexicons.map(entry => {
-      if (isAdvancedEntry(entry)) {
-        return entry.domainKodifikasi?.subculture?.slug
-      }
-      return entry.regionKey
-    }).filter(Boolean)
-  )).sort()
+  const regions = Array.from(
+    new Set(
+      allLexicons
+        .map((entry) => {
+          if (isAdvancedEntry(entry)) {
+            return entry.domainKodifikasi?.subculture?.slug;
+          }
+          return entry.regionKey;
+        })
+        .filter(Boolean)
+    )
+  ).sort();
 
   // Reset to page 1 when filters change
   useEffect(() => {
-    setCurrentPage(1)
-  }, [region, searchQuery])
+    setCurrentPage(1);
+  }, [region, searchQuery]);
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredLexicons.length / ITEMS_PER_PAGE)
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const endIndex = startIndex + ITEMS_PER_PAGE
-  const paginatedEntries = filteredLexicons.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(filteredLexicons.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedEntries = filteredLexicons.slice(startIndex, endIndex);
 
   const goToPage = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const goToPreviousPage = () => {
-    if (currentPage > 1) goToPage(currentPage - 1)
-  }
+    if (currentPage > 1) goToPage(currentPage - 1);
+  };
 
   const goToNextPage = () => {
-    if (currentPage < totalPages) goToPage(currentPage + 1)
-  }
+    if (currentPage < totalPages) goToPage(currentPage + 1);
+  };
 
   const getPageNumbers = () => {
-    const pages: (number | string)[] = []
-    const maxPagesToShow = 5
-    
+    const pages: (number | string)[] = [];
+    const maxPagesToShow = 5;
+
     if (totalPages <= maxPagesToShow) {
       for (let i = 1; i <= totalPages; i++) {
-        pages.push(i)
+        pages.push(i);
       }
     } else {
       if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) pages.push(i)
-        pages.push('...')
-        pages.push(totalPages)
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
       } else if (currentPage >= totalPages - 2) {
-        pages.push(1)
-        pages.push('...')
-        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
       } else {
-        pages.push(1)
-        pages.push('...')
-        pages.push(currentPage - 1)
-        pages.push(currentPage)
-        pages.push(currentPage + 1)
-        pages.push('...')
-        pages.push(totalPages)
+        pages.push(1);
+        pages.push("...");
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push("...");
+        pages.push(totalPages);
       }
     }
-    return pages
-  }
+    return pages;
+  };
 
   // ✅ FIX: Clear search handler
   const handleClearSearch = () => {
-    console.log('🧹 Clearing search - setting to empty string')
-    setSearchQuery("")
-    currentQueryRef.current = ""
-  }
+    console.log("🧹 Clearing search - setting to empty string");
+    setSearchQuery("");
+    currentQueryRef.current = "";
+  };
 
   return (
     <div className="min-h-screen bg-[#111827] text-foreground">
@@ -543,7 +578,7 @@ export default function AllCulturalWordsPage() {
               <Link href="/">
                 <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer">
                   <Home className="w-4 h-4" />
-                  <span className="hidden sm:inline">Beranda</span>
+                  <span className="hidden sm:inline">Home</span>
                 </button>
               </Link>
             )}
@@ -561,14 +596,17 @@ export default function AllCulturalWordsPage() {
           Explore Cultural Lexicon
         </h1>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-          Discover the richness of terms and traditions from various East Java sub-cultures.
+          
         </p>
 
         {/* Filter + Search */}
         <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
           <div className="flex items-center gap-2">
-            <label htmlFor="region-filter" className="text-sm font-medium text-muted-foreground">
-              Filter Subkultur:
+            <label
+              htmlFor="region-filter"
+              className="text-sm font-medium text-muted-foreground"
+            >
+              Subculture Filter:
             </label>
             <select
               id="region-filter"
@@ -576,7 +614,7 @@ export default function AllCulturalWordsPage() {
               value={region}
               onChange={(e) => setRegion(e.target.value)}
             >
-              <option value="all">Semua Leksikon</option>
+              <option value="all">All Lexicons</option>
               {regions.map((rk) => (
                 <option key={rk} value={rk}>
                   {rk}
@@ -588,12 +626,12 @@ export default function AllCulturalWordsPage() {
           <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none z-10" />
             <Input
-              placeholder="Cari istilah budaya..."
+              placeholder="Search Cultural Term..."
               value={searchQuery}
               onChange={(e) => {
-                const newValue = e.target.value
-                console.log('📝 Input onChange:', newValue)
-                setSearchQuery(newValue)
+                const newValue = e.target.value;
+                console.log("📝 Input onChange:", newValue);
+                setSearchQuery(newValue);
               }}
               className="pl-10 pr-10 bg-background/50 border-border focus:ring-primary/20"
             />
@@ -623,11 +661,11 @@ export default function AllCulturalWordsPage() {
             {isSearching ? (
               <span className="flex items-center justify-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Mencari...
+                Search...
               </span>
             ) : (
               <>
-                Menampilkan {filteredLexicons.length} hasil
+                Show {filteredLexicons.length} result
                 {searchQuery.trim() && ` untuk "${searchQuery.trim()}"`}
                 {region !== "all" && ` di ${region}`}
               </>
@@ -649,14 +687,16 @@ export default function AllCulturalWordsPage() {
           <div className="flex justify-center items-center py-16">
             <div className="text-center max-w-md">
               <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-              <p className="text-red-500 mb-2 font-semibold">Terjadi Kesalahan</p>
+              <p className="text-red-500 mb-2 font-semibold">
+                Error
+              </p>
               <p className="text-sm text-muted-foreground mb-4">{error}</p>
-              <Button 
-                onClick={() => window.location.reload()} 
-                variant="outline" 
+              <Button
+                onClick={() => window.location.reload()}
+                variant="outline"
                 className="cursor-pointer"
               >
-                Coba Lagi
+                Try Again
               </Button>
             </div>
           </div>
@@ -666,12 +706,12 @@ export default function AllCulturalWordsPage() {
             {paginatedEntries.length > 0 ? (
               <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr mb-8">
                 {paginatedEntries.map((entry, index) => {
-                  const normalized = normalizeLexiconEntry(entry)
-                  const termSlug = slugify(normalized.term)
-                  const uniqueKey = isAdvancedEntry(entry) 
-                    ? `advanced-${entry.leksikonId}-${index}` 
-                    : `original-${normalized.term}-${index}`
-                  
+                  const normalized = normalizeLexiconEntry(entry);
+                  const termSlug = slugify(normalized.term);
+                  const uniqueKey = isAdvancedEntry(entry)
+                    ? `advanced-${entry.leksikonId}-${index}`
+                    : `original-${normalized.term}-${index}`;
+
                   return (
                     <motion.div
                       key={uniqueKey}
@@ -695,24 +735,32 @@ export default function AllCulturalWordsPage() {
                           </p>
 
                           <div className="flex items-center text-xs text-muted-foreground mb-2">
-                            <span className="font-medium">Subkultur:</span> {normalized.subcultureName} ({normalized.province})
+                            <span className="font-medium">Subculture:</span>{" "}
+                            {normalized.subcultureName} ({normalized.province})
                           </div>
 
                           <div className="flex items-center text-xs text-muted-foreground mb-2">
-                            <span className="font-medium">Domain:</span> {normalized.domain}
+                            <span className="font-medium">Domain:</span>{" "}
+                            {normalized.domain}
                           </div>
 
                           <div className="flex items-center text-xs text-muted-foreground mb-4">
-                            <span className="font-medium">Kontributor:</span> {normalized.contributor}
+                            <span className="font-medium">Contributor:</span>{" "}
+                            {normalized.contributor}
                           </div>
 
                           <div className="flex justify-between items-center mt-auto">
-                            <Link href={`/budaya/daerah/-/${termSlug}`} className="flex-1 mr-2">
+                            <Link
+                              href={`/budaya/daerah/-/${termSlug}`}
+                              className="flex-1 mr-2"
+                            >
                               <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 text-white w-full cursor-pointer">
                                 Detail
                               </Button>
                             </Link>
-                            <Link href={`/budaya/daerah/${normalized.regionKey}`}>
+                            <Link
+                              href={`/budaya/daerah/${normalized.regionKey}`}
+                            >
                               <Button
                                 variant="outline"
                                 className="border border-border hover:bg-background/60 cursor-pointer"
@@ -724,7 +772,7 @@ export default function AllCulturalWordsPage() {
                         </CardContent>
                       </Card>
                     </motion.div>
-                  )
+                  );
                 })}
               </section>
             ) : (
@@ -732,18 +780,20 @@ export default function AllCulturalWordsPage() {
                 <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <p className="text-muted-foreground mb-2">Tidak ada hasil ditemukan</p>
+                <p className="text-muted-foreground mb-2">
+                  No Result
+                </p>
                 <p className="text-sm text-muted-foreground">
                   {searchQuery.trim()
-                    ? `Tidak ada leksikon yang cocok dengan "${searchQuery.trim()}"` 
-                    : 'Coba kata kunci atau filter yang berbeda'}
+                    ? `Tidak ada leksikon yang cocok dengan "${searchQuery.trim()}"`
+                    : "Coba kata kunci atau filter yang berbeda"}
                 </p>
                 {(searchQuery || region !== "all") && (
-                  <Button 
+                  <Button
                     onClick={() => {
-                      setSearchQuery("")
-                      setRegion("all")
-                      currentQueryRef.current = ""
+                      setSearchQuery("");
+                      setRegion("all");
+                      currentQueryRef.current = "";
                     }}
                     variant="outline"
                     className="mt-4 cursor-pointer"
@@ -758,9 +808,19 @@ export default function AllCulturalWordsPage() {
             {filteredLexicons.length > 0 && totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border">
                 <div className="text-sm text-muted-foreground order-2 sm:order-1">
-                  Menampilkan <span className="font-medium text-foreground">{startIndex + 1}</span>-
-                  <span className="font-medium text-foreground">{Math.min(endIndex, filteredLexicons.length)}</span> dari{' '}
-                  <span className="font-medium text-foreground">{filteredLexicons.length}</span> leksikon
+                  Menampilkan{" "}
+                  <span className="font-medium text-foreground">
+                    {startIndex + 1}
+                  </span>
+                  -
+                  <span className="font-medium text-foreground">
+                    {Math.min(endIndex, filteredLexicons.length)}
+                  </span>{" "}
+                  dari{" "}
+                  <span className="font-medium text-foreground">
+                    {filteredLexicons.length}
+                  </span>{" "}
+                  leksikon
                 </div>
 
                 <div className="flex items-center gap-2 order-1 sm:order-2">
@@ -770,7 +830,9 @@ export default function AllCulturalWordsPage() {
                     variant="outline"
                     size="sm"
                     className={`cursor-pointer transition-all ${
-                      currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/10'
+                      currentPage === 1
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-primary/10"
                     }`}
                   >
                     <ChevronLeft className="w-4 h-4" />
@@ -779,15 +841,18 @@ export default function AllCulturalWordsPage() {
 
                   <div className="flex items-center gap-1">
                     {getPageNumbers().map((pageNum, idx) => {
-                      if (pageNum === '...') {
+                      if (pageNum === "...") {
                         return (
-                          <span key={`ellipsis-${idx}`} className="px-3 py-2 text-muted-foreground">
+                          <span
+                            key={`ellipsis-${idx}`}
+                            className="px-3 py-2 text-muted-foreground"
+                          >
                             ...
                           </span>
-                        )
+                        );
                       }
 
-                      const page = pageNum as number
+                      const page = pageNum as number;
                       return (
                         <Button
                           key={page}
@@ -796,13 +861,13 @@ export default function AllCulturalWordsPage() {
                           size="sm"
                           className={`min-w-[40px] cursor-pointer transition-all ${
                             currentPage === page
-                              ? 'bg-primary text-primary-foreground font-semibold'
-                              : 'hover:bg-primary/10'
+                              ? "bg-primary text-primary-foreground font-semibold"
+                              : "hover:bg-primary/10"
                           }`}
                         >
                           {page}
                         </Button>
-                      )
+                      );
                     })}
                   </div>
 
@@ -812,7 +877,9 @@ export default function AllCulturalWordsPage() {
                     variant="outline"
                     size="sm"
                     className={`cursor-pointer transition-all ${
-                      currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/10'
+                      currentPage === totalPages
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-primary/10"
                     }`}
                   >
                     <span className="hidden sm:inline mr-1">Selanjutnya</span>
@@ -829,5 +896,5 @@ export default function AllCulturalWordsPage() {
         )}
       </main>
     </div>
-  )
+  );
 }
