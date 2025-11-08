@@ -185,7 +185,7 @@ export function Model3DSection({
               </div>
             )}
 
-            {/* Interaction Tips */}
+            {/* Interaction Tips
             <div className="pt-3 border-t border-border">
               <p className="text-xs text-muted-foreground mb-2 font-medium">
                 Interaction Tips:
@@ -208,7 +208,7 @@ export function Model3DSection({
                   <span>Right-click + drag to pan</span>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </Card>
       </motion.div>

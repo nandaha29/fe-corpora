@@ -18,8 +18,8 @@ import {
   AlertCircle,
   X,
   Maximize2,
-  RefreshCw, // ✅ TAMBAHKAN INI
-  MapPin, // ✅ TAMBAHKAN INI
+  RefreshCw,
+  MapPin,
 } from "lucide-react";
 import { Footer } from "@/components/layout/footer";
 import { useNavigation } from "@/hooks/use-navigation";
@@ -41,12 +41,12 @@ import { convertSubcultureHistory } from "@/lib/rich-text-helpers";
 
 interface SearchResult {
   term: string;
-  definition: string;
+  translation: string;
+  commonMeaning: string;
+  culturalMeaning: string;
   category: string;
   region: string;
   slug: string;
-  lexiconId?: string | number;
-  translation?: string;
 }
 
 interface SubcultureData {
@@ -55,7 +55,7 @@ interface SubcultureData {
     displayName: string;
     history: string;
     highlights: any[];
-    salamKhas?: string; 
+    salamKhas?: string;
   };
   galleryImages: Array<{
     url: string;
@@ -131,8 +131,13 @@ export default function RegionDetailPage() {
     limit: number;
     totalPages: number;
   } | null>(null);
-  // Store translations fetched from individual lexicon API
-  const [lexiconTranslations, setLexiconTranslations] = useState<Record<string, string>>({});
+
+  const [lexiconTranslations, setLexiconTranslations] = useState<
+    Record<string, string>
+  >({});
+  const [translationsLoading, setTranslationsLoading] = useState<Set<string>>(
+    new Set()
+  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
@@ -240,7 +245,6 @@ export default function RegionDetailPage() {
       }));
     }
 
-    // Fallback images
     return [
       {
         url: "/traditional-east-java-handicrafts-and-batik-art.jpg",
@@ -332,7 +336,6 @@ export default function RegionDetailPage() {
     setIsGalleryAutoPlaying((prev) => !prev);
   };
 
-  // Lightbox functions
   const openLightbox = (index: number) => {
     setCurrentGalleryIndex(index);
     setIsLightboxOpen(true);
@@ -381,6 +384,115 @@ export default function RegionDetailPage() {
     return videos;
   }, [subcultureData]);
 
+  const fetchLexiconTranslation = async (
+    slug: string
+  ): Promise<string> => {
+    console.log(`🔍 Fetching translation for slug: ${slug}`);
+    
+    try {
+      const response = await fetch(
+        `https://be-corpora.vercel.app/api/v1/public/lexicons/${slug}`
+      );
+
+      if (!response.ok) {
+        console.warn(
+          `⚠️ Failed to fetch translation for lexicon ${slug}: ${response.status}`
+        );
+        return "";
+      }
+
+      const result = await response.json();
+      console.log(`📄 API Response for ${slug}:`, {
+        success: result.success,
+        hasData: !!result.data,
+        hasDetails: !!result.data?.details,
+        hasTranslation: !!result.data?.details?.translation,
+        translationPreview: result.data?.details?.translation?.substring(0, 50) + '...'
+      });
+
+      if (result.success && result.data?.details?.translation) {
+        return result.data.details.translation;
+      }
+
+      console.warn(`⚠️ No translation found in response for ${slug}`);
+      return "";
+    } catch (error) {
+      console.error(
+        `❌ Error fetching translation for lexicon ${slug}:`,
+        error
+      );
+      return "";
+    }
+  };
+
+  const fetchTranslationsForItems = async (items: SearchResult[]) => {
+    const itemsNeedingTranslation = items.filter(
+      (item) =>
+        item.slug &&
+        !item.translation &&
+        !lexiconTranslations[item.slug] &&
+        !translationsLoading.has(item.slug)
+    );
+
+    console.log('🔄 fetchTranslationsForItems:', {
+      totalItems: items.length,
+      itemsNeedingTranslation: itemsNeedingTranslation.length,
+      itemsWithSlug: items.filter(i => i.slug).length,
+      itemsWithExistingTranslation: items.filter(i => i.translation).length,
+      slugsNeedingFetch: itemsNeedingTranslation.map(i => i.slug)
+    });
+
+    if (itemsNeedingTranslation.length === 0) {
+      console.log('⏭️ No translations needed - all items have data or are loading');
+      return;
+    }
+
+    setTranslationsLoading((prev) => {
+      const newSet = new Set(prev);
+      itemsNeedingTranslation.forEach((item) => {
+        newSet.add(item.slug);
+      });
+      return newSet;
+    });
+
+    const translationPromises = itemsNeedingTranslation.map(async (item) => {
+      const translation = await fetchLexiconTranslation(item.slug);
+      console.log(`✅ Fetched translation for ${item.term} (${item.slug}):`, 
+        translation ? translation.substring(0, 50) + '...' : 'empty');
+      
+      return {
+        slug: item.slug,
+        translation,
+      };
+    });
+
+    const results = await Promise.all(translationPromises);
+
+    const newTranslations: Record<string, string> = {};
+    results.forEach((result) => {
+      if (result && result.translation) {
+        newTranslations[result.slug] = result.translation;
+      }
+    });
+
+    console.log('📦 New translations fetched:', Object.keys(newTranslations).length);
+
+    setLexiconTranslations((prev) => ({
+      ...prev,
+      ...newTranslations,
+    }));
+
+    setTranslationsLoading((prev) => {
+      const newSet = new Set(prev);
+      results.forEach((result) => {
+        if (result) {
+          newSet.delete(result.slug);
+        }
+      });
+      return newSet;
+    });
+  };
+
   // Search functionality - server-side
   useEffect(() => {
     const fetchLexiconData = async () => {
@@ -409,30 +521,40 @@ export default function RegionDetailPage() {
         if (result.success && result.data) {
           const lexicons = result.data.lexicons || [];
           const mappedItems = lexicons.map((entry: any) => {
-            const lexiconId = entry.lexiconId || entry.id || entry.leksikonId;
-            const translation = entry.details?.translation || "";
-            
+            // ✅ Use slug as identifier since lexiconId is not returned
+            const entrySlug = entry.slug || entry.id || (entry.term || "")
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/[^\w\s-]/g, "")
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .replace(/(^-|-$)/g, "");
+
+            console.log('📝 Lexicon Entry:', {
+              term: entry.term,
+              slug: entrySlug,
+              hasDetails: !!entry.details,
+              translation: entry.details?.translation,
+              commonMeaning: entry.details?.commonMeaning,
+              culturalMeaning: entry.details?.culturalMeaning,
+              fullEntry: entry
+            });
+
             return {
               term: entry.term,
-              definition: entry.definition || "",
+              translation: entry.details?.translation || "",
+              commonMeaning: entry.details?.commonMeaning || "",
+              culturalMeaning: entry.details?.culturalMeaning || "",
               category: entry.category || "",
               region:
                 subcultureData?.culture?.name ||
                 subcultureData?.culture?.region ||
                 regionId,
-              slug:
-                entry.slug ||
-                (entry.term || "")
-                  .normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-                  .replace(/[^\w\s-]/g, "")
-                  .toLowerCase()
-                  .replace(/\s+/g, "-")
-                  .replace(/(^-|-$)/g, ""),
-              lexiconId: lexiconId,
-              translation: translation,
+              slug: entrySlug,
             };
           });
+
+          console.log('✅ Mapped Items:', mappedItems);
 
           setLexiconItems(mappedItems);
           setLexiconPagination({
@@ -442,43 +564,7 @@ export default function RegionDetailPage() {
             totalPages: Math.ceil(result.data.total / result.data.limit),
           });
 
-          // Fetch translations from individual lexicon API for entries that don't have translation
-          const entriesToFetch = mappedItems.filter(
-            (item: SearchResult) => item.lexiconId && !item.translation
-          );
-
-          if (entriesToFetch.length > 0) {
-            // Fetch translations in parallel
-            Promise.all(
-              entriesToFetch.map(async (item: SearchResult) => {
-                if (!item.lexiconId) return null;
-                try {
-                  const detailResponse = await fetch(
-                    `https://be-corpora.vercel.app/api/v1/public/lexicons/${item.lexiconId}`
-                  );
-                  if (!detailResponse.ok) return null;
-                  const detailResult = await detailResponse.json();
-                  if (detailResult.success && detailResult.data) {
-                    const translation = detailResult.data.details?.translation || "";
-                    return { lexiconId: item.lexiconId.toString(), translation };
-                  }
-                } catch (error) {
-                  console.error(`Error fetching translation for ${item.lexiconId}:`, error);
-                }
-                return null;
-              })
-            ).then((translations) => {
-              const translationMap: Record<string, string> = {};
-              translations.forEach((t) => {
-                if (t) {
-                  translationMap[t.lexiconId] = t.translation;
-                }
-              });
-              if (Object.keys(translationMap).length > 0) {
-                setLexiconTranslations((prev) => ({ ...prev, ...translationMap }));
-              }
-            });
-          }
+          await fetchTranslationsForItems(mappedItems);
         } else {
           setLexiconItems([]);
           setLexiconPagination(null);
@@ -496,13 +582,11 @@ export default function RegionDetailPage() {
     return () => clearTimeout(debounceTimer);
   }, [searchQuery, currentPage, regionId, subcultureData]);
 
-  // ✅ PERBAIKAN: Scroll handling yang lebih akurat
   useEffect(() => {
     const handleScroll = () => {
       const headerHeight = 64;
       setIsNavSticky(window.scrollY > headerHeight);
 
-      // Skip if in lexicon only mode
       if (showLexiconOnly) return;
 
       const sections = [
@@ -512,11 +596,9 @@ export default function RegionDetailPage() {
         "youtube-videos",
       ];
 
-      // Get scroll position with offset
       const scrollPosition = window.scrollY + 200;
 
-      // Find active section
-      let currentActive = "region-profile"; // Default
+      let currentActive = "region-profile";
 
       for (const sectionId of sections) {
         const element = document.getElementById(sectionId);
@@ -535,12 +617,11 @@ export default function RegionDetailPage() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Run once on mount
+    handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [showLexiconOnly]);
 
-  // ✅ PERBAIKAN: Reset active section when lexicon only
   useEffect(() => {
     if (showLexiconOnly) {
       setActiveSection("");
@@ -553,11 +634,9 @@ export default function RegionDetailPage() {
     setCurrentPage(1);
   }, [searchQuery]);
 
-  // Use server-side data for display
   const displayItems = lexiconItems;
   const paginatedItems = displayItems;
 
-  // Computed pagination helpers
   const hasPrev = lexiconPagination ? lexiconPagination.page > 1 : false;
   const hasNext = lexiconPagination
     ? lexiconPagination.page < lexiconPagination.totalPages
@@ -623,7 +702,6 @@ export default function RegionDetailPage() {
     return pages;
   };
 
-  // ✅ PERBAIKAN: Handler for manual click navigation
   const handleSectionClick = (sectionId: string) => {
     setActiveSection(sectionId);
     setShowLexiconOnly(false);
@@ -757,7 +835,7 @@ export default function RegionDetailPage() {
       <Navigation onNavClick={handleNavClick} />
 
       {/* Hero Section */}
-        <section
+      <section
         aria-label="Hero"
         className="relative overflow-hidden border-b border-border"
       >
@@ -793,15 +871,16 @@ export default function RegionDetailPage() {
               </ol>
             </motion.nav>
 
-            {/* ✅ GANTI BAGIAN INI - Gunakan salamKhas dari API */}
             <motion.h1
               className="text-4xl md:text-6xl font-extrabold text-white max-w-3xl leading-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
             >
-              {subcultureData?.profile?.salamKhas || 
-               `Discover the Living Tapestry of ${subcultureData?.profile?.displayName || regionId}`}
+              {subcultureData?.profile?.salamKhas ||
+                `Discover the Living Tapestry of ${
+                  subcultureData?.profile?.displayName || regionId
+                }`}
             </motion.h1>
 
             <motion.p
@@ -810,14 +889,14 @@ export default function RegionDetailPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-             “Om, (Brahmā, Visnū, Sivā), I wish for eternal well-being”
+              "Om, (Brahmā, Visnū, Sivā), I wish for eternal well-being"
             </motion.p>
           </div>
         </div>
       </section>
 
       <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
-        {/* ✅ PERBAIKAN: Navigation Tabs dengan handler yang benar */}
+        {/* Navigation Tabs */}
         <nav
           aria-label="Subsection pages"
           className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 border-b border-border transition-shadow duration-200 ${
@@ -943,31 +1022,26 @@ export default function RegionDetailPage() {
                           crossOrigin="anonymous"
                         />
 
-                        {/* Gradient Overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                        {/* Hover Overlay - Maximize Icon */}
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <div className="bg-black/50 backdrop-blur-sm rounded-full p-3 transform scale-90 group-hover:scale-100 transition-transform duration-300">
                             <Maximize2 className="w-5 h-5 text-white" />
                           </div>
                         </div>
 
-                        {/* Image Description */}
                         <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
                           <p className="text-white text-sm font-medium line-clamp-1">
                             {currentGalleryImage.description}
                           </p>
                         </div>
 
-                        {/* Image Counter */}
                         <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium">
                           {currentGalleryIndex + 1} / {galleryImages.length}
                         </div>
                       </motion.div>
                     </AnimatePresence>
 
-                    {/* Navigation Arrows */}
                     {galleryImages.length > 1 && (
                       <>
                         <button
@@ -988,7 +1062,6 @@ export default function RegionDetailPage() {
                     )}
                   </div>
 
-                  {/* Thumbnail Navigation - Scrollable */}
                   {galleryImages.length > 1 && (
                     <div className="mb-3">
                       <div className="max-h-[200px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
@@ -1015,14 +1088,12 @@ export default function RegionDetailPage() {
                                 />
                               </div>
 
-                              {/* Active Indicator */}
                               {idx === currentGalleryIndex && (
                                 <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                                   <div className="w-2 h-2 bg-primary rounded-full shadow-lg" />
                                 </div>
                               )}
 
-                              {/* Thumbnail Number */}
                               <div className="absolute top-1 right-1 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
                                 {idx + 1}
                               </div>
@@ -1031,7 +1102,6 @@ export default function RegionDetailPage() {
                         </div>
                       </div>
 
-                      {/* Scroll Indicator */}
                       {galleryImages.length > 8 && (
                         <div className="mt-2 text-center">
                           <p className="text-xs text-muted-foreground">
@@ -1042,7 +1112,6 @@ export default function RegionDetailPage() {
                     </div>
                   )}
 
-                  {/* Auto-play Toggle */}
                   {galleryImages.length > 1 && (
                     <div className="flex items-center justify-center gap-4 pt-3 border-t border-border/50">
                       <button
@@ -1063,7 +1132,6 @@ export default function RegionDetailPage() {
                         </span>
                       </button>
 
-                      {/* Gallery Stats */}
                       <div className="text-xs text-muted-foreground">
                         {galleryImages.length} photos
                       </div>
@@ -1092,7 +1160,6 @@ export default function RegionDetailPage() {
                         About {displayName}
                       </h2>
 
-                      {/* Rich Text Viewer with Scroll */}
                       <div className="max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                         <RichTextViewer
                           content={convertSubcultureHistory(history)}
@@ -1105,7 +1172,7 @@ export default function RegionDetailPage() {
               </div>
             </section>
 
-            {/* Lightbox Modal - Full Screen Gallery */}
+            {/* Lightbox Modal */}
             <AnimatePresence>
               {isLightboxOpen && (
                 <motion.div
@@ -1115,7 +1182,6 @@ export default function RegionDetailPage() {
                   className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
                   onClick={closeLightbox}
                 >
-                  {/* Close Button */}
                   <button
                     onClick={closeLightbox}
                     className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition-colors z-10 backdrop-blur-sm"
@@ -1124,7 +1190,6 @@ export default function RegionDetailPage() {
                     <X className="w-6 h-6" />
                   </button>
 
-                  {/* Previous Button */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -1136,7 +1201,6 @@ export default function RegionDetailPage() {
                     <ChevronLeft className="w-6 h-6" />
                   </button>
 
-                  {/* Next Button */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -1148,7 +1212,6 @@ export default function RegionDetailPage() {
                     <ChevronRight className="w-6 h-6" />
                   </button>
 
-                  {/* Image Container */}
                   <motion.div
                     initial={{ scale: 0.9 }}
                     animate={{ scale: 1 }}
@@ -1162,7 +1225,6 @@ export default function RegionDetailPage() {
                       className="w-full h-auto rounded-lg shadow-2xl"
                     />
 
-                    {/* Image Info Overlay */}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 rounded-b-lg">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
@@ -1181,13 +1243,11 @@ export default function RegionDetailPage() {
                       </div>
                     </div>
 
-                    {/* Keyboard Navigation Hint */}
                     <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-xs">
                       <p>Use ← → keys to navigate</p>
                     </div>
                   </motion.div>
 
-                  {/* Thumbnail Strip at Bottom */}
                   {galleryImages.length > 1 && (
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 max-w-4xl w-full px-4">
                       <div className="bg-black/60 backdrop-blur-md rounded-lg p-3">
@@ -1300,22 +1360,11 @@ export default function RegionDetailPage() {
                     {/* Items Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       {paginatedItems.map((entry, i) => {
-                        const termSlug = entry.term
-                          .normalize("NFD")
-                          .replace(/[\u0300-\u036f]/g, "")
-                          .toLowerCase()
-                          .replace(/[^a-z0-9]+/g, "-")
-                          .replace(/(^-|-$)/g, "");
+                        const termSlug = entry.slug;
 
-                        // Get translation: prefer fetched translation from API, then entry.translation, fallback to definition
-                        const lexiconIdStr = entry.lexiconId?.toString();
-                        const fetchedTranslation = lexiconIdStr ? lexiconTranslations[lexiconIdStr] : undefined;
-                        // Use translation from API if available, otherwise use entry.translation, fallback to definition
-                        const translation = 
-                          (fetchedTranslation && fetchedTranslation.trim()) || 
-                          (entry.translation && entry.translation.trim()) || 
-                          entry.definition || 
-                          "No translation available";
+                        // Get translation from state using slug as key
+                        const translation = lexiconTranslations[termSlug];
+                        const isLoadingTranslation = translationsLoading.has(termSlug);
 
                         return (
                           <article
@@ -1324,11 +1373,38 @@ export default function RegionDetailPage() {
                           >
                             <div className="px-4 py-3 flex-grow">
                               <h3 className="font-semibold text-foreground">
-                                {entry.term.charAt(0).toUpperCase() + entry.term.slice(1)}
+                                {entry.term.charAt(0).toUpperCase() +
+                                  entry.term.slice(1)}
                               </h3>
-                              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                {translation}
-                              </p>
+
+                              <div className="text-sm text-muted-foreground line-clamp-2 mt-1 min-h-[2.5rem]">
+                                {(() => {
+                                  // ✅ PRIORITY: entry.translation > fetched translation > commonMeaning > culturalMeaning > loading
+                                  const displayText = entry.translation || 
+                                                     translation ||
+                                                     entry.commonMeaning || 
+                                                     entry.culturalMeaning;
+                                  
+                                  if (displayText) {
+                                    return displayText;
+                                  }
+                                  
+                                  if (isLoadingTranslation) {
+                                    return (
+                                      <div className="flex items-center gap-2">
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                        <span className="text-xs">Loading translation...</span>
+                                      </div>
+                                    );
+                                  }
+                                  
+                                  return (
+                                    <span className="text-xs italic text-muted-foreground/70">
+                                      Translation not available
+                                    </span>
+                                  );
+                                })()}
+                              </div>
                             </div>
 
                             <div className="px-4 pb-4 mt-auto">
@@ -1370,7 +1446,6 @@ export default function RegionDetailPage() {
                     {displayItems.length > 0 &&
                       (lexiconPagination?.totalPages || 0) > 1 && (
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-4 bg-card/40 rounded-xl border border-border">
-                          {/* Info */}
                           <div className="text-sm text-muted-foreground">
                             Showing{" "}
                             {lexiconPagination
@@ -1389,9 +1464,7 @@ export default function RegionDetailPage() {
                             of {lexiconPagination?.total || 0} entries
                           </div>
 
-                          {/* Pagination Buttons */}
                           <div className="flex items-center gap-2">
-                            {/* Previous Button */}
                             <button
                               onClick={goToPreviousPage}
                               disabled={!hasPrev}
@@ -1405,7 +1478,6 @@ export default function RegionDetailPage() {
                               <ChevronLeft className="w-4 h-4" />
                             </button>
 
-                            {/* Page Numbers */}
                             <div className="flex items-center gap-1">
                               {getPageNumbers().map((pageNum, idx) => {
                                 if (pageNum === "...") {
@@ -1442,7 +1514,6 @@ export default function RegionDetailPage() {
                               })}
                             </div>
 
-                            {/* Next Button */}
                             <button
                               onClick={goToNextPage}
                               disabled={!hasNext}
@@ -1457,7 +1528,6 @@ export default function RegionDetailPage() {
                             </button>
                           </div>
 
-                          {/* Mobile: Page Info */}
                           <div className="sm:hidden text-sm text-muted-foreground">
                             Page {lexiconPagination?.page || 0} of{" "}
                             {lexiconPagination?.totalPages || 0}

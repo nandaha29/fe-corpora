@@ -44,7 +44,7 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets }: H
               <h1 className="text-6xl font-bold text-white drop-shadow-md">Mrih Kretarta Pakartining Ngelmu Luhung 
               Kang Tumrap Neng Tanah Djawa</h1>
               <p className="text-gray-300 text-lg leading-relaxed max-w-lg mt-4">
-              “to bring about the unfolding of practise noble sciences, 
+              “To bring about the unfolding of practise noble sciences, 
               which pertains in the land of Java”</p>
             </AnimatedReveal>
 

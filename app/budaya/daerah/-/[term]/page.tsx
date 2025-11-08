@@ -144,6 +144,7 @@ export default function CulturalWordDetailPage({
   const [entry, setEntry] = useState<LexiconEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [translation, setTranslation] = useState<string>("");
 
   // Audio states
   const [isPlaying, setIsPlaying] = useState(false);
@@ -207,6 +208,32 @@ export default function CulturalWordDetailPage({
 
           if (foundEntry) {
             setEntry(foundEntry);
+
+            // Fetch translation from detail endpoint BEFORE setting loading to false
+            const entryId = (foundEntry as any).id || (foundEntry as any).leksikonId;
+            if (entryId) {
+              try {
+                const detailResponse = await fetch(
+                  `https://be-corpora.vercel.app/api/v1/public/lexicons/${entryId}`
+                );
+                if (detailResponse.ok) {
+                  const detailResult = await detailResponse.json();
+                  if (detailResult.success && detailResult.data) {
+                    const fetchedTranslation = detailResult.data.details?.translation || "";
+                    setTranslation(fetchedTranslation);
+                  }
+                }
+              } catch (error) {
+                console.error("Error fetching translation:", error);
+                // Fallback to translation from entry if available
+                if (foundEntry.details?.translation) {
+                  setTranslation(foundEntry.details.translation);
+                }
+              }
+            } else if (foundEntry.details?.translation) {
+              // If no ID, use translation from entry if available
+              setTranslation(foundEntry.details.translation);
+            }
 
             const processedImages: GalleryImage[] = [];
 
@@ -694,14 +721,14 @@ export default function CulturalWordDetailPage({
                       <BookOpen className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">Contructed Meaning</CardTitle>
+                      <CardTitle className="text-lg">Constructed Meaning</CardTitle>
                       <p className="text-xs text-muted-foreground">Primary meaning and context</p>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm leading-relaxed text-foreground font-medium">
-                    {entry.definition}
+                    {translation || entry.details?.translation || "Loading translation..."}
                   </p>
                 </CardContent>
               </Card>

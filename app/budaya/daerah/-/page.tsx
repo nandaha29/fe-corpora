@@ -95,6 +95,7 @@ interface DomainKodifikasi {
 }
 
 interface OriginalLexiconEntry {
+  id?: string | number;
   term: string;
   definition: string;
   regionKey: string;
@@ -158,6 +159,14 @@ function isAdvancedEntry(entry: LexiconEntry): entry is AdvancedLexiconEntry {
   return "kataLeksikon" in entry && "domainKodifikasi" in entry;
 }
 
+// Helper function to get lexicon ID from entry
+function getLexiconId(entry: LexiconEntry): string | number | null {
+  if (isAdvancedEntry(entry)) {
+    return entry.leksikonId;
+  }
+  return entry.id || null;
+}
+
 function normalizeLexiconEntry(entry: LexiconEntry): {
   term: string;
   definition: string;
@@ -166,6 +175,7 @@ function normalizeLexiconEntry(entry: LexiconEntry): {
   domain: string;
   contributor: string;
   regionKey: string;
+  lexiconId: string | number | null;
 } {
   if (isAdvancedEntry(entry)) {
     return {
@@ -179,6 +189,7 @@ function normalizeLexiconEntry(entry: LexiconEntry): {
       domain: entry.domainKodifikasi?.namaDomain || "General",
       contributor: entry.contributor?.namaContributor || "Anonymous",
       regionKey: entry.domainKodifikasi?.subculture?.slug || "unknown",
+      lexiconId: entry.leksikonId,
     };
   }
 
@@ -190,6 +201,7 @@ function normalizeLexiconEntry(entry: LexiconEntry): {
     domain: entry.domain || "General",
     contributor: entry.contributor || "Anonymous",
     regionKey: entry.regionKey || "unknown",
+    lexiconId: entry.id || null,
   };
 }
 
@@ -206,6 +218,7 @@ export default function AllCulturalWordsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [lexiconTranslations, setLexiconTranslations] = useState<Record<string, string>>({});
 
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
@@ -271,6 +284,49 @@ export default function AllCulturalWordsPage() {
           // 🔧 FIX: Langsung simpan sebagai LexiconEntry[]
           setAllLexicons(validLexicons as LexiconEntry[]);
           setFilteredLexicons(validLexicons as LexiconEntry[]);
+
+          // Fetch translations for all lexicons BEFORE setting loading to false
+          const entriesToFetch = validLexicons.filter((entry: LexiconEntry) => {
+            const lexiconId = getLexiconId(entry);
+            return lexiconId !== null;
+          });
+
+          if (entriesToFetch.length > 0) {
+            // Fetch translations in parallel and wait for all to complete
+            const translations = await Promise.all(
+              entriesToFetch.map(async (entry: LexiconEntry) => {
+                const lexiconId = getLexiconId(entry);
+                if (!lexiconId) return null;
+                try {
+                  const detailResponse = await fetch(
+                    `https://be-corpora.vercel.app/api/v1/public/lexicons/${lexiconId}`
+                  );
+                  if (!detailResponse.ok) return null;
+                  const detailResult = await detailResponse.json();
+                  if (detailResult.success && detailResult.data) {
+                    const translation = detailResult.data.details?.translation || "";
+                    return { lexiconId: lexiconId.toString(), translation };
+                  }
+                } catch (error) {
+                  console.error(`Error fetching translation for ${lexiconId}:`, error);
+                }
+                return null;
+              })
+            );
+
+            // Build translation map
+            const translationMap: Record<string, string> = {};
+            translations.forEach((t) => {
+              if (t) {
+                translationMap[t.lexiconId] = t.translation;
+              }
+            });
+            
+            // Set translations before setting loading to false
+            if (Object.keys(translationMap).length > 0) {
+              setLexiconTranslations(translationMap);
+            }
+          }
         } else {
           throw new Error("Invalid data format");
         }
@@ -382,6 +438,46 @@ export default function AllCulturalWordsPage() {
 
           console.log("✅ API Results:", results.length);
           setFilteredLexicons(results);
+
+          // Fetch translations for search results
+          const entriesToFetch = results.filter((entry: LexiconEntry) => {
+            const lexiconId = getLexiconId(entry);
+            return lexiconId !== null && !lexiconTranslations[lexiconId.toString()];
+          });
+
+          if (entriesToFetch.length > 0) {
+            // Fetch translations in parallel
+            Promise.all(
+              entriesToFetch.map(async (entry: LexiconEntry) => {
+                const lexiconId = getLexiconId(entry);
+                if (!lexiconId) return null;
+                try {
+                  const detailResponse = await fetch(
+                    `https://be-corpora.vercel.app/api/v1/public/lexicons/${lexiconId}`
+                  );
+                  if (!detailResponse.ok) return null;
+                  const detailResult = await detailResponse.json();
+                  if (detailResult.success && detailResult.data) {
+                    const translation = detailResult.data.details?.translation || "";
+                    return { lexiconId: lexiconId.toString(), translation };
+                  }
+                } catch (error) {
+                  console.error(`Error fetching translation for ${lexiconId}:`, error);
+                }
+                return null;
+              })
+            ).then((translations) => {
+              const translationMap: Record<string, string> = {};
+              translations.forEach((t) => {
+                if (t) {
+                  translationMap[t.lexiconId] = t.translation;
+                }
+              });
+              if (Object.keys(translationMap).length > 0) {
+                setLexiconTranslations((prev) => ({ ...prev, ...translationMap }));
+              }
+            });
+          }
         } else {
           console.log("⚠️ API returned no results");
           setFilteredLexicons([]);
@@ -680,7 +776,7 @@ export default function AllCulturalWordsPage() {
           <div className="flex justify-center items-center py-16">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Memuat leksikon budaya...</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           </div>
         ) : error ? (
@@ -731,7 +827,9 @@ export default function AllCulturalWordsPage() {
 
                         <CardContent className="flex-1 flex flex-col">
                           <p className="text-sm text-muted-foreground mb-3 line-clamp-3 flex-1">
-                            {normalized.definition}
+                            {normalized.lexiconId && lexiconTranslations[normalized.lexiconId.toString()]
+                              ? lexiconTranslations[normalized.lexiconId.toString()]
+                              : "Loading translation..."}
                           </p>
 
                           <div className="flex items-center text-xs text-muted-foreground mb-2">
