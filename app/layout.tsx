@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Manrope } from "next/font/google"
+import { EB_Garamond } from "next/font/google"
 import TransitionProvider from "@/components/ux/transition-provider"
 import "./globals.css"
 
@@ -10,6 +11,14 @@ const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-manrope",
+})
+
+const ebGaramond = EB_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-eb-garamond",
 })
 
 export const metadata: Metadata = {
@@ -34,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body 
-        className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${manrope.variable}`}
+        className={`${ebGaramond.className} ${ebGaramond.variable} ${GeistSans.variable} ${GeistMono.variable} ${manrope.variable}`}
         suppressHydrationWarning
       >
         <TransitionProvider>{children}</TransitionProvider>
