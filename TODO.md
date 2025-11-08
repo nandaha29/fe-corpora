@@ -1,7 +1,8 @@
-# TODO: Add Footer Component to app/peta-budaya/page.tsx
+# TODO: Add Stats Cards to components/sections/about-section.tsx
 
 ## Steps to Complete:
-- [x] Import the Footer component from "@/components/layout/footer"
-- [x] Extract the onNavClick logic into a reusable function
-- [x] Add the Footer component at the end of the JSX structure, passing the onNavClick prop
+- [x] Import necessary icons (Award, Sparkles if not already imported)
+- [x] Add the Stats Cards section below the existing cards in the about section
+- [x] Use the stats prop to populate the card values with fallbacks
+- [x] Ensure proper styling and layout
 - [x] Verify the changes by running the development server
