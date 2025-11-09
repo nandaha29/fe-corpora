@@ -51,8 +51,9 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
     description: ca.asset.penjelasan
   })) : defaultLogos
 
-  // Duplikasi logo sebanyak 4 kali untuk memastikan tidak ada gap
-  const repeatedLogos = Array(4).fill(displayAssets).flat()
+  // 🔧 Duplikasi logo minimal 8 kali untuk memastikan marquee penuh dan seamless
+  const minRepetitions = Math.max(8, Math.ceil(40 / displayAssets.length))
+  const repeatedLogos = Array(minRepetitions).fill(displayAssets).flat()
 
   return (
     <section
@@ -93,8 +94,9 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
         </div>
       </div>
 
-      {/* Scrolling Logos */}
+      {/* Scrolling Logos - Improved Ticker */}
       <div className="group relative mt-12 w-screen -ml-[calc((100vw-100%)/2)] overflow-hidden">
+        {/* Gradient overlays untuk smooth fade */}
         <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
 
@@ -102,7 +104,7 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
           className="marquee relative overflow-hidden w-full border-y border-border/60 bg-muted/20"
           aria-label="Scrolling partner logos"
         >
-          <div className="marquee-track flex items-center gap-14 md:gap-20 py-10 will-change-transform">
+          <div className="marquee-track flex items-center gap-14 md:gap-20 py-10">
             {repeatedLogos.map((logo, index) => (
               <div
                 key={`logo-${index}`}
@@ -124,29 +126,51 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
         </div>
       </div>
 
-      {/* Marquee animation */}
+      {/* Info Text */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <p className="text-center text-sm text-muted-foreground">
+          Hover over the ticker to pause • Total {displayAssets.length} partner
+          {displayAssets.length !== 1 ? "s" : ""}
+        </p>
+      </div>
+
+      {/* Marquee Animation - Seamless Loop */}
       <style jsx>{`
         @keyframes marquee-scroll {
           0% {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-25%);
+            transform: translateX(-${100 / minRepetitions}%);
           }
         }
         
         .marquee-track {
-          animation: marquee-scroll 40s linear infinite;
+          animation: marquee-scroll 60s linear infinite;
+          display: flex;
+          width: fit-content;
         }
         
         .group:hover .marquee-track {
           animation-play-state: paused;
         }
 
-        /* Ensure smooth looping */
-        .marquee-track {
-          display: flex;
-          width: fit-content;
+        /* Smooth masking for seamless loop */
+        .marquee {
+          -webkit-mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 10%,
+            black 90%,
+            transparent
+          );
+          mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 10%,
+            black 90%,
+            transparent
+          );
         }
       `}</style>
     </section>

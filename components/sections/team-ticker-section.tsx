@@ -36,9 +36,24 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
       }))
     : DEFAULT_MEMBERS
 
-  // 🔧 Duplikasi array minimal 8 kali untuk memastikan marquee penuh
-  const minRepetitions = Math.max(8, Math.ceil(40 / members.length))
-  const repeatedMembers = Array(minRepetitions).fill(members).flat()
+  // 🔧 FIX: Validasi dan safe calculation untuk repetitions
+  const safeMembers = members.length > 0 ? members : DEFAULT_MEMBERS
+  
+  // Minimal 8 repetisi, maksimal 20 untuk menghindari array terlalu besar
+  const minRepetitions = Math.max(8, Math.min(20, Math.ceil(40 / safeMembers.length)))
+  
+  // 🔧 FIX: Pastikan tidak ada NaN atau Infinity
+  const validRepetitions = Number.isFinite(minRepetitions) && minRepetitions > 0 
+    ? minRepetitions 
+    : 8
+
+  const repeatedMembers = Array(validRepetitions).fill(safeMembers).flat()
+
+  // 🔧 FIX: Validasi repeatedMembers tidak kosong
+  if (!repeatedMembers || repeatedMembers.length === 0) {
+    console.error("TeamTickerSection: No members to display");
+    return null;
+  }
 
   return (
     <section
@@ -112,8 +127,8 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
       {/* Info Text */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <p className="text-center text-sm text-muted-foreground">
-          Hover over the ticker to pause • Total {members.length} team member
-          {members.length !== 1 ? "s" : ""}
+          Hover over the ticker to pause • Total {safeMembers.length} team member
+          {safeMembers.length !== 1 ? "s" : ""}
         </p>
       </div>
 
@@ -124,7 +139,7 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-${100 / minRepetitions}%);
+            transform: translateX(-${100 / validRepetitions}%);
           }
         }
 

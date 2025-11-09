@@ -102,7 +102,7 @@ export default function SubculturesGalleryPage() {
 
   // Get back button text based on referrer
   const getBackButtonText = () => {
-    if (!referrer) return 'Kembali'
+    if (!referrer) return 'Back'
     
     if (referrer === '/') return 'Kembali ke Beranda'
     if (referrer === '/peta-budaya') return 'Kembali ke Peta Budaya'
@@ -212,7 +212,7 @@ export default function SubculturesGalleryPage() {
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
               >
                 <Home className="w-4 h-4" />
-                <span className="hidden sm:inline">Beranda</span>
+                <span className="hidden sm:inline">Home</span>
               </Button>
             )}
           </div>
@@ -223,15 +223,15 @@ export default function SubculturesGalleryPage() {
           variant="secondary"
           className="bg-blue-950/60 text-blue-300 border border-blue-900 px-4 py-1 rounded-full mb-4"
         >
-          🗺️ SUBKULTUR BUDAYA
+          🗺️ Cultural Tradition
         </Badge>
 
         <h1 className="text-4xl font-extrabold text-foreground mb-2">
-          Explore Cultural Subcultures
+          Explore Subcultures of East Java
         </h1>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
           Each subculture has unique characteristics and traditions that enrich the cultural identity of East Java.
-          Choose one region to explore further.
+          Choose one subculture to explore further.
         </p>
 
         {/* === Search Bar === */}
@@ -240,7 +240,7 @@ export default function SubculturesGalleryPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder="Cari wilayah budaya..."
+                placeholder="Search Cultural Region..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="pl-10 bg-background/50 border border-border focus:ring-primary/20"
@@ -254,11 +254,11 @@ export default function SubculturesGalleryPage() {
           <div className="mt-4 text-sm text-muted-foreground">
             {searchQuery ? (
               <>
-                Menampilkan {pagination?.total || 0} hasil
+                Show {pagination?.total || 0} result
                 {searchQuery && ` untuk "${searchQuery}"`}
               </>
             ) : (
-              <>Total {pagination?.total || 0} subkultur</>
+              <>Total {pagination?.total || 0} subculture</>
             )}
           </div>
         )}
@@ -338,9 +338,9 @@ export default function SubculturesGalleryPage() {
                 <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <p className="text-muted-foreground mb-2">Tidak ada hasil ditemukan</p>
+                <p className="text-muted-foreground mb-2">Not Found</p>
                 <p className="text-sm text-muted-foreground">
-                  Coba kata kunci yang berbeda
+                  Try another search term or remove filters.
                 </p>
               </div>
             )}
@@ -350,9 +350,9 @@ export default function SubculturesGalleryPage() {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border">
                 {/* Info */}
                 <div className="text-sm text-muted-foreground order-2 sm:order-1">
-                  Menampilkan <span className="font-medium text-foreground">{pagination ? (pagination.page - 1) * pagination.limit + 1 : 0}</span>-
+                  Show <span className="font-medium text-foreground">{pagination ? (pagination.page - 1) * pagination.limit + 1 : 0}</span>-
                   <span className="font-medium text-foreground">{pagination ? Math.min(pagination.page * pagination.limit, pagination.total) : 0}</span> dari{' '}
-                  <span className="font-medium text-foreground">{pagination?.total || 0}</span> subkultur
+                  <span className="font-medium text-foreground">{pagination?.total || 0}</span> Subculture
                 </div>
 
                 {/* Pagination Controls */}
@@ -370,7 +370,7 @@ export default function SubculturesGalleryPage() {
                     }`}
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    <span className="hidden sm:inline ml-1">Sebelumnya</span>
+                    <span className="hidden sm:inline ml-1">Previous</span>
                   </Button>
 
                   {/* Page Numbers */}
@@ -418,14 +418,14 @@ export default function SubculturesGalleryPage() {
                         : 'hover:bg-primary/10'
                     }`}
                   >
-                    <span className="hidden sm:inline mr-1">Selanjutnya</span>
+                    <span className="hidden sm:inline mr-1">Next</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
 
                 {/* Mobile: Page Info */}
                 <div className="sm:hidden text-sm text-muted-foreground order-3">
-                  Halaman {pagination?.page || 1} dari {totalPages}
+                  Page {pagination?.page || 1} of {totalPages}
                 </div>
               </div>
             )}

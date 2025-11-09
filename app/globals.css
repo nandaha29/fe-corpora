@@ -76,7 +76,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-eb-garamond), var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -122,6 +122,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-eb-garamond), serif;
   }
 }
 
@@ -353,4 +354,80 @@ select:hover:not(:disabled) {
 iframe[allowfullscreen] {
   width: 100%;
   height: 100%;
+}
+
+/* app/globals.css - Tambahkan di bagian bawah */
+
+/* Rich Text Styles */
+.rich-text-content {
+  @apply text-muted-foreground leading-relaxed;
+}
+
+.rich-text-content h1 {
+  @apply text-3xl font-bold text-foreground mb-4 mt-6;
+}
+
+.rich-text-content h2 {
+  @apply text-2xl font-bold text-foreground mb-3 mt-5;
+}
+
+.rich-text-content h3 {
+  @apply text-xl font-semibold text-foreground mb-2 mt-4;
+}
+
+.rich-text-content h4 {
+  @apply text-lg font-semibold text-foreground mb-2 mt-3;
+}
+
+.rich-text-content p {
+  @apply mb-4 text-muted-foreground leading-relaxed;
+}
+
+.rich-text-content ul {
+  @apply list-disc list-inside mb-4 space-y-2;
+}
+
+.rich-text-content ol {
+  @apply list-decimal list-inside mb-4 space-y-2;
+}
+
+.rich-text-content li {
+  @apply text-muted-foreground;
+}
+
+.rich-text-content a {
+  @apply text-primary hover:underline cursor-pointer;
+}
+
+.rich-text-content blockquote {
+  @apply border-l-4 border-primary pl-4 italic my-4 text-muted-foreground;
+}
+
+.rich-text-content code {
+  @apply bg-muted px-2 py-1 rounded text-sm font-mono;
+}
+
+.rich-text-content pre {
+  @apply bg-muted p-4 rounded-lg overflow-x-auto mb-4;
+}
+
+.rich-text-content img {
+  @apply rounded-lg max-w-full h-auto my-4 shadow-md;
+}
+
+.rich-text-content hr {
+  @apply my-6 border-border;
+}
+
+.rich-text-content strong {
+  @apply font-semibold text-foreground;
+}
+
+.rich-text-content em {
+  @apply italic;
+}
+
+/* YouTube embed responsive */
+.rich-text-content iframe[src*="youtube"] {
+  @apply w-full aspect-video rounded-lg my-4;
 }

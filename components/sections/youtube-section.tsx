@@ -1,4 +1,4 @@
-// components/ui/youtube-section.tsx
+// components/sections/youtube-section.tsx
 "use client"
 
 import { useState } from "react"
@@ -81,16 +81,16 @@ export function YouTubeSection({
   }
 
   return (
-    <section className={cn("space-y-8", className)}>
+    <section className={cn("space-y-6", className)}>
       {/* Header */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            <h3 className="text-xl md:text-2xl font-bold text-foreground mb-2">
               {title}
             </h3>
             {description && (
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {description}
               </p>
             )}
@@ -131,10 +131,10 @@ export function YouTubeSection({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.3 }}
-          className="space-y-4"
+          className="space-y-3"
         >
           {/* Video Embed */}
-          <div className="relative w-full bg-black rounded-2xl overflow-hidden shadow-2xl border border-border">
+          <div className="relative w-full bg-black rounded-xl overflow-hidden shadow-xl border border-border">
             <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
               <iframe
                 src={getYouTubeEmbedUrl(currentVideo.videoId, isPlaying)}
@@ -149,19 +149,19 @@ export function YouTubeSection({
 
           {/* Video Info */}
           <Card className="bg-card/60 backdrop-blur-sm border-border">
-            <div className="p-6 space-y-4">
+            <div className="p-4 space-y-3">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <h4 className="text-xl font-bold text-foreground mb-2">
+                  <h4 className="text-lg font-bold text-foreground mb-2">
                     {currentVideo.title}
                   </h4>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {currentVideo.description}
                   </p>
                 </div>
                 
                 {currentVideo.duration && (
-                  <Badge variant="secondary" className="whitespace-nowrap">
+                  <Badge variant="secondary" className="whitespace-nowrap text-xs">
                     {currentVideo.duration}
                   </Badge>
                 )}
@@ -179,15 +179,15 @@ export function YouTubeSection({
               )}
 
               {/* Watch on YouTube Link */}
-              <div className="pt-4 border-t border-border">
+              <div className="pt-3 border-t border-border">
                 <a
                   href={`https://www.youtube.com/watch?v=${currentVideo.videoId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                  className="inline-flex items-center gap-2 text-xs text-primary hover:underline"
                 >
                   Watch on YouTube
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
             </div>
@@ -197,12 +197,12 @@ export function YouTubeSection({
 
       {/* Video Thumbnails Grid */}
       {showThumbnails && hasMultipleVideos && (
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-foreground">
+        <div className="space-y-3">
+          <h4 className="text-base font-semibold text-foreground">
             {subcultureName ? `More Videos from ${subcultureName}` : "More Videos"}
           </h4>
 
-          <div className={cn("grid gap-4", gridColumns[columns])}>
+          <div className={cn("grid gap-3", gridColumns[columns])}>
             {videos.map((video, index) => (
               <motion.button
                 key={video.videoId}
@@ -240,7 +240,7 @@ export function YouTubeSection({
 
                   {/* Duration Badge */}
                   {video.duration && (
-                    <Badge className="absolute bottom-2 right-2 bg-black/70 text-white border-0">
+                    <Badge className="absolute bottom-2 right-2 bg-black/70 text-white border-0 text-xs">
                       {video.duration}
                     </Badge>
                   )}

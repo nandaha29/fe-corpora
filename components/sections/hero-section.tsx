@@ -41,10 +41,11 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets }: H
             </AnimatedReveal>
 
             <AnimatedReveal animation="fade-up" delay={400}>
-              <h1 className="text-6xl font-bold text-white drop-shadow-md">Discover the Spirit of {cultureName}</h1>
+              <h1 className="text-6xl font-bold text-white drop-shadow-md">Mrih Kretarta Pakartining Ngelmu Luhung 
+              Kang Tumrap Neng Tanah Djawa</h1>
               <p className="text-gray-300 text-lg leading-relaxed max-w-lg mt-4">
-                Experience the harmony of nature and heritage — from sacred temples to volcanic
-                horizons. {cultureName} invites you to a journey filled with beauty, tradition, and adventure.</p>
+              “To bring about the unfolding of practise noble sciences, 
+              which pertains in the land of Java”</p>
             </AnimatedReveal>
 
             <AnimatedReveal animation="fade-up" delay={600}>

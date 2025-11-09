@@ -137,7 +137,62 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
             </Card>
           </AnimatedReveal>
         </div>
-        
+
+        {/* Stats Cards */}
+        <AnimatedReveal animation="fade-up" delay={1400}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-8 text-center h-full flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Award className="h-8 w-8 text-rose-700" />
+                </div>
+                <div className="text-2xl font-bold text-rose-700">
+                  {stats?.publishedCultures || 500}+
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Documented Cultures
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-8 text-center h-full flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-8 w-8 text-emerald-600" />
+                </div>
+                <div className="text-2xl font-bold text-emerald-700">
+                  {stats?.publishedSubcultures || 38}
+                </div>
+                <div className="text-sm text-muted-foreground">Subcultures</div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-8 text-center h-full flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BookOpen className="h-8 w-8 text-amber-600" />
+                </div>
+                <div className="text-2xl font-bold text-amber-700">
+                  {stats?.publishedLeksikons || 12}
+                </div>
+                <div className="text-sm text-muted-foreground">Leksikons</div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-8 text-center h-full flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="h-8 w-8 text-purple-600" />
+                </div>
+                <div className="text-2xl font-bold text-purple-700">
+                  {stats?.totalContributors || 100}+
+                </div>
+                <div className="text-sm text-muted-foreground">Contributors</div>
+              </CardContent>
+            </Card>
+          </div>
+        </AnimatedReveal>
+
         <AnimatedReveal animation="fade-up" delay={1800}>
           <div className="text-center mt-16">
             <Link href="/tentang">

@@ -17,7 +17,7 @@ export function GlobalSearchBar({
   value,
   onChange,
   isSearching = false,
-  placeholder = "Cari istilah budaya atau daerah...",
+  placeholder = "Search for cultural terms or regions...",
   className = "",
 }: GlobalSearchBarProps) {
   const handleClear = () => {
