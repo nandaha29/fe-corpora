@@ -26,7 +26,6 @@ import { useNavigation } from "@/hooks/use-navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { SearchInput } from "@/components/search-input";
 import { Input } from "@/components/ui/input";
-// import { useRouter, useSearchParams } from "next/navigation";
 import {
   Model3DSection,
   type Model3D,
@@ -75,8 +74,6 @@ interface SearchResult {
   };
   leksikonAssets: any[];
   term: string;
-  // translation: string;
-  // commonMeaning: string;
   culturalMeaning: string;
   category: string;
   region: string;
@@ -181,12 +178,6 @@ export default function RegionDetailPage() {
   // Lexicon state for server-side search
   const [lexiconItems, setLexiconItems] = useState<SearchResult[]>([]);
   const [lexiconLoading, setLexiconLoading] = useState(false);
-  const [lexiconPagination, setLexiconPagination] = useState<{
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  } | null>(null);
 
   const [lexiconTranslations, setLexiconTranslations] = useState<
     Record<string, string>
@@ -440,11 +431,9 @@ export default function RegionDetailPage() {
     return videos;
   }, [subcultureData]);
 
-  const fetchLexiconTranslation = async (
-    slug: string
-  ): Promise<string> => {
+  const fetchLexiconTranslation = async (slug: string): Promise<string> => {
     console.log(`🔍 Fetching translation for slug: ${slug}`);
-    
+
     try {
       const response = await fetch(
         `https://be-corpora.vercel.app/api/v1/public/lexicons/${slug}`
@@ -463,7 +452,8 @@ export default function RegionDetailPage() {
         hasData: !!result.data,
         hasDetails: !!result.data?.details,
         hasTranslation: !!result.data?.details?.translation,
-        translationPreview: result.data?.details?.translation?.substring(0, 50) + '...'
+        translationPreview:
+          result.data?.details?.translation?.substring(0, 50) + "...",
       });
 
       if (result.success && result.data?.details?.translation) {
@@ -473,10 +463,7 @@ export default function RegionDetailPage() {
       console.warn(`⚠️ No translation found in response for ${slug}`);
       return "";
     } catch (error) {
-      console.error(
-        `❌ Error fetching translation for lexicon ${slug}:`,
-        error
-      );
+      console.error(`❌ Error fetching translation for lexicon ${slug}:`, error);
       return "";
     }
   };
@@ -490,16 +477,18 @@ export default function RegionDetailPage() {
         !translationsLoading.has(item.slug)
     );
 
-    console.log('🔄 fetchTranslationsForItems:', {
+    console.log("🔄 fetchTranslationsForItems:", {
       totalItems: items.length,
       itemsNeedingTranslation: itemsNeedingTranslation.length,
-      itemsWithSlug: items.filter(i => i.slug).length,
-      itemsWithExistingTranslation: items.filter(i => i.translation).length,
-      slugsNeedingFetch: itemsNeedingTranslation.map(i => i.slug)
+      itemsWithSlug: items.filter((i) => i.slug).length,
+      itemsWithExistingTranslation: items.filter((i) => i.translation).length,
+      slugsNeedingFetch: itemsNeedingTranslation.map((i) => i.slug),
     });
 
     if (itemsNeedingTranslation.length === 0) {
-      console.log('⏭️ No translations needed - all items have data or are loading');
+      console.log(
+        "⭐️ No translations needed - all items have data or are loading"
+      );
       return;
     }
 
@@ -513,9 +502,11 @@ export default function RegionDetailPage() {
 
     const translationPromises = itemsNeedingTranslation.map(async (item) => {
       const translation = await fetchLexiconTranslation(item.slug);
-      console.log(`✅ Fetched translation for ${item.term} (${item.slug}):`, 
-        translation ? translation.substring(0, 50) + '...' : 'empty');
-      
+      console.log(
+        `✅ Fetched translation for ${item.term} (${item.slug}):`,
+        translation ? translation.substring(0, 50) + "..." : "empty"
+      );
+
       return {
         slug: item.slug,
         translation,
@@ -531,7 +522,7 @@ export default function RegionDetailPage() {
       }
     });
 
-    console.log('📦 New translations fetched:', Object.keys(newTranslations).length);
+    console.log("📦 New translations fetched:", Object.keys(newTranslations).length);
 
     setLexiconTranslations((prev) => ({
       ...prev,
@@ -552,18 +543,19 @@ export default function RegionDetailPage() {
   // Search functionality - server-side
   useEffect(() => {
     const fetchLexiconData = async () => {
-      // Don't fetch if subculture data is not loaded yet
       if (!subcultureData?.subcultureId) {
         return;
       }
 
-      // If no search query, fetch all entries for this subculture
       if (!searchQuery.trim()) {
         setLexiconLoading(true);
 
         try {
           const searchParams = new URLSearchParams();
-          searchParams.append('subculture_id', subcultureData.subcultureId.toString());
+          searchParams.append(
+            "subculture_id",
+            subcultureData.subcultureId.toString()
+          );
 
           const response = await fetch(
             `https://be-corpora.vercel.app/api/v1/search/advanced?${searchParams.toString()}`
@@ -579,9 +571,9 @@ export default function RegionDetailPage() {
             const lexicons = result.data;
             const mappedItems = lexicons.map((entry: any) => ({
               ...entry,
-              // Add computed fields for compatibility
               term: entry.kataLeksikon,
-              definition: entry.commonMeaning || entry.translation || entry.maknaKultural,
+              definition:
+                entry.commonMeaning || entry.translation || entry.maknaKultural,
               category: entry.domainKodifikasi?.namaDomain || "",
               region: entry.domainKodifikasi?.subculture?.namaSubculture || "",
               slug: entry.kataLeksikon
@@ -597,7 +589,7 @@ export default function RegionDetailPage() {
             setLexiconItems([]);
           }
         } catch (error) {
-          console.error('Initial lexicon load error:', error);
+          console.error("Initial lexicon load error:", error);
           setLexiconItems([]);
         } finally {
           setLexiconLoading(false);
@@ -605,18 +597,17 @@ export default function RegionDetailPage() {
         return;
       }
 
-      // If there is a search query, search within the subculture
       setLexiconLoading(true);
 
       try {
-        const params = new URLSearchParams();
-        if (searchQuery.trim()) {
-          params.append("search", searchQuery.trim());
-        }
-        params.append("page", currentPage.toString());
-        params.append("limit", ITEMS_PER_PAGE.toString());
         const searchParams = new URLSearchParams();
-        searchParams.append('subculture_id', subcultureData.subcultureId.toString());
+        searchParams.append(
+          "subculture_id",
+          subcultureData.subcultureId.toString()
+        );
+        if (searchQuery.trim()) {
+          searchParams.append("search", searchQuery.trim());
+        }
 
         const response = await fetch(
           `https://be-corpora.vercel.app/api/v1/search/advanced?${searchParams.toString()}`
@@ -629,51 +620,23 @@ export default function RegionDetailPage() {
         const result = await response.json();
 
         if (result.success && result.data) {
-          const lexicons = result.data.lexicons || [];
-          const mappedItems = lexicons.map((entry: any) => {
-            // ✅ Use slug as identifier since lexiconId is not returned
-            const entrySlug = entry.slug || entry.id || (entry.term || "")
+          const lexicons = result.data;
+          const mappedItems = lexicons.map((entry: any) => ({
+            ...entry,
+            term: entry.kataLeksikon,
+            definition:
+              entry.commonMeaning || entry.translation || entry.maknaKultural,
+            category: entry.domainKodifikasi?.namaDomain || "",
+            region: entry.domainKodifikasi?.subculture?.namaSubculture || "",
+            slug: entry.kataLeksikon
               .normalize("NFD")
               .replace(/[\u0300-\u036f]/g, "")
-              .replace(/[^\w\s-]/g, "")
               .toLowerCase()
-              .replace(/\s+/g, "-")
-              .replace(/(^-|-$)/g, "");
-
-            console.log('📝 Lexicon Entry:', {
-              term: entry.term,
-              slug: entrySlug,
-              hasDetails: !!entry.details,
-              translation: entry.details?.translation,
-              commonMeaning: entry.details?.commonMeaning,
-              culturalMeaning: entry.details?.culturalMeaning,
-              fullEntry: entry
-            });
-
-            return {
-              term: entry.term,
-              translation: entry.details?.translation || "",
-              commonMeaning: entry.details?.commonMeaning || "",
-              culturalMeaning: entry.details?.culturalMeaning || "",
-              category: entry.category || "",
-              region:
-                subcultureData?.culture?.name ||
-                subcultureData?.culture?.region ||
-                regionId,
-              slug: entrySlug,
-            };
-          });
-
-          console.log('✅ Mapped Items:', mappedItems);
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/(^-|-$)/g, ""),
+          }));
 
           setLexiconItems(mappedItems);
-          setLexiconPagination({
-            total: result.data.total,
-            page: result.data.page,
-            limit: result.data.limit,
-            totalPages: Math.ceil(result.data.total / result.data.limit),
-          });
-
           await fetchTranslationsForItems(mappedItems);
         } else {
           setLexiconItems([]);
@@ -739,16 +702,19 @@ export default function RegionDetailPage() {
   }, [showLexiconOnly]);
 
   useEffect(() => {
-    // No longer needed since we removed pagination
+    setCurrentPage(1);
   }, [searchQuery]);
 
+  // Pagination logic
   const displayItems = lexiconItems;
-  const paginatedItems = displayItems;
+  const totalItems = displayItems.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedItems = displayItems.slice(startIndex, endIndex);
 
-  const hasPrev = lexiconPagination ? lexiconPagination.page > 1 : false;
-  const hasNext = lexiconPagination
-    ? lexiconPagination.page < lexiconPagination.totalPages
-    : false;
+  const hasPrev = currentPage > 1;
+  const hasNext = currentPage < totalPages;
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -759,25 +725,20 @@ export default function RegionDetailPage() {
   };
 
   const goToPreviousPage = () => {
-    if (lexiconPagination && lexiconPagination.page > 1) {
-      goToPage(lexiconPagination.page - 1);
+    if (currentPage > 1) {
+      goToPage(currentPage - 1);
     }
   };
 
   const goToNextPage = () => {
-    if (
-      lexiconPagination &&
-      lexiconPagination.page < lexiconPagination.totalPages
-    ) {
-      goToPage(lexiconPagination.page + 1);
+    if (currentPage < totalPages) {
+      goToPage(currentPage + 1);
     }
   };
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     const maxPagesToShow = 5;
-    const currentPage = lexiconPagination?.page || 1;
-    const totalPages = lexiconPagination?.totalPages || 0;
 
     if (totalPages <= maxPagesToShow) {
       for (let i = 1; i <= totalPages; i++) {
@@ -831,7 +792,9 @@ export default function RegionDetailPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <h3 className="text-muted-foreground text-xl">Loading subculture details...</h3>
+          <h3 className="text-muted-foreground text-xl">
+            Loading subculture details...
+          </h3>
         </div>
       </div>
     );
@@ -846,7 +809,7 @@ export default function RegionDetailPage() {
               <AlertCircle className="w-8 h-8 text-destructive" />
             </div>
 
-            <h1 className="text-2xl font-bold text-center text-foreground mb-3 text-xl">
+            <h1 className="text-2xl font-bold text-center text-foreground mb-3">
               Unable to Load Subculture
             </h1>
 
@@ -887,7 +850,7 @@ export default function RegionDetailPage() {
                 className="flex-1 gap-2 cursor-pointer"
                 variant="default"
               >
-                <RefreshCw className="w-4 h-4 text-xl" />
+                <RefreshCw className="w-4 h-4" />
                 Try Again
               </Button>
               <Link href="/peta-budaya" className="flex-1">
@@ -898,8 +861,7 @@ export default function RegionDetailPage() {
             </div>
 
             <p className="text-sm text-muted-foreground text-center mt-6">
-              If the problem persists, please contact support or try again
-              later.
+              If the problem persists, please contact support or try again later.
             </p>
           </div>
         </div>
@@ -931,7 +893,8 @@ export default function RegionDetailPage() {
     );
   }
 
-  const currentGalleryImage = galleryImages[currentGalleryIndex] ||
+  const currentGalleryImage =
+    galleryImages[currentGalleryIndex] ||
     galleryImages[0] || {
       url: "/placeholder.svg",
       description: "Gallery Image",
@@ -949,9 +912,10 @@ export default function RegionDetailPage() {
     return null;
   };
 
-  const heroImageUrl = getThumbnailAsset() || 
-    subcultureData?.profile?.highlights?.[0]?.url || 
-    subcultureData?.heroImage || 
+  const heroImageUrl =
+    getThumbnailAsset() ||
+    subcultureData?.profile?.highlights?.[0]?.url ||
+    subcultureData?.heroImage ||
     "/placeholder.svg";
 
   return (
@@ -977,23 +941,19 @@ export default function RegionDetailPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-sm text-gray-200 mb-3"
+              className="text-xl text-gray-200 mb-3"
               aria-label="Breadcrumb"
             >
               <ol className="flex items-center space-x-2">
                 <li>
                   <Link href="/" className="hover:underline">
-                  <div className="text-xl">
                     Home
-                  </div>
                   </Link>
                 </li>
                 <li aria-hidden="true">›</li>
                 <li>
                   <Link href="/peta-budaya" className="hover:underline">
-                   <div className="text-xl">
                     Culture Map
-                   </div>
                   </Link>
                 </li>
               </ol>
@@ -1017,7 +977,8 @@ export default function RegionDetailPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              {subcultureData?.profile?.artiSalamKhas || "Special greeting meaning here"}
+              {subcultureData?.profile?.artiSalamKhas ||
+                "Special greeting meaning here"}
             </motion.p>
           </div>
         </div>
@@ -1036,15 +997,13 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("region-profile")}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block cursor-pointer ${
+                  className={`px-3 py-2 rounded-md text-lg transition-colors inline-block cursor-pointer ${
                     activeSection === "region-profile" && !showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
-                 <div className="text-xl">
                   Subculture Profile
-                 </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1053,15 +1012,13 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("photo-gallery")}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block cursor-pointer ${
+                  className={`px-3 py-2 rounded-md text-lg transition-colors inline-block cursor-pointer ${
                     activeSection === "photo-gallery" && !showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
-                   <div className="text-xl">
                   Photo Gallery
-                   </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1070,15 +1027,13 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("viewer-3d")}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block cursor-pointer ${
+                  className={`px-3 py-2 rounded-md text-lg transition-colors inline-block cursor-pointer ${
                     activeSection === "viewer-3d" && !showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
-                     <div className="text-xl">
                   3D Models
-                     </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1087,15 +1042,13 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("youtube-videos")}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block cursor-pointer ${
+                  className={`px-3 py-2 rounded-md text-lg transition-colors inline-block cursor-pointer ${
                     activeSection === "youtube-videos" && !showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
-                   <div className="text-xl">
                   YouTube Videos
-                   </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1109,15 +1062,13 @@ export default function RegionDetailPage() {
                     setCurrentPage(1);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block cursor-pointer ${
+                  className={`px-3 py-2 rounded-md text-lg transition-colors inline-block cursor-pointer ${
                     showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
-                  <div className="text-xl">
                   Lexicons
-                  </div>
                 </button>
               </li>
             </ul>
@@ -1217,8 +1168,7 @@ export default function RegionDetailPage() {
                                 <img
                                   src={img.url || "/placeholder.svg"}
                                   alt={
-                                    img.description ||
-                                    `Gallery image ${idx + 1}`
+                                    img.description || `Gallery image ${idx + 1}`
                                   }
                                   className="w-full h-full object-cover"
                                   crossOrigin="anonymous"
@@ -1268,10 +1218,6 @@ export default function RegionDetailPage() {
                             : "▶ Auto Play"}
                         </span>
                       </button>
-
-                      {/* <div className="text-xs text-muted-foreground">
-                        {galleryImages.length} photos
-                      </div> */}
                     </div>
                   )}
                 </div>
@@ -1284,8 +1230,7 @@ export default function RegionDetailPage() {
                   if (!profile)
                     return (
                       <p className="text-xl text-muted-foreground">
-                        Detailed profile for this subculture is not yet
-                        available.
+                        Detailed profile for this subculture is not yet available.
                       </p>
                     );
 
@@ -1479,12 +1424,11 @@ export default function RegionDetailPage() {
             >
               <div className="flex flex-col gap-4" role="search">
                 <div>
-                  <h2 className="text-xl font-bold text-foreground mb-2">
+                  <h2 className="text-2xl font-bold text-foreground mb-2">
                     {subcultureData.profile?.displayName} Cultural Lexicon
                   </h2>
-                  <p className="text-xl text-muted-foreground mb-4">
-                    Browse all lexicon entries for {subcultureData.profile?.displayName}. Use the search box below to filter terms by word, meaning,
-                    transliteration, or cultural context specific to this subculture.
+                  <p className="text-lg text-muted-foreground mb-4">
+                    Search terms, meanings, transliterations in {subcultureData.profile?.displayName}...
                   </p>
                 </div>
                 <SearchInput
@@ -1523,7 +1467,8 @@ export default function RegionDetailPage() {
 
                         // Get translation from state using slug as key
                         const translation = lexiconTranslations[termSlug];
-                        const isLoadingTranslation = translationsLoading.has(termSlug);
+                        const isLoadingTranslation =
+                          translationsLoading.has(termSlug);
 
                         return (
                           <article
@@ -1531,34 +1476,37 @@ export default function RegionDetailPage() {
                             className="rounded-xl shadow-sm border bg-card/60 border-border overflow-hidden flex flex-col"
                           >
                             <div className="px-4 py-3 flex-grow">
-                              <h3 className="font-semibold text-foreground">
+                              <h3 className="font-semibold text-foreground text-lg">
                                 {entry.term.charAt(0).toUpperCase() +
                                   entry.term.slice(1)}
                               </h3>
 
-                              <div className="text-sm text-muted-foreground line-clamp-2 mt-1 min-h-[2.5rem]">
+                              <div className="text-lg text-muted-foreground line-clamp-2 mt-1 min-h-[2.5rem]">
                                 {(() => {
                                   // ✅ PRIORITY: entry.translation > fetched translation > commonMeaning > culturalMeaning > loading
-                                  const displayText = entry.translation || 
-                                                     translation ||
-                                                     entry.commonMeaning || 
-                                                     entry.culturalMeaning;
-                                  
+                                  const displayText =
+                                    entry.translation ||
+                                    translation ||
+                                    entry.commonMeaning ||
+                                    entry.culturalMeaning;
+
                                   if (displayText) {
                                     return displayText;
                                   }
-                                  
+
                                   if (isLoadingTranslation) {
                                     return (
                                       <div className="flex items-center gap-2">
                                         <Loader2 className="w-3 h-3 animate-spin" />
-                                        <span className="text-sm">Loading translation...</span>
+                                        <span className="text-sm">
+                                          Loading translation...
+                                        </span>
                                       </div>
                                     );
                                   }
-                                  
+
                                   return (
-                                    <span className="text-lg italic text-muted-foreground/70">
+                                    <span className="text-sm italic text-muted-foreground/70">
                                       Translation not available
                                     </span>
                                   );
@@ -1592,7 +1540,7 @@ export default function RegionDetailPage() {
                               ? "No results found"
                               : "No entries available"}
                           </h3>
-                          <p className="text-muted-foreground">
+                          <p className="text-lg text-muted-foreground">
                             {searchQuery
                               ? `No lexicon entries match "${searchQuery}". Try different keywords.`
                               : "The glossary for this subculture is not yet available."}
@@ -1602,97 +1550,80 @@ export default function RegionDetailPage() {
                     </div>
 
                     {/* Pagination Controls */}
-                    {displayItems.length > 0 &&
-                      (lexiconPagination?.totalPages || 0) > 1 && (
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-4 bg-card/40 rounded-xl border border-border">
-                          <div className="text-sm text-muted-foreground">
-                            Showing{" "}
-                            {lexiconPagination
-                              ? (lexiconPagination.page - 1) *
-                                  lexiconPagination.limit +
-                                1
-                              : 0}
-                            -
-                            {lexiconPagination
-                              ? Math.min(
-                                  lexiconPagination.page *
-                                    lexiconPagination.limit,
-                                  lexiconPagination.total
-                                )
-                              : 0}{" "}
-                            of {lexiconPagination?.total || 0} entries
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={goToPreviousPage}
-                              disabled={!hasPrev}
-                              className={`px-3 py-2 rounded-lg border transition-all cursor-pointer ${
-                                !hasPrev
-                                  ? "border-border/50 text-muted-foreground cursor-not-allowed opacity-50"
-                                  : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
-                              }`}
-                              aria-label="Previous page"
-                            >
-                              <ChevronLeft className="w-4 h-4" />
-                            </button>
-
-                            <div className="flex items-center gap-1">
-                              {getPageNumbers().map((pageNum, idx) => {
-                                if (pageNum === "...") {
-                                  return (
-                                    <span
-                                      key={`ellipsis-${idx}`}
-                                      className="px-3 py-2 text-muted-foreground"
-                                    >
-                                      ...
-                                    </span>
-                                  );
-                                }
-
-                                const page = pageNum as number;
-                                return (
-                                  <button
-                                    key={page}
-                                    onClick={() => goToPage(page)}
-                                    className={`min-w-[40px] px-3 py-2 rounded-lg border transition-all cursor-pointer ${
-                                      lexiconPagination?.page === page
-                                        ? "bg-primary text-primary-foreground border-primary font-semibold"
-                                        : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
-                                    }`}
-                                    aria-label={`Go to page ${page}`}
-                                    aria-current={
-                                      lexiconPagination?.page === page
-                                        ? "page"
-                                        : undefined
-                                    }
-                                  >
-                                    {page}
-                                  </button>
-                                );
-                              })}
-                            </div>
-
-                            <button
-                              onClick={goToNextPage}
-                              disabled={!hasNext}
-                              className={`px-3 py-2 rounded-lg border transition-all cursor-pointer ${
-                                !hasNext
-                                  ? "border-border/50 text-muted-foreground cursor-not-allowed opacity-50"
-                                  : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
-                              }`}
-                              aria-label="Next page"
-                            >
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                          </div>
-
-                          <div className="sm:hidden text-sm text-muted-foreground">
-                            Page {lexiconPagination?.page || 0} of{" "}
-                            {lexiconPagination?.totalPages || 0}
-                          </div>
+                    {displayItems.length > 0 && totalPages > 1 && (
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-4 bg-card/40 rounded-xl border border-border">
+                        <div className="text-lg text-muted-foreground">
+                          Showing {startIndex + 1}-
+                          {Math.min(endIndex, totalItems)} of {totalItems} entries
                         </div>
-                      )}
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={goToPreviousPage}
+                            disabled={!hasPrev}
+                            className={`px-3 py-2 rounded-lg border transition-all cursor-pointer ${
+                              !hasPrev
+                                ? "border-border/50 text-muted-foreground cursor-not-allowed opacity-50"
+                                : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
+                            }`}
+                            aria-label="Previous page"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+
+                          <div className="flex items-center gap-1">
+                            {getPageNumbers().map((pageNum, idx) => {
+                              if (pageNum === "...") {
+                                return (
+                                  <span
+                                    key={`ellipsis-${idx}`}
+                                    className="px-3 py-2 text-muted-foreground"
+                                  >
+                                    ...
+                                  </span>
+                                );
+                              }
+
+                              const page = pageNum as number;
+                              return (
+                                <button
+                                  key={page}
+                                  onClick={() => goToPage(page)}
+                                  className={`min-w-[40px] px-3 py-2 rounded-lg border transition-all cursor-pointer ${
+                                    currentPage === page
+                                      ? "bg-primary text-primary-foreground border-primary font-semibold"
+                                      : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
+                                  }`}
+                                  aria-label={`Go to page ${page}`}
+                                  aria-current={
+                                    currentPage === page ? "page" : undefined
+                                  }
+                                >
+                                  {page}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          <button
+                            onClick={goToNextPage}
+                            disabled={!hasNext}
+                            className={`px-3 py-2 rounded-lg border transition-all cursor-pointer ${
+                              !hasNext
+                                ? "border-border/50 text-muted-foreground cursor-not-allowed opacity-50"
+                                : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
+                            }`}
+                            aria-label="Next page"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <div className="sm:hidden text-lg text-muted-foreground">
+                          Page {currentPage} of {totalPages}
+                        </div>
+                      </div>
+                    )}
                   </>
                 );
               })()}
