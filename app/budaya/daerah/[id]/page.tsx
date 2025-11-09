@@ -213,7 +213,7 @@ export default function RegionDetailPage() {
         setErrorDetails(null);
 
         const response = await fetch(
-          `https://be-corpora.vercel.app/api/v1/public/subcultures/${regionId}`
+          `http://localhost:8000/api/v1/public/subcultures/${regionId}`
         );
 
         const result: ApiResponse = await response.json();
@@ -284,23 +284,49 @@ export default function RegionDetailPage() {
     window.location.reload();
   };
 
-  // Gallery images with safety checks and proper structure
+  // Gallery images from GALLERY role assets
   const galleryImages = useMemo(() => {
-    if (
-      subcultureData?.galleryImages &&
-      subcultureData.galleryImages.length > 0
-    ) {
+    console.log('🔍 Building gallery images from subcultureAssets');
+    if (subcultureData?.subcultureAssets && subcultureData.subcultureAssets.length > 0) {
+      // Filter assets with GALLERY role and image type
+      const galleryAssets = subcultureData.subcultureAssets.filter(
+        (asset) =>
+          asset.assetRole?.toUpperCase() === "GALLERY" &&
+          asset.asset?.tipe?.toLowerCase().includes('image')
+      );
+
+      // console.log('📸 Found GALLERY assets:', galleryAssets.length);
+      // console.log('📋 GALLERY asset details:', 
+        galleryAssets.map(asset => ({
+        role: asset.assetRole,
+        type: asset.asset?.tipe,
+        url: asset.asset?.url,
+        name: asset.asset?.namaFile
+      }))
+    // );
+
+      if (galleryAssets.length > 0) {
+        return galleryAssets.map((asset, idx) => ({
+          url: asset.asset.url,
+          description: asset.asset.penjelasan || `${subcultureData.profile?.displayName} Gallery Image ${idx + 1}`,
+          caption: asset.asset.namaFile || `Cultural heritage image ${idx + 1}`,
+        }));
+      }
+    }
+
+    // Fallback to old galleryImages if no GALLERY assets found
+    if (subcultureData?.galleryImages && subcultureData.galleryImages.length > 0) {
+      // console.log('📸 Using fallback galleryImages:', 
+        subcultureData.galleryImages.length
+      // );
       return subcultureData.galleryImages.map((img, idx) => ({
         url: img.url || "/placeholder.svg",
-        description:
-          img.description ||
-          `${subcultureData.profile?.displayName} - Image ${idx + 1}`,
-        caption:
-          img.caption ||
-          `Cultural heritage of ${subcultureData.profile?.displayName}`,
+        description: img.description || `${subcultureData.profile?.displayName} - Image ${idx + 1}`,
+        caption: img.caption || `Cultural heritage of ${subcultureData.profile?.displayName}`,
       }));
     }
 
+    // console.log('❌ No gallery images found, using placeholder');
     return [
       {
         url: "/traditional-east-java-handicrafts-and-batik-art.jpg",
@@ -938,21 +964,76 @@ export default function RegionDetailPage() {
       caption: "Cultural heritage image",
     };
 
-  // Get thumbnail asset for hero background
+  // Get thumbnail asset for hero background (THUMBNAIL role or heroImage fallback)
   const getThumbnailAsset = () => {
-    if (subcultureData?.subcultureAssets) {
-      const thumbnailAsset = subcultureData.subcultureAssets.find(
-        (asset) => asset.assetRole === "THUMBNAIL"
+    // console.log('🔍 Checking subcultureAssets for THUMBNAIL:', 
+      subcultureData?.subcultureAssets
+    // );
+    // console.log('🔍 Checking heroImage field:', 
+      subcultureData?.heroImage
+    // );
+
+    if (subcultureData?.subcultureAssets && subcultureData.subcultureAssets.length > 0) {
+      // console.log('📋 Available asset roles:', 
+        subcultureData.subcultureAssets.map(asset => asset.assetRole
+        // )
       );
-      return thumbnailAsset?.asset?.url;
+      // console.log('📋 Available asset details:', 
+        subcultureData.subcultureAssets.map(asset => ({
+        assetRole: asset.assetRole,
+        assetRoleType: typeof asset.assetRole,
+        assetId: asset.assetId,
+        assetUrl: asset.asset?.url,
+        assetType: asset.asset?.tipe,
+        fullAsset: asset
+      })
+    // )
+  );
+
+      // Try different case variations for THUMBNAIL
+      const thumbnailVariations = ['THUMBNAIL', 'thumbnail', 'Thumbnail'];
+      let thumbnailAsset = null;
+
+      for (const variation of thumbnailVariations) {
+        thumbnailAsset = subcultureData.subcultureAssets.find(
+          (asset) => asset.assetRole === variation
+        );
+        if (thumbnailAsset) {
+          // console.log(`✅ Found asset with role "${variation}":`, thumbnailAsset);
+          break;
+        }
+      }
+
+      // If still not found, try checking if there's any asset with role containing "thumb"
+      if (!thumbnailAsset) {
+        thumbnailAsset = subcultureData.subcultureAssets.find(
+          (asset) => asset.assetRole?.toLowerCase().includes('thumb')
+        );
+        if (thumbnailAsset) {
+          // console.log('✅ Found asset with "thumb" in role:', thumbnailAsset);
+        }
+      }
+
+      if (thumbnailAsset) {
+        // console.log('🖼️ THUMBNAIL Asset URL:', thumbnailAsset.asset?.url);
+        return thumbnailAsset.asset?.url;
+      }
+
+      // console.log('❌ No THUMBNAIL asset found with any variation');
     }
+
+    // Fallback to heroImage field (like landing page)
+    if (subcultureData?.heroImage) {
+      // console.log('🔄 Using heroImage fallback:', subcultureData.heroImage);
+      return subcultureData.heroImage;
+    }
+
+    // console.log('❌ No subcultureAssets found and no heroImage fallback');
     return null;
   };
 
-  const heroImageUrl = getThumbnailAsset() || 
-    subcultureData?.profile?.highlights?.[0]?.url || 
-    subcultureData?.heroImage || 
-    "/placeholder.svg";
+  const heroImageUrl = getThumbnailAsset() || "/placeholder.svg";
+  // console.log('🎨 Final heroImageUrl:', heroImageUrl);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
