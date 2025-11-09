@@ -40,6 +40,40 @@ import { RichTextViewer } from "@/components/rich-text/rich-text-viewer";
 import { convertSubcultureHistory } from "@/lib/rich-text-helpers";
 
 interface SearchResult {
+  leksikonId: number;
+  kataLeksikon: string;
+  ipa: string;
+  transliterasi: string;
+  maknaEtimologi: string;
+  maknaKultural: string;
+  commonMeaning: string;
+  translation: string;
+  varian: string;
+  translationVarians: string | null;
+  deskripsiLain: string | null;
+  domainKodifikasi: {
+    domainKodifikasiId: number;
+    kode: string;
+    namaDomain: string;
+    penjelasan: string;
+    subculture: {
+      subcultureId: number;
+      namaSubculture: string;
+      slug: string;
+      culture: {
+        cultureId: number;
+        namaBudaya: string;
+        provinsi: string;
+        kotaDaerah: string;
+      };
+    };
+  };
+  contributor: {
+    contributorId: number;
+    namaContributor: string;
+    institusi: string;
+  };
+  leksikonAssets: any[];
   term: string;
   translation: string;
   commonMeaning: string;
@@ -496,8 +530,60 @@ export default function RegionDetailPage() {
   // Search functionality - server-side
   useEffect(() => {
     const fetchLexiconData = async () => {
-      if (!regionId) return;
+      // Don't fetch if subculture data is not loaded yet
+      if (!subcultureData?.subcultureId) {
+        return;
+      }
 
+      // If no search query, fetch all entries for this subculture
+      if (!searchQuery.trim()) {
+        setLexiconLoading(true);
+
+        try {
+          const searchParams = new URLSearchParams();
+          searchParams.append('subculture_id', subcultureData.subcultureId.toString());
+
+          const response = await fetch(
+            `https://be-corpora.vercel.app/api/v1/search/advanced?${searchParams.toString()}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
+
+          if (result.success && result.data) {
+            const lexicons = result.data;
+            const mappedItems = lexicons.map((entry: any) => ({
+              ...entry,
+              // Add computed fields for compatibility
+              term: entry.kataLeksikon,
+              definition: entry.commonMeaning || entry.translation || entry.maknaKultural,
+              category: entry.domainKodifikasi?.namaDomain || "",
+              region: entry.domainKodifikasi?.subculture?.namaSubculture || "",
+              slug: entry.kataLeksikon
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/(^-|-$)/g, ""),
+            }));
+
+            setLexiconItems(mappedItems);
+          } else {
+            setLexiconItems([]);
+          }
+        } catch (error) {
+          console.error('Initial lexicon load error:', error);
+          setLexiconItems([]);
+        } finally {
+          setLexiconLoading(false);
+        }
+        return;
+      }
+
+      // If there is a search query, search within the subculture
       setLexiconLoading(true);
 
       try {
@@ -509,7 +595,7 @@ export default function RegionDetailPage() {
         params.append("limit", ITEMS_PER_PAGE.toString());
 
         const response = await fetch(
-          `https://be-corpora.vercel.app/api/v1/public/subcultures/${regionId}/lexicon?${params.toString()}`
+          `https://be-corpora.vercel.app/api/v1/search/advanced?${searchParams.toString()}`
         );
 
         if (!response.ok) {
@@ -567,12 +653,10 @@ export default function RegionDetailPage() {
           await fetchTranslationsForItems(mappedItems);
         } else {
           setLexiconItems([]);
-          setLexiconPagination(null);
         }
       } catch (error) {
         console.error("Lexicon search error:", error);
         setLexiconItems([]);
-        setLexiconPagination(null);
       } finally {
         setLexiconLoading(false);
       }
@@ -580,7 +664,7 @@ export default function RegionDetailPage() {
 
     const debounceTimer = setTimeout(fetchLexiconData, searchQuery ? 300 : 0);
     return () => clearTimeout(debounceTimer);
-  }, [searchQuery, currentPage, regionId, subcultureData]);
+  }, [searchQuery, subcultureData?.subcultureId]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -631,7 +715,7 @@ export default function RegionDetailPage() {
   }, [showLexiconOnly]);
 
   useEffect(() => {
-    setCurrentPage(1);
+    // No longer needed since we removed pagination
   }, [searchQuery]);
 
   const displayItems = lexiconItems;
@@ -1321,20 +1405,20 @@ export default function RegionDetailPage() {
               <div className="flex flex-col gap-4" role="search">
                 <div>
                   <h2 className="text-xl font-bold text-foreground mb-2">
-                    Search Lexicon
+                    {subcultureData.profile?.displayName} Cultural Lexicon
                   </h2>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Search across terms, definitions, transliterations, and more
-                    to find exactly what you're looking for.
+                    Browse all lexicon entries for {subcultureData.profile?.displayName}. Use the search box below to filter terms by word, meaning,
+                    transliteration, or cultural context specific to this subculture.
                   </p>
                 </div>
                 <SearchInput
-                  aria-label={`Search terms in ${regionId}`}
-                  placeholder={`Search terms, definitions, transliterations...`}
+                  aria-label={`Search within ${subcultureData.profile?.displayName} cultural lexicon`}
+                  placeholder={`Search terms, meanings, transliterations in ${subcultureData.profile?.displayName}...`}
                   value={searchQuery}
                   onChange={setSearchQuery}
                   onClear={() => setSearchQuery("")}
-                  resultCount={lexiconPagination?.total || 0}
+                  resultCount={displayItems.length}
                   showResultCount={true}
                 />
               </div>
