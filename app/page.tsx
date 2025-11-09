@@ -9,8 +9,7 @@ import { ContactSection } from "@/components/sections/contact-section"
 import { Footer } from "@/components/layout/footer"
 import { useNavigation } from "@/hooks/use-navigation"
 import { ShowcaseSection } from "@/components/sections/showcase-section"
-// import { NewsletterSection } from "@/components/sections/newsletter-section"
-// import { ExplorationSection } from "@/components/sections/exploration-section"
+import { NewsletterSection } from "@/components/sections/newsletter-section"
 import { useState, useEffect } from "react"
 
 interface LandingData {
@@ -18,6 +17,15 @@ interface LandingData {
     cultureName: string
     assets: any[]
   }
+  subcultureSection?: Array<{
+    id: number
+    slug: string
+    name: string
+    description: string
+    culture: string
+    province: string
+    heroImage: string | null
+  }>
   subcultures: Array<{
     subcultureId: number
     namaSubculture: string
@@ -101,8 +109,8 @@ export default function CulturalHeritagePage() {
         // endpoint for populating the galleries section (so landing page
         // uses the same list as /budaya page).
         const [landingRes, subculturesRes] = await Promise.all([
-          fetch('https://be-corpora.vercel.app/api/v1/public/landing'),
-          fetch('https://be-corpora.vercel.app/api/v1/public/subcultures'),
+          fetch('http://be-corpora.vercel.app/api/v1/public/landing'),
+          fetch('http://be-corpora.vercel.app/api/v1/public/subcultures'),
         ])
 
         if (!landingRes.ok) {
@@ -124,8 +132,10 @@ export default function CulturalHeritagePage() {
         // Base landing data
         const mergedData = { ...landingJson.data }
 
-        // If subcultures API returns success, override/attach subcultures
-        if (subculturesJson && subculturesJson.success) {
+        // Use subcultureSection from landing API if available, otherwise try subcultures endpoint
+        if (landingJson.data.subcultureSection) {
+          mergedData.subcultures = landingJson.data.subcultureSection
+        } else if (subculturesJson && subculturesJson.success) {
           mergedData.subcultures = subculturesJson.data
         }
 
@@ -234,13 +244,13 @@ export default function CulturalHeritagePage() {
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading cultural heritage...</p>
+              <h3 className="text-muted-foreground">Loading cultural heritage...</h3>
             </div>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-center">
-              <p className="text-red-500 mb-4">Error: {error}</p>
+              <p className="text-red-500 mb-4 text-lg">Error: {error}</p>
               <button 
                 onClick={() => window.location.reload()} 
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-lg"
@@ -261,8 +271,6 @@ export default function CulturalHeritagePage() {
               onNavClick={handleNavClick} 
               subcultures={landingData.subcultures} 
             />
-
-            {/* <ExplorationSection /> */}
 
             <ShowcaseSection collaborationAssets={landingData.collaborationAssets} />
 

@@ -10,6 +10,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Image from "next/image";
 import { ParallaxBackground } from "@/components/common/parallax-background";
 import { Navigation } from "@/components/layout/navigation";
+import { Footer } from "@/components/layout/footer";
 import { AdvancedPopupMap, REGIONS } from "@/components/cultural/advanced-popup-map";
 import { GlobalSearchBar } from "@/components/cultural/global-search-bar";
 import { GlobalSearchResults } from "@/components/cultural/global-search-results";
@@ -246,15 +247,16 @@ export default function PetaBudayaPage() {
     };
   }, []);
 
+  // Extract onNavClick handler for reuse
+  const handleNavClick = useCallback((section: string) => {
+    const element = document.getElementById(section);
+    if (element) element.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-        <Navigation
-          onNavClick={(section) => {
-            const element = document.getElementById(section);
-            if (element) element.scrollIntoView({ behavior: "smooth" });
-          }}
-        />
+        <Navigation onNavClick={handleNavClick} />
 
         {/* Hero Section */}
         <section className="relative">
@@ -321,7 +323,7 @@ export default function PetaBudayaPage() {
                     variant="outline" 
                     className="w-full sm:w-auto bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 cursor-pointer whitespace-nowrap"
                   >
-                    Lexicons Glosarium
+                    Glosarium
                   </Button>
                 </Link>
 
@@ -467,6 +469,9 @@ export default function PetaBudayaPage() {
             </ul>
           </motion.div>
         </section>
+
+        <Footer onNavClick={handleNavClick} />
+
       </div>
     </TooltipProvider>
   );

@@ -206,7 +206,7 @@ export default function AboutPage() {
                     : "hover:bg-accent/20 text-foreground"
                 }`}
               >
-                Tentang UB Corpora
+                About UB Corpora
               </button>
             </li>
             <li aria-hidden="true">/</li>

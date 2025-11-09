@@ -2,6 +2,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Users, Sparkles, TrendingUp, Award, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -56,7 +57,7 @@ const REGIONS: Region[] = [
   // arekan
   {
     id: "arekan",
-    name: "arekan",
+    name: "Arekan",
     color: "#32D723",
     description: "Mountain community with sacred Bromo landscape",
     population: "~110K",
@@ -65,10 +66,10 @@ const REGIONS: Region[] = [
       "M1189.5 203C1169.9 187 1140.67 196.333 1128.5 203L1132.5 210.5V216.5L1139.5 222V227.5L1143.5 231.5V237L1132.5 240L1128.5 252.5L1115.58 258.5V270.5L1108 279.5L1118.5 290.5L1128.5 295.5L1115.58 300L1118.5 319.5L1132.5 322L1139.5 335.442L1122 343L1115.58 355L1126 368L1113.5 375L1106 386.5L1113.5 396L1101.5 411.5L1108 427.5C1111.49 425.937 1113.33 431.833 1115.58 435.803C1116.45 437.336 1117.39 438.582 1118.5 439C1122.5 440.5 1154 439 1154 439C1167.6 439 1177.33 447 1180.5 451C1183.48 452.653 1188.02 451.56 1193.05 451C1195.62 450.713 1198.32 450.566 1201 451C1204.05 451.494 1206.45 452.496 1208.71 453.571C1212.33 455.289 1215.57 457.192 1220.5 457.5L1217.5 445L1214 427.5L1217.5 414L1214 405.5L1216 390.5L1217.5 382L1223 376.5V370.5L1227.5 360C1223.83 358.667 1216 355 1214 351C1211.5 346 1217 343 1220.5 340.5C1224 338 1220.5 333 1224.5 327.5C1228.5 322 1234.5 326 1237.8 326C1241.1 326 1249.5 327.5 1251.5 326C1253.1 324.8 1259.17 321.167 1262 319.5C1252.8 312.7 1254.5 303.667 1256.5 300V277.5C1255.17 273.333 1251 263 1245 255C1239 247 1230.83 251.667 1227.5 255L1220.5 240V227.5C1218.67 222.667 1214.8 211 1214 203C1213 193 1203 189 1201 196C1199.4 201.6 1192.67 203 1189.5 203Z",
   },
 
-  // 6. PANDALUNGAN - Ungu (#5F23D7) dengan opacity 0.5
+  // 6. PANDHALUNGAN - Ungu (#5F23D7) dengan opacity 0.5
   {
-    id: "pandalungan",
-    name: "Pandalungan",
+    id: "pandhalungan",
+    name: "Pandhalungan",
     color: "#5F23D7",
     description: "Javanese-Madurese cultural blend",
     population: "~2.2M",
@@ -113,9 +114,9 @@ const REGIONS: Region[] = [
       "M1108 183.5C1091.6 188.3 1068.83 181.5 1059.5 177.5C1059.17 179.833 1058.6 185.1 1059 187.5L1055 192L1051.5 191L1050 198V205.5H1044L1043.5 212L1051.5 216.5L1050 224.5L1052.5 229.5L1050 233.5V237.5L1048 242L1047 246.5L1029 262.5L1024.5 263.5L1022 265.5L1019 270.5L1023.5 272V275.5L1022 279.5C1019.83 278.333 1014.7 276.1 1011.5 276.5C1006.33 273.167 995.3 265.8 990.5 267L985 260H980C977.833 259.833 971.3 262.8 972.5 268L975.5 272L973 278.5V282.5L969.5 287C969.667 289.333 970.2 294.3 971 295.5C973.333 298.667 977.3 306.1 974.5 310.5C979 314.667 984.5 325.6 978.5 336L986 342L990.5 343L995.5 341C996.333 342.5 996.9 347.1 996.5 351.5L1001 360L1015.5 368.5L1029.5 364.5L1040.5 368.5L1050 373L1063.5 368.5L1077 375L1073.5 386.5L1066.41 391.5L1059.5 402L1044 407L1029.5 411.5L1024.5 421.605L1015.5 427L1027 439H1049C1055.83 441.5 1067.2 451.5 1068 445.5C1068.23 443.742 1064.8 444.146 1066.41 442.182L1066.5 442.168C1068.71 441.833 1070.25 440.886 1070.5 439L1072.85 434C1072.35 436.5 1072.39 440.205 1073.5 439.5C1074.67 438.758 1077 437 1077 433C1077 432.139 1077 431.205 1077.04 430.314C1079.03 428.981 1081.06 428.023 1082.5 427.5C1084.55 428.711 1086.77 429.475 1089.02 429.908C1093.38 431.754 1098.19 433.717 1101.5 433.5C1105.21 433.256 1105.94 428.426 1108 427.5L1101.5 411.5L1112.5 396L1105.5 387.5L1112.5 375L1125.5 368.5L1115.58 355.5L1121 344.5L1139.5 335.968L1132.5 322L1118.5 319L1115.58 300L1128.5 295.5L1118.5 290.5H1099.5L1093 295.5L1080 294L1068 290.5L1077.04 282.5L1085.5 275.5V268V260L1089.02 252.5L1093 244.5H1099.5L1101.5 242L1105.5 237H1115.58L1121 240H1132.5L1144 237V232L1139.5 227.5V222L1132.5 216V210.5L1128.5 203C1107.3 195 1110.5 186.5 1108 183.5Z M991.5 427H1015.5V416.5L1009.5 404L1004.5 401.5L1001 390L1004.5 381L997.5 380L996.5 371.5L993 375H988L984 371.5L981.5 374.5L978.5 371.5L972.5 375L973.5 378L969.5 380L972 386L969.5 391L970 395H965.5V391.5L963.5 388L961 390L960.5 395.5C957.167 397.333 949.3 399.9 942.5 395.5C939.667 398.667 933.9 406.2 933.5 411L934.5 421.105C939.863 423.228 943.097 425.457 944.5 427L961.5 423.5L977 433L991.5 427Z",
   },
 
-  // 10. MADURA-BAWEAN - Pulau kecil atas tengah (#BB65BC)
+  // 10. MADURA - Pulau kecil atas tengah (#BB65BC)
   {
-    id: "madura-base",
+    id: "madura",
     name: "Madura",
     color: "#BB65BC",
     description: "Island subculture with maritime traditions",
@@ -137,7 +138,7 @@ const REGIONS: Region[] = [
       "M1638.5 201.5H1640.5L1641.5 200L1643.5 201.5H1665L1666.5 203.5H1667.5H1670.5L1672.5 205H1674.5L1679 206L1680.5 208.5H1682L1684 210.5H1687L1688.5 211.5L1690 214L1691 217.5L1690 221L1688.5 222L1685.5 221L1682 218.5H1680.5L1677 216.5L1674.5 215.5C1673.67 214.833 1671.7 213.9 1670.5 215.5L1668.5 217.5H1665C1665.33 216.5 1665.6 214.2 1664 213H1660L1655 216.5L1658 217.5L1661.5 220L1663 227H1655L1653.5 226L1653 224.5L1652 223.5L1652.5 222L1653 221L1651 220.5H1649.5L1650 222.5L1649.5 224H1648V225.5L1649 226.5L1648.5 228L1647.5 229L1645 228L1644.5 226L1642.5 225.5L1642 222.5L1643.5 219.5L1642.5 218L1639 216.5L1635.5 218.5L1633.5 217.5V211L1635.5 210.5L1637 208.5L1638.5 209.5L1639.5 208.5L1640.5 206L1642.5 203.5L1638.5 201.5Z",
   },
 
-  // 12. MERAH (Red area) - Area merah (#FF5151)
+  // 12. DIY (Red area) - Area merah (#FF5151)
   {
     id: "red-area",
     name: "DIY",
@@ -188,6 +189,7 @@ interface AdvancedPopupMapProps {
 }
 
 export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
+  const router = useRouter()
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const [cardPosition, setCardPosition] = useState({
@@ -374,7 +376,15 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
               }}
               onMouseEnter={() => setHoveredRegion(region.id)}
               onMouseLeave={() => setHoveredRegion(null)}
-              onClick={() => onRegionClick?.(region.id)}
+              onClick={() => {
+                // Navigate to subculture detail page
+                const subcultureId = region.id
+                if (onRegionClick) {
+                  onRegionClick(subcultureId)
+                } else {
+                  router.push(`/budaya/daerah/${subcultureId}`)
+                }
+              }}
             />
           ))}
         </g>
@@ -454,8 +464,19 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
                   </div>
                 </div>
 
-                <Button className="w-full pointer-events-auto" onClick={() => onRegionClick?.(currentRegion.id)}>
-                  Explore Glossary
+                <Button 
+                  className="w-full pointer-events-auto" 
+                  onClick={() => {
+                    // Navigate to subculture detail page
+                    const subcultureId = currentRegion.id
+                    if (onRegionClick) {
+                      onRegionClick(subcultureId)
+                    } else {
+                      router.push(`/budaya/daerah/${subcultureId}`)
+                    }
+                  }}
+                >
+                  Explore Subculture
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </Button>
               </div>

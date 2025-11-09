@@ -126,7 +126,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
                   <Link key={item.id} href={item.path}>
                     <button
                       className={cn(
-                        "relative px-5 py-2 font-medium text-gray-200 transition-colors duration-300",
+                        "relative px-5 py-2 text-xl text-gray-200 transition-colors duration-300",
                         "hover:text-white",
                         "after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:w-0 after:h-[2px] after:bg-white after:transition-all after:duration-300 hover:after:w-1/2",
                         pathname === item.path && "text-white after:w-1/2"
@@ -169,7 +169,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
               <div className="hidden md:flex items-center space-x-2">
                 <Link href="/">
                   <button className={cn(
-                    "relative px-5 py-2 font-medium text-gray-200 transition-colors duration-300",
+                    "relative px-5 py-2 text-xl text-gray-200 transition-colors duration-300",
                     "hover:text-white",
                     "after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:w-0 after:h-[2px] after:bg-white after:transition-all after:duration-300 hover:after:w-1/2"
                   )}>
@@ -178,7 +178,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
                 </Link>
                 <Link href="/peta-budaya">
                   <button className={cn(
-                    "relative px-5 py-2 font-medium text-gray-200 transition-colors duration-300",
+                    "relative px-5 py-2 text-xl text-gray-200 transition-colors duration-300",
                     "hover:text-white",
                     "after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:w-0 after:h-[2px] after:bg-white after:transition-all after:duration-300 hover:after:w-1/2"
                   )}>
@@ -206,7 +206,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
               <div className="hidden md:flex items-center space-x-2">
                 <Link href="/">
                   <button className={cn(
-                    "relative px-5 py-2 font-medium text-gray-200 transition-colors duration-300",
+                    "relative px-5 py-2 text-xl text-gray-200 transition-colors duration-300",
                     "hover:text-white",
                     "after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:w-0 after:h-[2px] after:bg-white after:transition-all after:duration-300 hover:after:w-1/2"
                   )}>
@@ -236,7 +236,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
                     key={item.id}
                     onClick={() => handleNavClick(item.id)}
                     className={cn(
-                      "relative px-5 py-2 font-medium text-gray-200 transition-colors duration-300",
+                      "relative px-5 py-2 text-xl text-gray-200 transition-colors duration-300",
                       "hover:text-white",
                       "after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:w-0 after:h-[2px] after:bg-white after:transition-all after:duration-300 hover:after:w-1/2",
                       activeNav === item.id && "text-white after:w-1/2"
