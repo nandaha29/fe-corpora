@@ -204,7 +204,7 @@ export default function RegionDetailPage() {
         setErrorDetails(null);
 
         const response = await fetch(
-          `http://localhost:8000/api/v1/public/subcultures/${regionId}`
+          `https://be-corpora.vercel.app/api/v1/public/subcultures/${regionId}`
         );
 
         const result: ApiResponse = await response.json();
