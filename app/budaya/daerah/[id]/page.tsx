@@ -88,7 +88,9 @@ interface SubcultureData {
   profile: {
     displayName: string;
     history: string;
-    highlights: any[];
+    highlights: Array<{
+      url: string;
+    }>;
     salamKhas?: string;
     artiSalamKhas?: string;
   };
@@ -117,6 +119,25 @@ interface SubcultureData {
     province: string;
     region: string;
   };
+  subcultureAssets?: Array<{
+    subcultureId: number;
+    assetId: number;
+    assetRole: string;
+    createdAt: string;
+    asset: {
+      assetId: number;
+      namaFile: string;
+      tipe: string;
+      penjelasan: string;
+      url: string;
+      fileSize: string;
+      hashChecksum: string;
+      metadataJson: string;
+      status: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+  }>;
 }
 
 interface ApiErrorResponse {
@@ -917,6 +938,22 @@ export default function RegionDetailPage() {
       caption: "Cultural heritage image",
     };
 
+  // Get thumbnail asset for hero background
+  const getThumbnailAsset = () => {
+    if (subcultureData?.subcultureAssets) {
+      const thumbnailAsset = subcultureData.subcultureAssets.find(
+        (asset) => asset.assetRole === "THUMBNAIL"
+      );
+      return thumbnailAsset?.asset?.url;
+    }
+    return null;
+  };
+
+  const heroImageUrl = getThumbnailAsset() || 
+    subcultureData?.profile?.highlights?.[0]?.url || 
+    subcultureData?.heroImage || 
+    "/placeholder.svg";
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       <Navigation onNavClick={handleNavClick} />
@@ -928,7 +965,7 @@ export default function RegionDetailPage() {
       >
         <div className="relative">
           <img
-            src={subcultureData?.heroImage || "/placeholder.svg"}
+            src={heroImageUrl}
             alt={`${regionId} cultural landscape`}
             className="h-[65vh] md:h-[80vh] w-full object-cover"
             crossOrigin="anonymous"
