@@ -85,7 +85,7 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
             </span>
           </h2>
 
-          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             A diverse team of passionate individuals working together to
             preserve and promote East Java's cultural heritage.
           </p>
@@ -112,10 +112,10 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
                   "hover:-translate-y-1 hover:shadow-md transition-all duration-300"
                 )}
               >
-                <p className="text-sm font-semibold text-foreground whitespace-nowrap text-center">
+                <p className="text-xl font-semibold text-foreground whitespace-nowrap text-center">
                   {member.name}
                 </p>
-                <p className="text-xs text-muted-foreground whitespace-nowrap text-center mt-1">
+                <p className="text-xl text-muted-foreground whitespace-nowrap text-center mt-1">
                   {member.role}
                 </p>
               </div>
@@ -125,12 +125,12 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
       </div>
 
       {/* Info Text */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      {/* <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <p className="text-center text-sm text-muted-foreground">
           Hover over the ticker to pause • Total {safeMembers.length} team member
           {safeMembers.length !== 1 ? "s" : ""}
         </p>
-      </div>
+      </div> */}
 
       {/* Marquee Animation */}
       <style jsx>{`

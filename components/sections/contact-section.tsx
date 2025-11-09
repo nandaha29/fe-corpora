@@ -43,7 +43,9 @@ export function ContactSection() {
           <AnimatedReveal animation="fade-up" delay={200}>
             <Badge className="bg-primary/10 text-primary border-primary/20 mb-4">
               <MessageCircle className="h-3 w-3 mr-1" />
+              <div className="text-xl">
               Contact Us
+              </div>
             </Badge>
           </AnimatedReveal>
 
@@ -56,7 +58,7 @@ export function ContactSection() {
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={600}>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto text-pretty leading-relaxed">
+            <p className="text-2xl text-muted-foreground max-w-3xl mx-auto text-pretty leading-relaxed">
               We welcome collaboration, suggestions, and contributions from all parties who care about the preservation of East Java's culture.
             </p>
           </AnimatedReveal>
@@ -85,8 +87,8 @@ export function ContactSection() {
                       <Mail className="h-6 w-6 text-emerald-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">Email</h4>
-                      <p className="text-muted-foreground">bcp@ub.ac.id</p>
+                      <h4 className="font-semibold mb-1 text-xl">Email</h4>
+                      <p className="text-muted-foreground text-xl">bcp@ub.ac.id</p>
                     </div>
                   </div>
 
@@ -95,8 +97,8 @@ export function ContactSection() {
                       <MapPin className="h-6 w-6 text-amber-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">Address</h4>
-                      <p className="text-muted-foreground">
+                      <h4 className="font-semibold mb-1 text-xl">Address</h4>
+                      <p className="text-muted-foreground text-xl">
                          Fakultas Ilmu Budaya, Universitas Brawijaya
                         <br />
                         Jalan Veteran, Malang. Jawa Timur 65145  
@@ -116,23 +118,23 @@ export function ContactSection() {
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-3 mb-4">
                     <Users className="h-6 w-6 text-primary" />
-                    <h4 className="font-semibold">Join the Community</h4>
+                    <h4 className="font-semibold text-xl">Join the Community</h4>
                   </div>
-                  <p className="text-muted-foreground mb-4 text-pretty">
+                  <p className="text-muted-foreground mb-4 text-pretty text-xl">
                     Follow us on social media for the latest updates on East Java's culture and community activities.
                   </p>
                     <div className="flex space-x-3">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="text-lg">
                       <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
                         Facebook
                       </a>
                     </Button>
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" className="text-lg" asChild>
                       <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
                       Instagram
                       </a>
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="text-lg">
                       <a href="https://x.com" target="_blank" rel="noopener noreferrer">
                         X (Twitter)
                       </a>

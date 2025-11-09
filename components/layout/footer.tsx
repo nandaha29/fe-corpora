@@ -82,7 +82,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
                 priority
               />
             </div>
-            <p className="text-sm text-muted-foreground text-pretty">
+            <p className="text-lg text-muted-foreground text-pretty">
               A digital platform dedicated to preserving and introducing the
               cultural wealth of East Java to present and future generations.
             </p>
@@ -134,13 +134,13 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
 
           {/* Quick Links - ✅ PERBAIKAN */}
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Quick Links</h3>
+            <h3 className="font-semibold text-foreground mb-4 text-lg">Quick Links</h3>
             <ul className="space-y-2">
               {quickLinks.map((link) => (
                 <li key={link.section}>
                   <button
                     onClick={() => handleQuickLinkClick(link.section)}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                    className="text-lg text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                   >
                     {link.label}
                   </button>
@@ -151,7 +151,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
 
           {/* Cultural Content */}
           <div>
-            <h3 className="font-semibold text-foreground mb-4">
+            <h3 className="font-semibold text-foreground mb-4 text-lg">
               Cultural Content
             </h3>
             <ul className="space-y-2">
@@ -159,7 +159,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-lg text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -170,14 +170,14 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
 
           {/* Resources */}
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Resources</h3>
+            <h3 className="font-semibold text-foreground mb-4 text-lg">Resources</h3>
             <ul className="space-y-2">
               {resources.map((link) => (
                 <li key={link.label}>
                   {link.type === "internal" ? (
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                      className="text-lg text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                     >
                       {link.label}
                     </Link>
@@ -198,7 +198,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
         {/* Bottom Bar */}
         <div className="border-t border-border pt-8">
           <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0">
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <div className="flex items-center space-x-2 text-lg text-muted-foreground">
               <span>© 2025 UB Corpora. All rights reserved.</span>
               <span className="hidden md:inline">•</span>
               <span className="hidden md:inline">Made with</span>

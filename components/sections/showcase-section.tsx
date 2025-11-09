@@ -70,8 +70,10 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-4 mb-12">
           <AnimatedReveal animation="fade-up" delay={150}>
-            <Badge className="bg-primary/10 text-primary border-primary/20">
+            <Badge className="bg-blue-900/40 text-blue-300 border border-blue-500/30 ">
+                <div className="text-xl">
               Discover • Explore • Connect
+                </div>
             </Badge>
           </AnimatedReveal>
 
@@ -85,8 +87,8 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={450}>
-            <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
-              Navigate a world of traditions, artifacts, and events from every region.
+            <p className="text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
+              Navigate a world of traditions, artifacts from every region.
               Enjoy a sleek, modern experience with beautiful visuals and intuitive
               navigation across devices.
             </p>
@@ -117,7 +119,7 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
                   width={160}
                   className="h-16 w-[160px] object-contain"
                 />
-                <p className="mt-2 text-sm text-muted-foreground font-medium text-center max-w-[160px]">
+                <p className="mt-2 text-lg text-muted-foreground font-medium text-center max-w-[160px]">
                   {logo.alt}
                 </p>
               </div>
@@ -127,12 +129,12 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
       </div>
 
       {/* Info Text */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      {/* <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <p className="text-center text-sm text-muted-foreground">
           Hover over the ticker to pause • Total {displayAssets.length} partner
           {displayAssets.length !== 1 ? "s" : ""}
         </p>
-      </div>
+      </div> */}
 
       {/* Marquee Animation - Seamless Loop */}
       <style jsx>{`

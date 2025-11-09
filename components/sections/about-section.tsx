@@ -66,9 +66,11 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
           <AnimatedReveal animation="fade-up" delay={200}>
-            <Badge className="bg-primary/10 text-primary border-primary/20 mb-4">
+            <Badge className=" bg-blue-900/40 text-blue-300 border border-blue-500/30bg-primary/10 text-primary border-primary/20 mb-4">
               <Heart className="h-3 w-3 mr-1" />
+              <div className="text-xl">
               About the Platform
+              </div>
             </Badge>
           </AnimatedReveal>
 
@@ -80,7 +82,7 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={600}>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto text-pretty leading-relaxed">
+            <p className="text-2xl text-muted-foreground max-w-3xl mx-auto text-pretty leading-relaxed">
               A digital platform dedicated to preserving, documenting, and
               introducing the cultural wealth of East Java to present and future
               generations.
@@ -97,7 +99,7 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
                 <h3 className="text-xl font-semibold mb-3">
                   Complete Documentation
                 </h3>
-                <p className="text-muted-foreground text-pretty">
+                <p className="text-xl text-muted-foreground text-pretty">
                   Collecting and documenting various aspects of East Java's
                   culture, from art and cuisine to local traditions.
                 </p>
@@ -114,7 +116,7 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
                 <h3 className="text-xl font-semibold mb-3">
                   Community Collaboration
                 </h3>
-                <p className="text-muted-foreground text-pretty">
+                <p className=" text-xl text-muted-foreground text-pretty">
                   Involving the community, cultural practitioners, and academics
                   in sustainable cultural preservation efforts
                 </p>
@@ -129,7 +131,7 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
                   <Globe className="h-8 w-8 text-amber-600" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Global Access</h3>
-                <p className="text-muted-foreground text-pretty">
+                <p className=" text-xl text-muted-foreground text-pretty">
                   Introducing East Java's culture to the world through an easily
                   accessible digital platform.
                 </p>
@@ -146,10 +148,10 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
                 <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Award className="h-8 w-8 text-rose-700" />
                 </div>
-                <div className="text-2xl font-bold text-rose-700">
+                <div className="text-3xl font-bold text-rose-700">
                   {stats?.publishedCultures || 500}+
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xl text-muted-foreground">
                   Documented Cultures
                 </div>
               </CardContent>
@@ -160,10 +162,10 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
                 <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="h-8 w-8 text-emerald-600" />
                 </div>
-                <div className="text-2xl font-bold text-emerald-700">
+                <div className="text-3xl font-bold text-emerald-700">
                   {stats?.publishedSubcultures || 38}
                 </div>
-                <div className="text-sm text-muted-foreground">Subcultures</div>
+                <div className="text-xl text-muted-foreground">Subcultures</div>
               </CardContent>
             </Card>
 
@@ -172,10 +174,10 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <BookOpen className="h-8 w-8 text-amber-600" />
                 </div>
-                <div className="text-2xl font-bold text-amber-700">
+                <div className="text-3xl font-bold text-amber-700">
                   {stats?.publishedLeksikons || 12}
                 </div>
-                <div className="text-sm text-muted-foreground">Leksikons</div>
+                <div className="text-xl text-muted-foreground">Leksikons</div>
               </CardContent>
             </Card>
 
@@ -184,10 +186,10 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Sparkles className="h-8 w-8 text-purple-600" />
                 </div>
-                <div className="text-2xl font-bold text-purple-700">
+                <div className="text-3xl font-bold text-purple-700">
                   {stats?.totalContributors || 100}+
                 </div>
-                <div className="text-sm text-muted-foreground">Contributors</div>
+                <div className="text-xl text-muted-foreground">Contributors</div>
               </CardContent>
             </Card>
           </div>
@@ -202,7 +204,9 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
                 className="text-lg px-8 cursor-pointer"
               >
                 <Globe className="h-5 w-5 mr-2" />
+                <div className="text-xl">
                 Learn More About Us
+                </div>
               </EnhancedButton>
             </Link>
           </div>

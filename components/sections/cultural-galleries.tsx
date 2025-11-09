@@ -114,23 +114,26 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
 
   return (
     <section className="py-20 bg-muted/30 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         {/* Header Section */}
         <AnimatedReveal animation="fade-up">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 ">
             <Badge
               variant="secondary"
-              className="bg-card/80 backdrop-blur-sm border-border"
+              // className="bg-card/80 backdrop-blur-sm border-border "
+              className="bg-blue-900/40 text-blue-300 border border-blue-500/30 "
             >
-              Cultural Sub-regions
+             <div className="text-xl">
+               Cultural Sub-regions
+              </div>
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mt-4 text-balance">
               Explore Cultural Sub-regions
             </h2>
-            <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto text-pretty">
+            <div className="text-2xl text-muted-foreground mt-2 max-w-2xl mx-auto text-pretty">
               Each sub-region has its own unique character, traditions, and
               cultural expressions. Browse the cards below to get started.
-            </p>
+            </div>
           </div>
         </AnimatedReveal>
 
@@ -153,7 +156,7 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
                   <div className="absolute top-3 left-3">
-                    <Badge className="bg-black/50 backdrop-blur-sm border-white/20 text-white">
+                    <Badge className="bg-black/50 backdrop-blur-sm border-white/20 text-white text-lg">
                       Sub-region
                     </Badge>
                   </div>
@@ -162,12 +165,12 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
                 {/* Text Content */}
                 <div className="p-4 flex flex-col flex-1">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
+                    <h3 className="font-bold text-xl group-hover:text-primary transition-colors">
                       {sr.name}
                     </h3>
                   </div>
 
-                  <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3">
+                  <p className="text-lg text-muted-foreground mb-4 flex-1 line-clamp-3">
                     {sr.description}
                   </p>
 
@@ -180,7 +183,9 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
                         (window.location.href = `/budaya/daerah/${sr.slug}`)
                       }
                     >
+                      <div className="text-lg">
                       Explore
+                      </div>
                     </EnhancedButton>
                   </div>
                 </div>
@@ -197,7 +202,9 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
               className="w-full md:w-auto gradient-purple cursor-pointer"
               onClick={() => (window.location.href = "/budaya")}
             >
+              <div className="text-lg">
               Open Sub Cultural Glossary
+              </div>
               <ArrowRight className="h-5 w-5 ml-2" />
             </EnhancedButton>
           </div>

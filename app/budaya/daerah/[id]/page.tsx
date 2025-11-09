@@ -26,7 +26,7 @@ import { useNavigation } from "@/hooks/use-navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { SearchInput } from "@/components/search-input";
 import { Input } from "@/components/ui/input";
-import { useRouter, useSearchParams } from "next/navigation";
+// import { useRouter, useSearchParams } from "next/navigation";
 import {
   Model3DSection,
   type Model3D,
@@ -75,8 +75,8 @@ interface SearchResult {
   };
   leksikonAssets: any[];
   term: string;
-  translation: string;
-  commonMeaning: string;
+  // translation: string;
+  // commonMeaning: string;
   culturalMeaning: string;
   category: string;
   region: string;
@@ -593,6 +593,8 @@ export default function RegionDetailPage() {
         }
         params.append("page", currentPage.toString());
         params.append("limit", ITEMS_PER_PAGE.toString());
+        const searchParams = new URLSearchParams();
+        searchParams.append('subculture_id', subcultureData.subcultureId.toString());
 
         const response = await fetch(
           `https://be-corpora.vercel.app/api/v1/search/advanced?${searchParams.toString()}`

@@ -224,7 +224,7 @@ export function InteractiveGlobe({ onGlobeClick }: InteractiveGlobeProps) {
               <TrendingUp className="w-4 h-4 text-primary" />
               <span className="text-xs font-medium">42k+ Words</span>
             </div>
-            <div className="text-xs text-muted-foreground">Cultural Terms</div>
+            <div className="text-sm text-muted-foreground">Cultural Terms</div>
           </div>
         </>
       )}
@@ -233,14 +233,16 @@ export function InteractiveGlobe({ onGlobeClick }: InteractiveGlobeProps) {
       <div className="absolute top-4 right-4 z-10">
         <Badge variant="secondary" className="bg-card/80 backdrop-blur-sm border-border hover-lift">
           <Globe className="h-3 w-3 mr-1" />
+          <div className="text-sm">
           Interactive 3D Globe
+          </div>
         </Badge>
       </div>
 
       {/* Instructions */}
       {isLoaded && !error && (
         <div className="absolute bottom-4 left-4 bg-card/80 backdrop-blur-sm border border-border rounded-lg p-3">
-          <div className="text-xs text-muted-foreground space-y-1">
+          <div className="text-sm text-muted-foreground space-y-1">
             <div>🖱️ Drag to rotate</div>
             <div>🔍 Scroll to zoom</div>
             <div>📍 Click points to explore</div>
