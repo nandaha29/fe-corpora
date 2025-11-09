@@ -90,7 +90,7 @@ export function YouTubeSection({
               {title}
             </h3>
             {description && (
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-xl text-muted-foreground leading-relaxed">
                 {description}
               </p>
             )}
@@ -152,10 +152,10 @@ export function YouTubeSection({
             <div className="p-4 space-y-3">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <h4 className="text-lg font-bold text-foreground mb-2">
+                  <h4 className="text-xl font-bold text-foreground mb-2">
                     {currentVideo.title}
                   </h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-xl text-muted-foreground leading-relaxed">
                     {currentVideo.description}
                   </p>
                 </div>

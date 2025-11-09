@@ -200,7 +200,7 @@ export default function SubculturesGalleryPage() {
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              <span>{getBackButtonText()}</span>
+              <span className="text-xl">{getBackButtonText()}</span>
             </button>
 
             {/* Home Button (fallback) */}
@@ -212,7 +212,7 @@ export default function SubculturesGalleryPage() {
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
               >
                 <Home className="w-4 h-4" />
-                <span className="hidden sm:inline">Home</span>
+                <span className="hidden sm:inline text-xl">Home</span>
               </Button>
             )}
           </div>
@@ -221,7 +221,7 @@ export default function SubculturesGalleryPage() {
         {/* Badge */}
         <Badge
           variant="secondary"
-          className="bg-blue-950/60 text-blue-300 border border-blue-900 px-4 py-1 rounded-full mb-4"
+          className=" text-xl bg-blue-950/60 text-blue-300 border border-blue-900 px-4 py-1 rounded-full mb-4"
         >
           🗺️ Cultural Tradition
         </Badge>
@@ -229,7 +229,7 @@ export default function SubculturesGalleryPage() {
         <h1 className="text-4xl font-extrabold text-foreground mb-2">
           Explore Subcultures of East Java
         </h1>
-        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-2xl text-muted-foreground max-w-2xl mx-auto">
           Each subculture has unique characteristics and traditions that enrich the cultural identity of East Java.
           Choose one subculture to explore further.
         </p>
@@ -243,14 +243,14 @@ export default function SubculturesGalleryPage() {
                 placeholder="Search Cultural Region..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="pl-10 bg-background/50 border border-border focus:ring-primary/20"
+                className="text-2xl pl-10 bg-background/50 border border-border focus:ring-primary/20"
               />
             </div>
           </div>
         </AnimatedReveal>
 
         {/* Results info */}
-        {(searchQuery || subcultures.length > 0) && (
+        {/* {(searchQuery || subcultures.length > 0) && (
           <div className="mt-4 text-sm text-muted-foreground">
             {searchQuery ? (
               <>
@@ -261,7 +261,7 @@ export default function SubculturesGalleryPage() {
               <>Total {pagination?.total || 0} subculture</>
             )}
           </div>
-        )}
+        )} */}
       </header>
 
       {/* === CONTENT === */}
@@ -270,7 +270,7 @@ export default function SubculturesGalleryPage() {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading subcultures...</p>
+              <p className="text-muted-foreground text-xl">Loading subcultures...</p>
             </div>
           </div>
         ) : error ? (
@@ -307,7 +307,7 @@ export default function SubculturesGalleryPage() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
                         <div className="absolute top-3 left-3">
-                          <Badge className="bg-black/50 backdrop-blur-sm border-white/20 text-white">
+                          <Badge className=" text-lg bg-black/50 backdrop-blur-sm border-white/20 text-white">
                             {sc.culture?.province || "Sub-region"}
                           </Badge>
                         </div>
@@ -317,7 +317,7 @@ export default function SubculturesGalleryPage() {
                         <h3 className="font-bold text-lg group-hover:text-primary transition-colors mb-2">
                           {sc.name}
                         </h3>
-                        <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3">
+                        <p className="text-lg text-muted-foreground mb-4 flex-1 line-clamp-3">
                           {sc.description}
                         </p>
 
@@ -349,10 +349,10 @@ export default function SubculturesGalleryPage() {
             {subcultures.length > 0 && totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border">
                 {/* Info */}
-                <div className="text-sm text-muted-foreground order-2 sm:order-1">
-                  Show <span className="font-medium text-foreground">{pagination ? (pagination.page - 1) * pagination.limit + 1 : 0}</span>-
-                  <span className="font-medium text-foreground">{pagination ? Math.min(pagination.page * pagination.limit, pagination.total) : 0}</span> dari{' '}
-                  <span className="font-medium text-foreground">{pagination?.total || 0}</span> Subculture
+                <div className="text-lg text-muted-foreground order-2 sm:order-1">
+                  Show <span className="font-medium text-foreground text-xl">{pagination ? (pagination.page - 1) * pagination.limit + 1 : 0}</span>-
+                  <span className="font-medium text-foreground text-xl">{pagination ? Math.min(pagination.page * pagination.limit, pagination.total) : 0}</span> dari{' '}
+                  <span className="font-medium text-foreground text-xl">{pagination?.total || 0}</span> Subculture
                 </div>
 
                 {/* Pagination Controls */}
@@ -370,7 +370,7 @@ export default function SubculturesGalleryPage() {
                     }`}
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    <span className="hidden sm:inline ml-1">Previous</span>
+                    <span className="hidden sm:inline ml-1 text-lg">Previous</span>
                   </Button>
 
                   {/* Page Numbers */}
@@ -380,7 +380,7 @@ export default function SubculturesGalleryPage() {
                         return (
                           <span
                             key={`ellipsis-${idx}`}
-                            className="px-3 py-2 text-muted-foreground"
+                            className="px-3 py-2 text-muted-foreground text-lg"
                           >
                             ...
                           </span>
@@ -418,7 +418,7 @@ export default function SubculturesGalleryPage() {
                         : 'hover:bg-primary/10'
                     }`}
                   >
-                    <span className="hidden sm:inline mr-1">Next</span>
+                    <span className="hidden sm:inline mr-1 text-lg">Next</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>

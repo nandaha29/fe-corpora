@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-interface SearchInputProps extends React.ComponentProps<"input"> {
+interface SearchInputProps extends Omit<React.ComponentProps<"input">, "onChange"> {
   value: string
   onChange: (value: string) => void
   onClear?: () => void
@@ -38,7 +38,7 @@ export function SearchInput({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={cn("pl-10 pr-10 bg-background/50 border-border focus:ring-primary/20", className)}
+          className={cn("text-2xl pl-10 pr-10 bg-background/50 border-border focus:ring-primary/20", className)}
           {...props}
         />
         {value && (
@@ -55,17 +55,17 @@ export function SearchInput({
         )}
       </div>
       {showResultCount && (value || isLoading) && (
-        <div className="mt-2 text-xs text-muted-foreground flex items-center gap-2">
+        <div className="mt-2 text-lg text-muted-foreground flex items-center gap-2">
           {isLoading ? (
             <>
               <div className="w-3 h-3 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-              <span>Searching...</span>
+              <span className="text-lg">Searching...</span>
             </>
           ) : (
             <>
               {resultCount !== undefined && (
                 <span>
-                  Found <strong className="text-foreground">{resultCount}</strong> result{resultCount !== 1 ? "s" : ""}
+                  Found <strong className="text-foreground text-lg">{resultCount}</strong> result{resultCount !== 1 ? "s" : ""}
                 </span>
               )}
             </>

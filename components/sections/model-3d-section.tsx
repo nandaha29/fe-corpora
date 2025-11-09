@@ -90,7 +90,7 @@ export function Model3DSection({
               {title}
             </h3>
             {description && (
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-xl text-muted-foreground leading-relaxed">
                 {description || `Explore interactive 3D models of cultural artifacts and environments from ${subcultureName || 'the region'}.`}
               </p>
             )}
@@ -166,10 +166,10 @@ export function Model3DSection({
         <Card className="bg-card/60 backdrop-blur-sm border-border">
           <div className="p-4 space-y-3">
             <div>
-              <h4 className="text-lg font-bold text-foreground mb-2">
+              <h4 className="text-xl font-bold text-foreground mb-2">
                 {currentModel.title}
               </h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-xl text-muted-foreground leading-relaxed">
                 {currentModel.description}
               </p>
             </div>

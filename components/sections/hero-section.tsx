@@ -23,7 +23,7 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets }: H
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.8), rgba(17, 24, 39, 0.8)), url('/east-java-temple-sunset-landscape-with-traditional.jpg')`,
+            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.8), rgba(17, 24, 39, 0.8)), url('${assets && assets.length > 0 ? assets[0] : '/east-java-temple-sunset-landscape-with-traditional.jpg'}')`,
           }}
         />
       </div>
@@ -45,7 +45,7 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets }: H
             <AnimatedReveal animation="fade-up" delay={400}>
               <h1 className="text-6xl font-bold text-white drop-shadow-md">Mrih Kretarta Pakartining Ngelmu Luhung 
               Kang Tumrap Neng Tanah Djawa</h1>
-              <p className="text-gray-300 text-xl leading-relaxed max-w-lg mt-4">
+              <p className="text-gray-300 text-2xl leading-relaxed max-w-lg mt-4">
               “To bring about the unfolding of practise noble sciences, 
               which pertains in the land of Java”</p>
             </AnimatedReveal>
@@ -72,7 +72,7 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets }: H
               {/* Card besar atas */}
               <div className="col-span-2 h-48 relative rounded-2xl overflow-hidden shadow-lg group">
                 <img
-                  src="/mount-bromo-sunrise-volcanic-landscape-east-java.jpg"
+                  src={assets && assets.length > 1 ? assets[1] : "/mount-bromo-sunrise-volcanic-landscape-east-java.jpg"}
                   alt="Bromo Tengger Semeru"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />

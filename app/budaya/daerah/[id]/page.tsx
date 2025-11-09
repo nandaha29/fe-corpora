@@ -90,6 +90,7 @@ interface SubcultureData {
     history: string;
     highlights: any[];
     salamKhas?: string;
+    artiSalamKhas?: string;
   };
   galleryImages: Array<{
     url: string;
@@ -809,7 +810,7 @@ export default function RegionDetailPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading subculture details...</p>
+          <p className="text-muted-foreground text-xl">Loading subculture details...</p>
         </div>
       </div>
     );
@@ -824,7 +825,7 @@ export default function RegionDetailPage() {
               <AlertCircle className="w-8 h-8 text-destructive" />
             </div>
 
-            <h1 className="text-2xl font-bold text-center text-foreground mb-3">
+            <h1 className="text-2xl font-bold text-center text-foreground mb-3 text-xl">
               Unable to Load Subculture
             </h1>
 
@@ -865,17 +866,17 @@ export default function RegionDetailPage() {
                 className="flex-1 gap-2 cursor-pointer"
                 variant="default"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4 text-xl" />
                 Try Again
               </Button>
               <Link href="/peta-budaya" className="flex-1">
                 <Button variant="outline" className="w-full cursor-pointer">
-                  Back to Map
+                  Back to Culture Map
                 </Button>
               </Link>
             </div>
 
-            <p className="text-xs text-muted-foreground text-center mt-6">
+            <p className="text-sm text-muted-foreground text-center mt-6">
               If the problem persists, please contact support or try again
               later.
             </p>
@@ -945,13 +946,17 @@ export default function RegionDetailPage() {
               <ol className="flex items-center space-x-2">
                 <li>
                   <Link href="/" className="hover:underline">
+                  <div className="text-xl">
                     Home
+                  </div>
                   </Link>
                 </li>
                 <li aria-hidden="true">›</li>
                 <li>
                   <Link href="/peta-budaya" className="hover:underline">
+                   <div className="text-xl">
                     Culture Map
+                   </div>
                   </Link>
                 </li>
               </ol>
@@ -970,12 +975,12 @@ export default function RegionDetailPage() {
             </motion.h1>
 
             <motion.p
-              className="mt-4 text-lg md:text-xl text-gray-200 max-w-2xl leading-relaxed"
+              className="mt-4 text-xl md:text-xl text-gray-200 max-w-2xl leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              "Om, (Brahmā, Visnū, Sivā), I wish for eternal well-being"
+              {subcultureData?.profile?.artiSalamKhas || "Special greeting meaning here"}
             </motion.p>
           </div>
         </div>
@@ -1000,7 +1005,9 @@ export default function RegionDetailPage() {
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
-                  Profile Subculture
+                 <div className="text-xl">
+                  Subculture Profile
+                 </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1015,7 +1022,9 @@ export default function RegionDetailPage() {
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
+                   <div className="text-xl">
                   Photo Gallery
+                   </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1030,7 +1039,9 @@ export default function RegionDetailPage() {
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
-                  Model 3D
+                     <div className="text-xl">
+                  3D Models
+                     </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1045,7 +1056,9 @@ export default function RegionDetailPage() {
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
-                  Youtube Video
+                   <div className="text-xl">
+                  YouTube Videos
+                   </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1065,7 +1078,9 @@ export default function RegionDetailPage() {
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
+                  <div className="text-xl">
                   Lexicons
+                  </div>
                 </button>
               </li>
             </ul>
@@ -1086,9 +1101,8 @@ export default function RegionDetailPage() {
                   className="bg-card/60 rounded-xl shadow-sm border border-border p-6"
                 >
                   <h3 className="text-xl font-bold text-foreground mb-4">
-                    Gallery
+                    Gallery Of {subcultureData.profile?.displayName}
                   </h3>
-
                   {/* Main Image Display */}
                   <div className="relative rounded-xl overflow-hidden border border-border bg-background/50 mb-3">
                     <AnimatePresence mode="wait">
@@ -1117,7 +1131,7 @@ export default function RegionDetailPage() {
                         </div>
 
                         <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                          <p className="text-white text-sm font-medium line-clamp-1">
+                          <p className="text-white text-lg font-medium line-clamp-1">
                             {currentGalleryImage.description}
                           </p>
                         </div>
@@ -1190,7 +1204,7 @@ export default function RegionDetailPage() {
 
                       {galleryImages.length > 8 && (
                         <div className="mt-2 text-center">
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm text-muted-foreground">
                             Scroll for more images
                           </p>
                         </div>
@@ -1218,9 +1232,9 @@ export default function RegionDetailPage() {
                         </span>
                       </button>
 
-                      <div className="text-xs text-muted-foreground">
+                      {/* <div className="text-xs text-muted-foreground">
                         {galleryImages.length} photos
-                      </div>
+                      </div> */}
                     </div>
                   )}
                 </div>
@@ -1232,7 +1246,7 @@ export default function RegionDetailPage() {
                   const profile = subcultureData.profile;
                   if (!profile)
                     return (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xl text-muted-foreground">
                         Detailed profile for this subculture is not yet
                         available.
                       </p>
@@ -1246,10 +1260,32 @@ export default function RegionDetailPage() {
                         About {displayName}
                       </h2>
 
+                      {/* Salam Khas Section */}
+                      {profile.salamKhas && (
+                        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                          <h3 className="text-lg font-semibold text-primary mb-2">
+                            Special Greeting
+                          </h3>
+                          <p className="text-xl font-medium text-foreground mb-2">
+                            {profile.salamKhas}
+                          </p>
+                          {profile.artiSalamKhas && (
+                            <div className="mt-3 pt-3 border-t border-primary/10">
+                              <h4 className="text-lg font-medium text-muted-foreground mb-1">
+                                Special Greeting Meaning:
+                              </h4>
+                              <p className="text-base text-xl text-foreground italic">
+                                {profile.artiSalamKhas}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <div className="max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                         <RichTextViewer
                           content={convertSubcultureHistory(history)}
-                          className="rich-text-profile"
+                          className="rich-text-profile text-xl"
                         />
                       </div>
                     </div>
@@ -1409,7 +1445,7 @@ export default function RegionDetailPage() {
                   <h2 className="text-xl font-bold text-foreground mb-2">
                     {subcultureData.profile?.displayName} Cultural Lexicon
                   </h2>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="text-xl text-muted-foreground mb-4">
                     Browse all lexicon entries for {subcultureData.profile?.displayName}. Use the search box below to filter terms by word, meaning,
                     transliteration, or cultural context specific to this subculture.
                   </p>
@@ -1433,7 +1469,7 @@ export default function RegionDetailPage() {
                     <div className="flex items-center justify-center py-12">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                        <p className="text-muted-foreground">
+                        <p className="text-muted-foreground text-xl">
                           Searching lexicon...
                         </p>
                       </div>
@@ -1479,13 +1515,13 @@ export default function RegionDetailPage() {
                                     return (
                                       <div className="flex items-center gap-2">
                                         <Loader2 className="w-3 h-3 animate-spin" />
-                                        <span className="text-xs">Loading translation...</span>
+                                        <span className="text-sm">Loading translation...</span>
                                       </div>
                                     );
                                   }
                                   
                                   return (
-                                    <span className="text-xs italic text-muted-foreground/70">
+                                    <span className="text-lg italic text-muted-foreground/70">
                                       Translation not available
                                     </span>
                                   );

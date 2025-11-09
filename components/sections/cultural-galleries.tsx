@@ -28,6 +28,7 @@ interface CulturalGalleriesProps {
     createdAt?: string
     updatedAt?: string
     image?: string | null
+    heroImage?: string | null
     subcultureAssets?: Array<{
       subcultureId: number
       assetId: number
@@ -88,16 +89,19 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
 
   const displaySubcultures = subcultures ? subcultures.map(sc => {
     // Handle both API formats: landing page (complex) vs subcultures gallery (simple)
-    const isSimpleFormat = sc.id && sc.name && sc.description !== undefined
+    const isSimpleFormat = (sc.id || sc.subcultureId) && (sc.name || sc.namaSubculture) && (sc.description !== undefined || sc.penjelasan !== undefined)
 
     if (isSimpleFormat) {
-      // Simple format from subcultures gallery API
+      // Simple format from subcultures gallery API or landing API subcultureSection
+      const name = sc.name || sc.namaSubculture!
+      const description = sc.description !== undefined ? sc.description : sc.penjelasan!
+      const image = sc.image || sc.heroImage || "/sub-daerah-pandalungan.jpg"
       return {
-        id: sc.id!,
-        name: sc.name!,
-        description: sc.description!,
-        image: sc.image || "/sub-daerah-pandalungan.jpg",
-        slug: sc.name!.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+        id: (sc.id || sc.subcultureId)!.toString(),
+        name: name,
+        description: description,
+        image: image,
+        slug: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
       }
     } else {
       // Complex format from landing page API
@@ -110,7 +114,7 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
         slug: sc.namaSubculture!.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
       }
     }
-  }) .slice(0, 4) : defaultSubRegions
+  }).slice(0, 4) : defaultSubRegions
 
   return (
     <section className="py-20 bg-muted/30 relative">
@@ -170,9 +174,9 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
                     </h3>
                   </div>
 
-                  <p className="text-lg text-muted-foreground mb-4 flex-1 line-clamp-3">
+                  <h3 className="text-lg text-muted-foreground mb-4 flex-1 line-clamp-3">
                     {sr.description}
-                  </p>
+                  </h3>
 
                   {/* Button */}
                   <div className="flex items-center justify-end mt-auto">
