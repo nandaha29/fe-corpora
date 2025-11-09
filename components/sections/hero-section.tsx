@@ -9,9 +9,64 @@ interface HeroSectionProps {
   onNavClick: (section: string) => void
   cultureName?: string
   assets?: string[]
+  highlightAssets?: Array<{
+    assetId: number
+    assetRole: string
+    asset: {
+      assetId: number
+      namaFile: string
+      tipe: string
+      penjelasan: string
+      url: string
+      fileSize: string
+      hashChecksum: string
+      metadataJson: string
+      status: string
+      createdAt: string
+      updatedAt: string
+    }
+  }>
 }
 
-export function HeroSection({ onNavClick, cultureName = "East Java", assets }: HeroSectionProps) {
+export function HeroSection({ onNavClick, cultureName = "East Java", assets, highlightAssets }: HeroSectionProps) {
+  // Get banner asset for hero background
+  const getBannerAsset = () => {
+    if (highlightAssets) {
+      const bannerAsset = highlightAssets.find(asset => asset.assetRole === "BANNER");
+      return bannerAsset?.asset?.url;
+    }
+    return null;
+  };
+
+  // Get highlight assets for cards
+  const getHighlightAssets = () => {
+    if (highlightAssets) {
+      return highlightAssets.filter(asset => asset.assetRole === "HIGHLIGHT");
+    }
+    return [];
+  };
+
+  const bannerAssetUrl = getBannerAsset();
+  const highlightAssetsList = getHighlightAssets();
+
+  // Get unique highlight assets for cards (ensure different images)
+  const getUniqueHighlightAssets = () => {
+    const uniqueAssets = [];
+    const usedUrls = new Set();
+
+    for (const asset of highlightAssetsList) {
+      if (!usedUrls.has(asset.asset.url)) {
+        uniqueAssets.push(asset);
+        usedUrls.add(asset.asset.url);
+        if (uniqueAssets.length >= 2) break; // Only need 2 unique assets for cards
+      }
+    }
+
+    return uniqueAssets;
+  };
+
+  const uniqueHighlightAssets = getUniqueHighlightAssets();
+
   return (
     <section
       id="beranda"
@@ -23,7 +78,7 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets }: H
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.8), rgba(17, 24, 39, 0.8)), url('${assets && assets.length > 0 ? assets[0] : '/east-java-temple-sunset-landscape-with-traditional.jpg'}')`,
+            backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.8), rgba(17, 24, 39, 0.8)), url('${bannerAssetUrl || (assets && assets.length > 0 ? assets[0] : '/east-java-temple-sunset-landscape-with-traditional.jpg')}')`,
           }}
         />
       </div>
@@ -72,7 +127,7 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets }: H
               {/* Card besar atas */}
               <div className="col-span-2 h-48 relative rounded-2xl overflow-hidden shadow-lg group">
                 <img
-                  src={assets && assets.length > 1 ? assets[1] : "/mount-bromo-sunrise-volcanic-landscape-east-java.jpg"}
+                  src="/mount-bromo-sunrise-volcanic-landscape-east-java.jpg"
                   alt="Bromo Tengger Semeru"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
@@ -85,9 +140,9 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets }: H
 
               {/* Card kiri bawah */}
               <div className="relative h-36 rounded-2xl overflow-hidden shadow-lg group">
-                <img
-                  src="/malang-traditional-architecture-and-cultural-herit.jpg"
-                  alt="Heritage"
+                  <img
+                  src={uniqueHighlightAssets.length > 0 ? uniqueHighlightAssets[0].asset.url : (assets && assets.length > 1 ? assets[1] : "/malang-traditional-architecture-and-cultural-herit.jpg")}
+                  alt="Bromo Tengger Semeru"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/40 to-purple-500/40 mix-blend-multiply" />
@@ -100,14 +155,14 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets }: H
               {/* Card kanan bawah */}
               <div className="relative h-36 rounded-2xl overflow-hidden shadow-lg group">
                 <img
-                  src="/surabaya-modern-city-with-traditional-cultural-ele.jpg"
-                  alt="Beaches"
+                  src={uniqueHighlightAssets.length > 1 ? uniqueHighlightAssets[1].asset.url : (assets && assets.length > 2 ? assets[2] : "/surabaya-modern-city-with-traditional-cultural-ele.jpg")}
+                  alt="Bromo Tengger Semeru"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-indigo-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">
                   <Waves className="h-5 w-5" />
-                  Surabaya Coastline
+                  Panaragan Heritage
                 </div>
               </div>
             </div>

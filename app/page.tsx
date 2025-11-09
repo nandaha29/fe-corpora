@@ -265,6 +265,9 @@ export default function CulturalHeritagePage() {
               onNavClick={handleNavClick} 
               cultureName={landingData.heroSection.cultureName}
               assets={landingData.heroSection.assets}
+              highlightAssets={landingData.subcultures?.flatMap(subculture => 
+                subculture.subcultureAssets?.filter(asset => asset.assetRole === "HIGHLIGHT") || []
+              )}
             />
 
             <CulturalGalleries 
