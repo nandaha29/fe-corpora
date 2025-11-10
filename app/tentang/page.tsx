@@ -515,7 +515,7 @@ By combining software engineering expertise and humanities approaches, this proj
 
         {/* Team Section */}
         <section id="team" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Founders & Contributors of UB Corpora</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">Scientific Organizer & Contributors of UB Corpora</h2>
           <h3 className="text-muted-foreground mb-8 text-xl">
             A multidisciplinary team dedicated to preserving and introducing 
             the cultural heritage of East Java to the world.
