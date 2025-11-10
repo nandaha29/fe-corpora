@@ -1,6 +1,6 @@
 export const APP_CONFIG = {
   name: "UB Corpora",
-  description: "Platform digital untuk melestarikan dan memperkenalkan warisan budaya Jawa Timur kepada dunia.",
+  description: "Digital platform to preserve and introduce East Java's cultural heritage to the world.",
   version: "1.0.0",
   author: "Universitas Brawijaya",
   contact: {

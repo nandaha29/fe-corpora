@@ -104,11 +104,11 @@ export default function SubculturesGalleryPage() {
   const getBackButtonText = () => {
     if (!referrer) return 'Back'
     
-    if (referrer === '/') return 'Kembali ke Beranda'
-    if (referrer === '/peta-budaya') return 'Kembali ke Peta Budaya'
-    if (referrer === '/tentang') return 'Kembali ke Tentang'
+    if (referrer === '/') return 'Back to Home'
+    if (referrer === '/peta-budaya') return 'Back to Cultural Map'
+    if (referrer === '/tentang') return 'Back to About'
     
-    return 'Kembali'
+    return 'Back'
   }
 
   const handleCategoryClick = (category: string) => {

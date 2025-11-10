@@ -241,16 +241,16 @@ export default function AllCulturalWordsPage() {
 
   const getBackButtonText = () => {
     if (!referrer) return "Back";
-    if (referrer === "/") return "Kembali ke Beranda";
-    if (referrer === "/peta-budaya") return "Kembali ke Peta Budaya";
+    if (referrer === "/") return "Back to Home";
+    if (referrer === "/peta-budaya") return "Back to Cultural Map";
     if (
       referrer.startsWith("/budaya/daerah/") &&
       referrer !== "/budaya/daerah/-"
     ) {
-      return "Kembali ke Glosarium";
+      return "Back to Glossary";
     }
-    if (referrer === "/budaya") return "Kembali ke Budaya";
-    return "Kembali";
+    if (referrer === "/budaya") return "Back to Culture";
+    return "Back";
   };
 
   // Fetch all lexicons on initial load
@@ -821,7 +821,7 @@ export default function AllCulturalWordsPage() {
                             {normalized.term}
                           </CardTitle>
                           <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
-                            <span className="text-3xl">🧺</span>
+                            <span className="text-xl">🧺</span>
                           </div>
                         </CardHeader>
 
@@ -913,7 +913,7 @@ export default function AllCulturalWordsPage() {
             {filteredLexicons.length > 0 && totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border text-lg">
                 <div className="text-lg text-muted-foreground order-2 sm:order-1">
-                  Menampilkan{" "}
+                  Show{" "}
                   <span className="font-medium text-foreground">
                     {startIndex + 1}
                   </span>
@@ -921,11 +921,11 @@ export default function AllCulturalWordsPage() {
                   <span className="font-medium text-foreground">
                     {Math.min(endIndex, filteredLexicons.length)}
                   </span>{" "}
-                  dari{" "}
+                  of{" "}
                   <span className="font-medium text-foreground">
                     {filteredLexicons.length}
                   </span>{" "}
-                  leksikon
+                  Lexicon
                 </div>
 
                 <div className="flex items-center gap-2 order-1 sm:order-2 text-lg">
@@ -941,7 +941,7 @@ export default function AllCulturalWordsPage() {
                     }`}
                   >
                     <ChevronLeft className="w-5 h-5" />
-                    <span className="hidden sm:inline ml-1">Sebelumnya</span>
+                    <span className="hidden sm:inline ml-1">Previous</span>
                   </Button>
 
                   <div className="flex items-center gap-1 text-lg">
@@ -987,13 +987,13 @@ export default function AllCulturalWordsPage() {
                         : "hover:bg-primary/10"
                     }`}
                   >
-                    <span className="hidden sm:inline mr-1">Selanjutnya</span>
+                    <span className="hidden sm:inline mr-1">Next</span>
                     <ChevronRight className="w-5 h-5" />
                   </Button>
                 </div>
 
                 <div className="sm:hidden text-lg text-muted-foreground order-3">
-                  Halaman {currentPage} dari {totalPages}
+                  Pages {currentPage} of {totalPages}
                 </div>
               </div>
             )}
