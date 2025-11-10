@@ -664,7 +664,7 @@ export default function AllCulturalWordsPage() {
           <div className="flex items-center justify-between">
             <button
               onClick={handleBack}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer group"
+              className="flex items-center gap-2 text-base md:text-lg text-muted-foreground hover:text-primary transition-colors cursor-pointer group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               <span>{getBackButtonText()}</span>
@@ -672,7 +672,7 @@ export default function AllCulturalWordsPage() {
 
             {!referrer && (
               <Link href="/">
-                <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer">
+                <button className="flex items-center gap-2 text-lg text-muted-foreground hover:text-primary transition-colors cursor-pointer">
                   <Home className="w-4 h-4" />
                   <span className="hidden sm:inline">Home</span>
                 </button>
@@ -683,9 +683,9 @@ export default function AllCulturalWordsPage() {
 
         <Badge
           variant="secondary"
-          className="bg-blue-950/60 text-blue-300 border border-blue-900 px-4 py-1 rounded-full mb-4"
+          className="bg-blue-950/60 text-blue-300 text-lg border border-blue-900 px-4 py-1 rounded-full mb-4"
         >
-          🧩 LEKSIKON BUDAYA
+          🧩 CULTURAL LEXICON
         </Badge>
 
         <h1 className="text-4xl font-extrabold text-foreground mb-2">
@@ -700,13 +700,13 @@ export default function AllCulturalWordsPage() {
           <div className="flex items-center gap-2">
             <label
               htmlFor="region-filter"
-              className="text-sm font-medium text-muted-foreground"
+              className="text-xl font-medium text-muted-foreground"
             >
               Subculture Filter:
             </label>
             <select
               id="region-filter"
-              className="px-4 py-2 rounded-md border border-border bg-background text-sm text-foreground shadow-sm cursor-pointer"
+              className="px-4 py-2 rounded-md border border-border bg-background text-lg text-foreground shadow-sm cursor-pointer"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
             >
@@ -753,7 +753,7 @@ export default function AllCulturalWordsPage() {
 
         {/* Results info */}
         {!loading && (
-          <div className="mt-4 text-sm text-muted-foreground">
+          <div className="mt-4 text-lg text-muted-foreground">
             {isSearching ? (
               <span className="flex items-center justify-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -817,42 +817,49 @@ export default function AllCulturalWordsPage() {
                     >
                       <Card className="bg-card/40 border border-border backdrop-blur-sm rounded-2xl p-4 transition-all hover:shadow-lg hover:border-primary/40 h-full flex flex-col">
                         <CardHeader className="pb-2 flex items-center justify-between">
-                          <CardTitle className="text-xl font-semibold text-foreground">
+                          <CardTitle className="text-2xl font-extrabold text-foreground">
                             {normalized.term}
                           </CardTitle>
-                          <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
-                            <span className="text-lg">🧺</span>
+                          <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
+                            <span className="text-3xl">🧺</span>
                           </div>
                         </CardHeader>
 
                         <CardContent className="flex-1 flex flex-col">
-                          <p className="text-sm text-muted-foreground mb-3 line-clamp-3 flex-1">
+                          <p className="text-lg text-muted-foreground mb-6 line-clamp-3 flex-1">
                             {normalized.lexiconId && lexiconTranslations[normalized.lexiconId.toString()]
                               ? lexiconTranslations[normalized.lexiconId.toString()]
                               : "Loading translation..."}
                           </p>
 
-                          <div className="flex items-center text-xs text-muted-foreground mb-2">
-                            <span className="font-medium">Subculture:</span>{" "}
-                            {normalized.subcultureName} ({normalized.province})
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="font-bold text-lg text-muted-foreground">Subculture:</span>
+                            <span className="bg-blue-950/60 text-blue-300 text-base border border-blue-900 px-3 py-1 rounded-full font-semibold">
+                              {normalized.subcultureName}
+                            </span>
+                            <span className="bg-blue-950/40 text-blue-200 text-base border border-blue-900 px-3 py-1 rounded-full font-medium">
+                              {normalized.province}
+                            </span>
                           </div>
 
-                          <div className="flex items-center text-xs text-muted-foreground mb-2">
-                            <span className="font-medium">Domain:</span>{" "}
-                            {normalized.domain}
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="font-bold text-lg text-muted-foreground">Domain:</span>
+                            <span className="bg-blue-950/60 text-blue-300 text-base border border-blue-900 px-3 py-1 rounded-full font-semibold">
+                              {normalized.domain}
+                            </span>
                           </div>
 
-                          <div className="flex items-center text-xs text-muted-foreground mb-4">
-                            <span className="font-medium">Contributor:</span>{" "}
+                          {/* <div className="flex items-center text-lg text-muted-foreground mb-6">
+                            <span className="font-bold">Contributor:</span>{" "}
                             {normalized.contributor}
-                          </div>
+                          </div> */}
 
                           <div className="flex justify-between items-center mt-auto">
                             <Link
                               href={`/budaya/daerah/-/${termSlug}`}
                               className="flex-1 mr-2"
                             >
-                              <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 text-white w-full cursor-pointer">
+                              <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 text-white w-full cursor-pointer text-lg py-3">
                                 Detail
                               </Button>
                             </Link>
@@ -861,7 +868,7 @@ export default function AllCulturalWordsPage() {
                             >
                               <Button
                                 variant="outline"
-                                className="border border-border hover:bg-background/60 cursor-pointer"
+                                className="border border-border hover:bg-background/60 cursor-pointer text-lg py-3"
                               >
                                 Subculture
                               </Button>
@@ -904,8 +911,8 @@ export default function AllCulturalWordsPage() {
 
             {/* Pagination */}
             {filteredLexicons.length > 0 && totalPages > 1 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border">
-                <div className="text-sm text-muted-foreground order-2 sm:order-1">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border text-lg">
+                <div className="text-lg text-muted-foreground order-2 sm:order-1">
                   Menampilkan{" "}
                   <span className="font-medium text-foreground">
                     {startIndex + 1}
@@ -921,29 +928,29 @@ export default function AllCulturalWordsPage() {
                   leksikon
                 </div>
 
-                <div className="flex items-center gap-2 order-1 sm:order-2">
+                <div className="flex items-center gap-2 order-1 sm:order-2 text-lg">
                   <Button
                     onClick={goToPreviousPage}
                     disabled={currentPage === 1}
                     variant="outline"
                     size="sm"
-                    className={`cursor-pointer transition-all ${
+                    className={`cursor-pointer transition-all text-lg ${
                       currentPage === 1
                         ? "opacity-50 cursor-not-allowed"
                         : "hover:bg-primary/10"
                     }`}
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-5 h-5" />
                     <span className="hidden sm:inline ml-1">Sebelumnya</span>
                   </Button>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 text-lg">
                     {getPageNumbers().map((pageNum, idx) => {
                       if (pageNum === "...") {
                         return (
                           <span
                             key={`ellipsis-${idx}`}
-                            className="px-3 py-2 text-muted-foreground"
+                            className="px-3 py-2 text-muted-foreground text-lg"
                           >
                             ...
                           </span>
@@ -957,7 +964,7 @@ export default function AllCulturalWordsPage() {
                           onClick={() => goToPage(page)}
                           variant={currentPage === page ? "default" : "outline"}
                           size="sm"
-                          className={`min-w-[40px] cursor-pointer transition-all ${
+                          className={`min-w-[40px] cursor-pointer transition-all text-lg ${
                             currentPage === page
                               ? "bg-primary text-primary-foreground font-semibold"
                               : "hover:bg-primary/10"
@@ -974,18 +981,18 @@ export default function AllCulturalWordsPage() {
                     disabled={currentPage === totalPages}
                     variant="outline"
                     size="sm"
-                    className={`cursor-pointer transition-all ${
+                    className={`cursor-pointer transition-all text-lg ${
                       currentPage === totalPages
                         ? "opacity-50 cursor-not-allowed"
                         : "hover:bg-primary/10"
                     }`}
                   >
                     <span className="hidden sm:inline mr-1">Selanjutnya</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-5 h-5" />
                   </Button>
                 </div>
 
-                <div className="sm:hidden text-sm text-muted-foreground order-3">
+                <div className="sm:hidden text-lg text-muted-foreground order-3">
                   Halaman {currentPage} dari {totalPages}
                 </div>
               </div>
