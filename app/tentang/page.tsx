@@ -409,23 +409,13 @@ export default function AboutPage() {
     <div className=" text-xl text-muted-foreground leading-relaxed">
     <h1>Introduction</h1>
               <h3 className="  text-muted-foreground leading-relaxed">
-                Tengger in Old Javanese means “highlands” (Gericke and Roorda, 1901:918), and thus the meaning of Wong Tengger would have mean persons who lived in highlands. In nowadays Java, Tengger no longer refer to that, but cover to “perch and sit above” (Hefner, 1985:25). Wong Tengger ‘Tengger People’ are indigenous community who resides and surrounds around the slope of Mountain Brahma (Bromo). The Tengger highlands locates to the northeast from Malang. There are three gates to reach there: (1) the first route is going to the north from Malang to Pasuruan or Purwodadi, we will find the main entrance Wonokitri village in Tosari district and going up to the Ngadiwono village. These regions well known as western side (brang kulon) of Tengger highlands; (2) the second route is heading to Probolinggo, we will reach the main entrance is Cemoro Lawang village (Ngadisari district) and directly overlooks mount Bromo and Tengger caldera. These gates are popularly known as eastern side (brang wetan) of Tengger highlands; (3) the third access has two kinds of gates: (1) heading to Tumpang, Malang then we will reach the Gubugklakah, and the main gate is Ngadas village; (2) heading to Lumajang, and climbing to Senduro, Ranupani. These regions are known as southern (brang kidul) of Tengger highlands.
+                What does corpus and corpora mean? In the classic linguistics, corpus often defines “a collection of utterances recorded on a tape or taken down from dictation” (Martinet, 1960:40). Susan Hunston (2002), one of the pioneers of the linguistics corpora in the English Department at the University of Birmingham, introduces modern uses of corpus studies through her book, Corpora in Applied Linguistics. The word of corpus is referring to “a collection of naturally occurring examples of language, consisting of anything from a few sentences to a set of written texts or tape recordings, which have been collected for linguistic study. More recently, the word has been reserved for collections of texts (or parts of text) that are stored and accessed electronically” (Hunston, 2002:2). What we learned from previous scholars on corpora implies that corpus is focusing on collecting of textual artefact. However, as we know that cultural artefacts have multilayered aspects (Arps 2016:28-29). We also agree that textuality are the vital aspects in making sense the complexity of multistranded of cultural artefacts. Considering the complexity of understanding the cultural artefacts, we propose that textual corpora in this regard should be accompanied by non-textual element. So, we are trying to initiate the corpus-multimodal in specific context.  
+
+In this project, we are trying to introduce the peculiarity of cultural expression of East Java through digital platform. East Java has unique cultural landscapes (see figure 1) and symbolizes variety of ethnic groups, traditions, and cultural artefacts. The specific purpose of this project is documenting, selecting, presenting cultural artefact in the existing of subcultures in East Java. More specifically, we are focusing to document culture-specific expressions, also known as culture-specific items, words or phrases that carries a particular meaning in special context. Those words are so hard to find equivalent words to other languages (translation challenges) because their concepts may not exist or be understood in other cultures. Apart from the textuality, this project present non-textual element through advance media, e.g., videos, photos, music, and 3D model. 
+By combining software engineering expertise and humanities approaches, this project is endeavored to provide database of textual artefacts and its multimodal.
+
               </h3>       
               </div>
-         
-
-              <div className="text-xl text-muted-foreground leading-relaxed">
-                <h1>Hong hulun Basuki Langgeng</h1>
-<h3>
-Hong Hulun Basuki Langgeng is Tenggerese salutation. This formula consists of four words in Old Javenese: Oṅ or Om is often referred to mantra or formula praise; ṅhulun is the usual pronoun for the first person (Zoetmulder:1982). Whilst the rest of the words are still existed in modern Javanese, basuki means well-being, and laṅgĕṅ holds the meaning permanent. So, the Tenggerese salutation can be interpreted in the following: “Om, (Brahmā, Visnū, Sivā), I wish for eternal well-being”. Then, the receiver will reply: basuki laṅgĕṅ ‘well-being forever’. This salutation is given when someone visit their relatives by knocking the door or for maintaining social relationship among Tenggerese when they meet each other in market or climbing up to the Bromo.
-              </h3>
-            </div>
-
-    <div className=" text-xl text-muted-foreground leading-relaxed">
-
-                <h1>Dukun Panḍita as divine actors</h1>
-                <h3>In order to maintain the divine relationship between the people of Tengger and their deities and ancestor, the role of dukun panḍita (priest of Tengger) is central (Sukmawan, 2022:14). In the rituals that they perform, the priest is acting like the middleman who mediate the realm world to divine world. By uttering their formulas (mantra) and mentioning the means of the ritual, the priest communicates to the unseen figures to the man who dedicated their offerings to their deities or ancestors. In all the rituals that are performed by Tenggerese, the priest is the main actor. Tenggerese often call the name of the dukun as Rama. Every Tengger villages has dukun and the assistant of the dukun. </h3>
-    </div>
             {/* Sources Section */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -440,7 +430,7 @@ Hong Hulun Basuki Langgeng is Tenggerese salutation. This formula consists of fo
                     </div>
                     <div>
                       <CardTitle className="text-base text-xl font-semibold">Key References</CardTitle>
-                      <h3 className="text-xl text-muted-foreground">4 academic sources</h3>
+                      <h3 className="text-xl text-muted-foreground">5 academic sources</h3>
                     </div>
                   </div>
                 </CardHeader>
@@ -448,36 +438,44 @@ Hong Hulun Basuki Langgeng is Tenggerese salutation. This formula consists of fo
                   <div className="space-y-3 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
                     {[
                       {
-                        judul: "Javaansch-Nederlandsch Handwoordenboek",
-                        penulis: "J. F. C. Gericke",
-                        tahunTerbit: "1901",
-                        penjelasan: "Comprehensive Javanese-Dutch dictionary with contributions from Dr. A.C. Vreede and Dr. J.G.H. Gunning",
-                        tipeReferensi: "Dictionary",
-                        citationNote: "Linguistic Reference"
-                      },
-                      {
-                        judul: "Hindu Javanese: Tengger Tradition and Islam",
-                        penulis: "Robert W. Hefner",
-                        tahunTerbit: "1985",
-                        penjelasan: "Ethnographic study of Tengger community and their Hindu-Buddhist cultural traditions",
+                        judul: "Tall Tree, Nest of the Wind: the Javanese Shadow-play Dewa Ruci Performed by Ki Anom Soeroto: A Study in Performance Philology",
+                        penulis: "B. Arps",
+                        tahunTerbit: "2016",
+                        penjelasan: "Comprehensive study of Javanese shadow-play performance and philology",
                         tipeReferensi: "Book",
-                        citationNote: "Cultural Study"
+                        citationNote: "Performance Philology"
                       },
                       {
-                        judul: "Mendaras Puja, Mengemas Tamasya",
-                        penulis: "Sony Sukmawan, Elvin Nurul Firdaus, Salamah, Asri Kamila Ramadhani",
-                        tahunTerbit: "2022",
-                        penjelasan: "Contemporary research on Tenggerese rituals and cultural practices",
+                        judul: "Elements of General Linguistics",
+                        penulis: "André Martinet",
+                        tahunTerbit: "1960",
+                        penjelasan: "Classic work on general linguistics principles, translated by Elisabeth Palmer",
                         tipeReferensi: "Book",
-                        citationNote: "Primary Source"
+                        citationNote: "Linguistic Theory"
                       },
                       {
-                        judul: "Old Javanese-English Dictionary Part 1: A-O",
-                        penulis: "P. J. Zoetmulder with S.O. Robson",
-                        tahunTerbit: "1982",
-                        penjelasan: "Essential reference for Old Javanese language and terminology (Part 1: A-O)",
-                        tipeReferensi: "Dictionary",
-                        citationNote: "Language Reference"
+                        judul: "Corpora in Applied Linguistics",
+                        penulis: "Susan Hunston",
+                        tahunTerbit: "2002",
+                        penjelasan: "Pioneering work on corpus linguistics applications in applied linguistics",
+                        tipeReferensi: "Book",
+                        citationNote: "Corpus Linguistics"
+                      },
+                      {
+                        judul: "Pemetaan Kebudayaan di Jawa Timur",
+                        penulis: "Ayu Sutarto",
+                        tahunTerbit: "2004",
+                        penjelasan: "Cultural mapping and documentation of East Java cultural heritage",
+                        tipeReferensi: "Book",
+                        citationNote: "Cultural Mapping"
+                      },
+                      {
+                        judul: "Theater as Data: Computational Journeys into Theater Research",
+                        penulis: "Miguel Escobar Varela",
+                        tahunTerbit: "2021",
+                        penjelasan: "Computational approaches to theater research and digital humanities",
+                        tipeReferensi: "Book",
+                        citationNote: "Digital Humanities"
                       }
                     ].map((ref, idx) => (
                       <div
