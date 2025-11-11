@@ -135,6 +135,14 @@ function slugify(input: string) {
     .replace(/\s+/g, "-");
 }
 
+function capitalize(input: string): string {
+  if (!input) return input;
+  return input
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
 export default function CulturalWordDetailPage({
   params,
 }: {
@@ -553,7 +561,7 @@ export default function CulturalWordDetailPage({
               <Link href={`/budaya/daerah/${regionId}`}>
                 <Button variant="ghost" size="sm" className="px-2 py-1 h-8 gap-1">
                   <ArrowLeft className="w-4 h-4" />
-                  <span className="text-lg">{regionId}</span>
+                  <span className="text-lg">{capitalize(regionId)}</span>
                 </Button>
               </Link>
               <span className="text-muted-foreground text-lg">/</span>
@@ -574,7 +582,7 @@ export default function CulturalWordDetailPage({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-xl font-bold text-foreground truncate">
-                  {entry.term}
+                  {capitalize(entry.term)}
                 </h1>
                 <Button
                   onClick={handlePlayAudio}
@@ -648,7 +656,7 @@ export default function CulturalWordDetailPage({
                   
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                     <h2 className="text-2xl font-bold mb-1">{currentGalleryImage.description || entry.term}</h2>
-                    <p className="text-sm text-gray-200">{currentGalleryImage.caption}</p>
+                    <p className="text-lg text-gray-200">{currentGalleryImage.caption}</p>
                   </div>
 
                   <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs">
@@ -854,17 +862,17 @@ export default function CulturalWordDetailPage({
                     <div className="flex justify-between items-center pb-2 border-b border-border/50">
                       <span className="text-lg text-muted-foreground">Subculture</span>
                       <Badge variant="secondary" className="text-lg">
-                        {entry.subculture.name}
+                        {capitalize(entry.subculture.name)}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center pb-2 border-b border-border/50">
                       <span className="text-lg text-muted-foreground">Province</span>
-                      <span className="text-lg font-medium">{entry.subculture.province}</span>
+                      <span className="text-lg font-medium">{capitalize(entry.subculture.province)}</span>
                     </div>
                     <div className="flex justify-between items-center pb-2 border-b border-border/50">
                       <span className="text-lg text-muted-foreground">Domain</span>
                       <Badge variant="outline" className="text-lg">
-                        {entry.domain}
+                        {capitalize(entry.domain)}
                       </Badge>
                     </div>
                     {/* <div className="flex justify-between items-center pb-2 border-b border-border/50">

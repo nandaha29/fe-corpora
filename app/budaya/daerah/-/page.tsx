@@ -685,14 +685,14 @@ export default function AllCulturalWordsPage() {
           variant="secondary"
           className="bg-blue-950/60 text-blue-300 text-lg border border-blue-900 px-4 py-1 rounded-full mb-4"
         >
-          🧩 CULTURAL LEXICON
+          🧩 Cultural Lexicon
         </Badge>
 
         <h1 className="text-4xl font-extrabold text-foreground mb-2">
           Explore Cultural Lexicon
         </h1>
-        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-          
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        Explore East Java’s rich vocabulary and cultural expressions — each term reflecting deep tradition, history, and local wisdom. Search, filter by subculture, and experience the language of heritage.
         </p>
 
         {/* Filter + Search */}
