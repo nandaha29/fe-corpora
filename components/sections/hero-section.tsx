@@ -141,28 +141,28 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets, hig
               {/* Card kiri bawah */}
               <div className="relative h-36 rounded-2xl overflow-hidden shadow-lg group">
                   <img
-                  src={uniqueHighlightAssets.length > 0 ? uniqueHighlightAssets[0].asset.url : (assets && assets.length > 1 ? assets[1] : "/malang-traditional-architecture-and-cultural-herit.jpg")}
-                  alt="Bromo Tengger Semeru"
+                  src={uniqueHighlightAssets.length > 0 ? uniqueHighlightAssets[0].asset.url : (assets && assets.length > 1 ? assets[1] : "/C0358.00_00_00_00.Still001.png")}
+                  alt="Brawijaya University"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/40 to-purple-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">
                   <Landmark className="h-5 w-5" />
-                  Malang Heritage
+                  UB Corpora
                 </div>
               </div>
 
               {/* Card kanan bawah */}
               <div className="relative h-36 rounded-2xl overflow-hidden shadow-lg group">
                 <img
-                  src={uniqueHighlightAssets.length > 1 ? uniqueHighlightAssets[1].asset.url : (assets && assets.length > 2 ? assets[2] : "/surabaya-modern-city-with-traditional-cultural-ele.jpg")}
+                  src={uniqueHighlightAssets.length > 1 ? uniqueHighlightAssets[1].asset.url : (assets && assets.length > 2 ? assets[2] : "/C0024.00_09_13_44.Still035.png")}
                   alt="Bromo Tengger Semeru"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-indigo-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">
                   <Waves className="h-5 w-5" />
-                  Panaragan Heritage
+                  Panaragan
                 </div>
               </div>
             </div>
