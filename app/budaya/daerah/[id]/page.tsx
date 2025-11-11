@@ -1564,30 +1564,34 @@ export default function RegionDetailPage() {
 
                               <div className="text-lg text-muted-foreground line-clamp-2 mt-1 min-h-[2.5rem]">
                                 {(() => {
-                                  // ✅ PRIORITY: entry.translation > fetched translation > commonMeaning > culturalMeaning > loading
-                                  const displayText =
-                                    entry.translation ||
-                                    translation ||
-                                    entry.commonMeaning ||
+                                  // Priority: entry.translation > fetched translation > commonMeaning > culturalMeaning
+                                  const raw =
+                                    entry.translation ??
+                                    translation ??
+                                    entry.commonMeaning ??
                                     entry.culturalMeaning;
 
-                                  if (displayText) {
-                                    return displayText;
+                                  // Normalize to string and trim
+                                  const normalized = raw === null || raw === undefined ? "" : String(raw).trim();
+
+                                  // Consider these as missing values
+                                  const invalidValues = new Set(["", "null", "nan", "undefined"]);
+
+                                  if (!invalidValues.has(normalized.toLowerCase())) {
+                                    return normalized;
                                   }
 
                                   if (isLoadingTranslation) {
                                     return (
                                       <div className="flex items-center gap-2">
                                         <Loader2 className="w-3 h-3 animate-spin" />
-                                        <span className="text-sm">
-                                          Loading translation...
-                                        </span>
+                                        <span className="text-lg">Loading translation...</span>
                                       </div>
                                     );
                                   }
 
                                   return (
-                                    <span className="text-sm italic text-muted-foreground/70">
+                                    <span className="text-lg italic text-muted-foreground/70">
                                       Translation not available
                                     </span>
                                   );
