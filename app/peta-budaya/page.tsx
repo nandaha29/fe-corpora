@@ -304,7 +304,7 @@ export default function PetaBudayaPage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.05 }}
-                className="mt-2 md:mt-3 text-sm md:text-base text-gray-200 max-w-2xl"
+                className="mt-2 md:mt-3 text-xl text-gray-200 max-w-2xl"
               >
                 Navigate an elegant cultural map to explore regions, traditions,
                 artifacts, and events—curated to reveal identity, history, and
@@ -319,9 +319,9 @@ export default function PetaBudayaPage() {
                 className="mt-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center"
               >
                 <Link href="/budaya/daerah/-?from=/peta-budaya" className="flex-shrink-0">
-                  <Button 
-                    variant="outline" 
-                    className="w-full sm:w-auto bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 cursor-pointer whitespace-nowrap"
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-auto bg-white/10 backdrop-blur- border-white/30 text-white hover:bg-white/20 cursor-pointer whitespace-nowrap text-xl"
                   >
                     Glosarium
                   </Button>
@@ -384,10 +384,10 @@ export default function PetaBudayaPage() {
               <div className="p-4 border-b border-border bg-gradient-to-r from-primary/5 to-accent/5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-semibold text-foreground">
+                    <h2 className="text-xl font-semibold text-foreground">
                       Interactive Map of East Java
                     </h2>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-lg text-muted-foreground">
                       {searchQuery ? 
                         `Showing results for "${searchQuery}"` : 
                         'Hover over regions to explore their cultural heritage'
@@ -447,21 +447,21 @@ export default function PetaBudayaPage() {
             viewport={{ once: true }}
             className="rounded-xl border border-border bg-card/60 backdrop-blur-sm p-4 md:p-5"
           >
-            <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 text-sm text-muted-foreground">
+            <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 text-xl text-muted-foreground">
               <li className="flex items-start gap-3">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-sm font-semibold">
                   1
                 </span>
                 Hover over any region on the map to see detailed information instantly.
               </li>
               <li className="flex items-start gap-3">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-sm font-semibold">
                   2
                 </span>
                 Use the search box to find specific regions and their cultural highlights.
               </li>
               <li className="flex items-start gap-3">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-sm font-semibold">
                   3
                 </span>
                 Click on a region to explore its full cultural glossary and traditions.

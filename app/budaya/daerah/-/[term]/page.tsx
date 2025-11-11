@@ -35,6 +35,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { YouTubeSection } from "@/components/sections/youtube-section";
 import { Model3DSection } from "@/components/sections/model-3d-section";
 import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
+import ScrollToTopButton from '@/components/common/scroll-to-top';
 
 interface LexiconAsset {
   leksikonId: number;
@@ -520,7 +521,7 @@ export default function CulturalWordDetailPage({
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Memuat detail istilah...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -552,18 +553,18 @@ export default function CulturalWordDetailPage({
               <Link href={`/budaya/daerah/${regionId}`}>
                 <Button variant="ghost" size="sm" className="px-2 py-1 h-8 gap-1">
                   <ArrowLeft className="w-4 h-4" />
-                  <span className="text-xs">{regionId}</span>
+                  <span className="text-lg">{regionId}</span>
                 </Button>
               </Link>
-              <span className="text-muted-foreground text-xs">/</span>
+              <span className="text-muted-foreground text-lg">/</span>
               <Link href="/budaya/daerah/-">
-                <Button variant="ghost" size="sm" className="px-2 py-1 h-8 gap-1">
-                  <span className="text-xs">All Lexicons</span>
+                <Button variant="ghost" size="lg" className="px-2 py-1 h-8 gap-1">
+                  <span className="text-lg">All Lexicons</span>
                 </Button>
               </Link>
             </div>
             <Link href="/">
-              <Button variant="ghost" size="sm" className="px-2 py-1 h-8">
+              <Button variant="ghost" size="lg" className="px-2 py-1 h-8">
                 <Home className="w-4 h-4" />
               </Button>
             </Link>
@@ -600,12 +601,12 @@ export default function CulturalWordDetailPage({
                     <Volume2 className="w-4 h-4 text-foreground hover:text-primary transition-colors" />
                   )}
                 </Button>
-                <Badge variant="outline" className="text-xs font-mono bg-muted/50">
+                <Badge variant="outline" className="text-lg font-mono bg-muted/50">
                   {entry.domain}
                 </Badge>
               </div>
               {entry.details.transliteration && (
-                <p className="text-xs text-muted-foreground font-mono">
+                <p className="text-lg text-muted-foreground font-mono">
                   {entry.details.transliteration}
                 </p>
               )}
@@ -722,12 +723,12 @@ export default function CulturalWordDetailPage({
                     </div>
                     <div>
                       <CardTitle className="text-lg">Constructed Meaning</CardTitle>
-                      <p className="text-xs text-muted-foreground">Primary meaning and context</p>
+                      <p className="text-lg text-muted-foreground">Primary meaning and context</p>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm leading-relaxed text-foreground font-medium">
+                  <p className="text-lg leading-relaxed text-foreground font-medium">
                     {translation || entry.details?.translation || "Loading translation..."}
                   </p>
                 </CardContent>
@@ -749,12 +750,12 @@ export default function CulturalWordDetailPage({
                         <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
                           <Quote className="w-5 h-5 text-emerald-600" />
                         </div>
-                        <CardTitle className="text-base">Cultural Reference</CardTitle>
+                        <CardTitle className="text-base text-lg">Cultural Reference</CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent>
                       <div className="relative pl-3 border-l-2 border-emerald-500/30">
-                        <p className="text-sm leading-relaxed text-muted-foreground">
+                        <p className="text-lg leading-relaxed text-muted-foreground">
                           {entry.details.culturalMeaning}
                         </p>
                       </div>
@@ -776,11 +777,11 @@ export default function CulturalWordDetailPage({
                         <div className="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center">
                           <Sparkles className="w-5 h-5 text-amber-600" />
                         </div>
-                        <CardTitle className="text-base">Variants</CardTitle>
+                        <CardTitle className="text-base text-lg">Variants</CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm leading-relaxed text-muted-foreground">
+                      <p className="text-lg leading-relaxed text-muted-foreground">
                         {entry.details.translationVariants}
                       </p>
                     </CardContent>
@@ -845,24 +846,24 @@ export default function CulturalWordDetailPage({
                     <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
                       <Info className="w-5 h-5 text-blue-600" />
                     </div>
-                    <CardTitle className="text-base">Metadata</CardTitle>
+                    <CardTitle className="text-base text-lg">Metadata</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="space-y-2">
                     <div className="flex justify-between items-center pb-2 border-b border-border/50">
-                      <span className="text-xs text-muted-foreground">Subculture</span>
-                      <Badge variant="secondary" className="text-xs">
+                      <span className="text-lg text-muted-foreground">Subculture</span>
+                      <Badge variant="secondary" className="text-lg">
                         {entry.subculture.name}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center pb-2 border-b border-border/50">
-                      <span className="text-xs text-muted-foreground">Province</span>
-                      <span className="text-xs font-medium">{entry.subculture.province}</span>
+                      <span className="text-lg text-muted-foreground">Province</span>
+                      <span className="text-lg font-medium">{entry.subculture.province}</span>
                     </div>
                     <div className="flex justify-between items-center pb-2 border-b border-border/50">
-                      <span className="text-xs text-muted-foreground">Domain</span>
-                      <Badge variant="outline" className="text-xs">
+                      <span className="text-lg text-muted-foreground">Domain</span>
+                      <Badge variant="outline" className="text-lg">
                         {entry.domain}
                       </Badge>
                     </div>
@@ -872,8 +873,8 @@ export default function CulturalWordDetailPage({
                     </div> */}
                     {entry.details.ipa && (
                       <div className="flex justify-between items-center pb-2 border-b border-border/50">
-                        <span className="text-xs text-muted-foreground">IPA</span>
-                        <span className="text-xs font-mono">{entry.details.ipa}</span>
+                        <span className="text-lg text-muted-foreground">IPA</span>
+                        <span className="text-lg font-mono">{entry.details.ipa}</span>
                       </div>
                     )}
                   </div>
@@ -1017,6 +1018,7 @@ export default function CulturalWordDetailPage({
       </AnimatePresence>
 
       <Footer onNavClick={handleNavClick} />
+      <ScrollToTopButton smooth threshold={200} />
     </div>
   );
 }

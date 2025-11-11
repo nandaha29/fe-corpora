@@ -184,7 +184,7 @@ export function YouTubeSection({
                   href={`https://www.youtube.com/watch?v=${currentVideo.videoId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-xs text-primary hover:underline"
+                  className="inline-flex items-center gap-2 text-lg text-primary hover:underline"
                 >
                   Watch on YouTube
                   <ExternalLink className="w-3 h-3" />

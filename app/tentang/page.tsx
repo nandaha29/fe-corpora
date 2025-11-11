@@ -24,6 +24,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import ScrollToTopButton from "@/components/common/scroll-to-top"
 
 interface LandingData {
   visiMisiSection: {
@@ -486,7 +487,7 @@ export default function AboutPage() {
                         <Library className="w-5 h-5 text-purple-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-base text-xl font-semibold">Key References</CardTitle>
+                        <CardTitle className="text-lg text-xl font-semibold">Key References</CardTitle>
                         <h3 className="text-xl text-muted-foreground">5 academic sources</h3>
                       </div>
                     </div>
@@ -571,7 +572,7 @@ export default function AboutPage() {
         </section>
 
         {/* Project Steps Section */}
-        <section id="steps" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
+        <section id="steps" className="scroll-mt-24">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">The Steps of the Project</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -579,146 +580,132 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="relative max-w-4xl mx-auto">
+          <div className="relative max-w-4xl mx-auto pl-24">
             {/* Timeline line */}
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-primary/30"></div>
+            <div className="absolute left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-purple-500"></div>
 
             <div className="space-y-12">
-              <div className="relative flex items-start gap-8">
-                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl">
+              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
+                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
                   1
                 </div>
-                <div className="flex-1 pt-2">
-                  <h3 className="text-2xl font-semibold mb-3">Focus Area</h3>
-                  <div className="text-lg text-muted-foreground leading-relaxed">
-                    The project began by focusing on culture-specific and language-specific expressions
-                    found in East Java subcultures, such as Tengger and Panaraga.
-                  </div>
+                <h3 className="text-2xl font-bold mb-3 text-blue-400">Focus Area</h3>
+                <div className="text-lg text-white/80 leading-relaxed">
+                  The project began by focusing on culture-specific and language-specific expressions
+                  found in East Java subcultures, such as Tengger and Panaraga.
                 </div>
               </div>
 
-              <div className="relative flex items-start gap-8">
-                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl">
+              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
+                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
                   2
                 </div>
-                <div className="flex-1 pt-2">
-                  <h3 className="text-2xl font-semibold mb-3">Data Collection</h3>
-                  <div className="text-lg text-muted-foreground leading-relaxed">
-                    Cultural expressions were collected through extensive and systematic literature reviews:
-                    <ul className="mt-3 space-y-2 ml-6">
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Early 20th century (colonial scholars' journals and reports)
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Mid-20th century scholarly works
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Early 21st century contemporary research
-                      </li>
-                    </ul>
-                  </div>
+                <h3 className="text-2xl font-bold mb-3 text-blue-400">Data Collection</h3>
+                <div className="text-lg text-white/80 leading-relaxed">
+                  Cultural expressions were collected through extensive and systematic literature reviews:
+                  <ul className="mt-4 space-y-2 list-none">
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Early 20th century (colonial scholars' journals and reports)</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Mid-20th century scholarly works</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Early 21st century contemporary research</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
 
-              <div className="relative flex items-start gap-8">
-                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl">
+              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
+                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
                   3
                 </div>
-                <div className="flex-1 pt-2">
-                  <h3 className="text-2xl font-semibold mb-3">Expert Consultation</h3>
-                  <div className="text-lg text-muted-foreground leading-relaxed">
-                    The team regularly consults with scholars and cultural activists specializing
-                    in the studied subcultures to ensure accuracy and cultural sensitivity.
-                  </div>
+                <h3 className="text-2xl font-bold mb-3 text-blue-400">Expert Consultation</h3>
+                <div className="text-lg text-white/80 leading-relaxed">
+                  The team regularly consults with scholars and cultural activists specializing
+                  in the studied subcultures to ensure accuracy and cultural sensitivity.
                 </div>
               </div>
 
-              <div className="relative flex items-start gap-8">
-                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl">
+              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
+                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
                   4
                 </div>
-                <div className="flex-1 pt-2">
-                  <h3 className="text-2xl font-semibold mb-3">Data Categorization</h3>
-                  <div className="text-lg text-muted-foreground leading-relaxed">
-                    Collected data are divided into types or domains based on unique characteristics:
-                    <ul className="mt-3 space-y-2 ml-6">
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Tenggerese and Nature
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Tenggerese Ritual Performance
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Daily Language and Expressions
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Traditional Arts and Crafts
-                      </li>
-                    </ul>
-                  </div>
+                <h3 className="text-2xl font-bold mb-3 text-blue-400">Data Categorization</h3>
+                <div className="text-lg text-white/80 leading-relaxed">
+                  Collected data are divided into types or domains based on unique characteristics:
+                  <ul className="mt-4 space-y-2 list-none">
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Tenggerese and Nature</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Tenggerese Ritual Performance</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Daily Language and Expressions</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Traditional Arts and Crafts</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
 
-              <div className="relative flex items-start gap-8">
-                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl">
+              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
+                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
                   5
                 </div>
-                <div className="flex-1 pt-2">
-                  <h3 className="text-2xl font-semibold mb-3">Digital Platform Development</h3>
-                  <div className="text-lg text-muted-foreground leading-relaxed">
-                    Designed a comprehensive digital platform featuring:
-                    <ul className="mt-3 space-y-2 ml-6">
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Cultural-specific expressions (words and phrases)
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Glosses from academic sources
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Commentaries and annotations
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                        Photos, videos, and 3D models for each artifact
-                      </li>
-                    </ul>
-                  </div>
+                <h3 className="text-2xl font-bold mb-3 text-blue-400">Digital Platform Development</h3>
+                <div className="text-lg text-white/80 leading-relaxed">
+                  Designed a comprehensive digital platform featuring:
+                  <ul className="mt-4 space-y-2 list-none">
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Cultural-specific expressions (words and phrases)</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Glosses from academic sources</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Commentaries and annotations</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span>Photos, videos, and 3D models for each artifact</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
 
-              <div className="relative flex items-start gap-8">
-                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl">
+              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
+                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
                   6
                 </div>
-                <div className="flex-1 pt-2">
-                  <h3 className="text-2xl font-semibold mb-3">Field Documentation</h3>
-                  <div className="text-lg text-muted-foreground leading-relaxed">
-                    Conducted cultural trips to document real-life cultural events using advanced
-                    media technology including 4K video, 360° photography, and 3D scanning.
-                  </div>
+                <h3 className="text-2xl font-bold mb-3 text-blue-400">Field Documentation</h3>
+                <div className="text-lg text-white/80 leading-relaxed">
+                  Conducted cultural trips to document real-life cultural events using advanced
+                  media technology including 4K video, 360° photography, and 3D scanning.
                 </div>
               </div>
 
-              <div className="relative flex items-start gap-8">
-                <div className="flex-shrink-0 w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl">
+              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
+                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
                   7
                 </div>
-                <div className="flex-1 pt-2">
-                  <h3 className="text-2xl font-semibold mb-3">Objective</h3>
-                  <div className="text-lg text-muted-foreground leading-relaxed">
-                    To present the complexity of cultural artifacts and their context in a digital,
-                    user-friendly form accessible to both experts and the general public.
-                  </div>
+                <h3 className="text-2xl font-bold mb-3 text-blue-400">Objective</h3>
+                <div className="text-lg text-white/80 leading-relaxed">
+                  To present the complexity of cultural artifacts and their context in a digital,
+                  user-friendly form accessible to both experts and the general public.
                 </div>
               </div>
             </div>
@@ -733,60 +720,72 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="text-center p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">👥</div>
-              <h3 className="text-xl font-semibold mb-3">Specialist Teams</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Each stage is handled by dedicated specialist teams ensuring smooth
-                and accurate execution of all project components.
-              </p>
-            </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-6 text-center">
+                <div className="text-4xl mb-4">👥</div>
+                <h3 className="text-xl font-semibold mb-3">Specialist Teams</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Each stage is handled by dedicated specialist teams ensuring smooth
+                  and accurate execution of all project components.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="text-center p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">📝</div>
-              <h3 className="text-xl font-semibold mb-3">Textual Analysis</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Comprehensive transcription, transliteration, translation, and
-                annotation of cultural texts and expressions.
-              </p>
-            </div>
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-6 text-center">
+                <div className="text-4xl mb-4">📝</div>
+                <h3 className="text-xl font-semibold mb-3">Textual Analysis</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Comprehensive transcription, transliteration, translation, and
+                  annotation of cultural texts and expressions.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="text-center p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">🎭</div>
-              <h3 className="text-xl font-semibold mb-3">Physical Analysis</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Body movement analysis through biomechanical methods to understand
-                traditional dance and performance art.
-              </p>
-            </div>
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-6 text-center">
+                <div className="text-4xl mb-4">🎭</div>
+                <h3 className="text-xl font-semibold mb-3">Physical Analysis</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Body movement analysis through biomechanical methods to understand
+                  traditional dance and performance art.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="text-center p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">🎵</div>
-              <h3 className="text-xl font-semibold mb-3">Auditory Analysis</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Documentation and analysis of sounds and music embedded in
-                cultural performances and rituals.
-              </p>
-            </div>
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-6 text-center">
+                <div className="text-4xl mb-4">🎵</div>
+                <h3 className="text-xl font-semibold mb-3">Auditory Analysis</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Documentation and analysis of sounds and music embedded in
+                  cultural performances and rituals.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="text-center p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">📊</div>
-              <h3 className="text-xl font-semibold mb-3">Data Integration</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Systematic organization of multi-modal data into a unified,
-                searchable digital database.
-              </p>
-            </div>
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-6 text-center">
+                <div className="text-4xl mb-4">📊</div>
+                <h3 className="text-xl font-semibold mb-3">Data Integration</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Systematic organization of multi-modal data into a unified,
+                  searchable digital database.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="text-center p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">🌐</div>
-              <h3 className="text-xl font-semibold mb-3">Public Access</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Development of user-friendly interfaces for scholars, students,
-                and the general public to access cultural data.
-              </p>
-            </div>
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-6 text-center">
+                <div className="text-4xl mb-4">🌐</div>
+                <h3 className="text-xl font-semibold mb-3">Public Access</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Development of user-friendly interfaces for scholars, students,
+                  and the general public to access cultural data.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </section>
         {/* Project Roadmap Section */}
@@ -799,81 +798,87 @@ export default function AboutPage() {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20">
-                <div className="text-3xl font-bold text-primary mb-2">2025</div>
-                <div className="text-xl font-semibold mb-4">Phase 1: Foundation</div>
-                <div className="text-left">
-                  <ul className="space-y-2 text-lg text-muted-foreground">
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                      Database development
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                      Preliminary website launch
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                      Initial data collection
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                      Team formation
-                    </li>
-                  </ul>
-                </div>
-              </div>
+            <div className="grid md:grid-cols-3 gap-6">
+                <Card className="group border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full hover:from-primary/10 hover:to-primary/5 transition-all duration-300">
+                  <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-muted-foreground mb-2 group-hover:text-primary transition-colors duration-300">2025</div>
+                  <div className="text-xl font-semibold mb-4">Phase 1: Foundation</div>
+                  <div className="text-left">
+                    <ul className="space-y-2 text-lg text-muted-foreground">
+                      <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Database development
+                      </li>
+                      <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Preliminary website launch
+                      </li>
+                      <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Initial data collection
+                      </li>
+                      <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Team formation
+                      </li>
+                    </ul>
+                  </div>
+                </CardContent>
+                </Card>
 
-              <div className="text-center p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border">
-                <div className="text-3xl font-bold text-muted-foreground mb-2">2026</div>
-                <div className="text-xl font-semibold mb-4">Phase 2: Expansion</div>
-                <div className="text-left">
-                  <ul className="space-y-2 text-lg text-muted-foreground">
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                      Database expansion
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                      Full website establishment
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                      Additional subcultures
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                      Public beta testing
-                    </li>
-                  </ul>
-                </div>
-              </div>
+                <Card className="group border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full hover:from-primary/10 hover:to-primary/5 transition-all duration-300">
+                  <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-muted-foreground mb-2 group-hover:text-primary transition-colors duration-300">2026</div>
+                  <div className="text-xl font-semibold mb-4">Phase 2: Expansion</div>
+                  <div className="text-left">
+                    <ul className="space-y-2 text-lg text-muted-foreground">
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Database expansion
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Full website establishment
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Additional subcultures
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Public beta testing
+                      </li>
+                    </ul>
+                  </div>
+                </CardContent>
+                </Card>
 
-              <div className="text-center p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border">
-                <div className="text-3xl font-bold text-muted-foreground mb-2">2027</div>
-                <div className="text-xl font-semibold mb-4">Phase 3: Institutionalization</div>
-                <div className="text-left">
-                  <ul className="space-y-2 text-lg text-muted-foreground">
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                      Brawijaya Corpora established
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                      Special task unit formation
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                      University integration
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                      Long-term sustainability
-                    </li>
-                  </ul>
-                </div>
-              </div>
+                <Card className="group border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full hover:from-primary/10 hover:to-primary/5 transition-all duration-300">
+                  <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-muted-foreground mb-2 group-hover:text-primary transition-colors duration-300">2027</div>
+                  <div className="text-xl font-semibold mb-4">Phase 3: Institutionalization</div>
+                  <div className="text-left">
+                    <ul className="space-y-2 text-lg text-muted-foreground">
+                      <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Brawijaya Corpora established
+                      </li>
+                      <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Special task unit formation
+                      </li>
+                      <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        University integration
+                      </li>
+                      <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        Long-term sustainability
+                      </li>
+                    </ul>
+                  </div>
+                </CardContent>
+                </Card>
             </div>
           </div>
         </section>
@@ -887,42 +892,50 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">🗂️</div>
-              <h3 className="text-xl font-semibold mb-3">Comprehensive Database</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Systematic organization of cultural expressions with multi-layered annotations,
-                glosses, and contextual information from verified academic sources.
-              </p>
-            </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-6">
+                <div className="text-4xl mb-4">🗂️</div>
+                <h3 className="text-xl font-semibold mb-3">Comprehensive Database</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Systematic organization of cultural expressions with multi-layered annotations,
+                  glosses, and contextual information from verified academic sources.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">📸</div>
-              <h3 className="text-xl font-semibold mb-3">Rich Media Documentation</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                High-quality photos, 4K videos, 360° panoramas, and 3D models accompanying
-                each cultural artifact for immersive exploration.
-              </p>
-            </div>
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-6">
+                <div className="text-4xl mb-4">📸</div>
+                <h3 className="text-xl font-semibold mb-3">Rich Media Documentation</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  High-quality photos, 4K videos, 360° panoramas, and 3D models accompanying
+                  each cultural artifact for immersive exploration.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-xl font-semibold mb-3">Advanced Search</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Powerful search capabilities across multiple parameters: subculture, domain,
-                time period, artifact type, and linguistic features.
-              </p>
-            </div>
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-6">
+                <div className="text-4xl mb-4">🔍</div>
+                <h3 className="text-xl font-semibold mb-3">Advanced Search</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Powerful search capabilities across multiple parameters: subculture, domain,
+                  time period, artifact type, and linguistic features.
+                </p>
+              </CardContent>
+            </Card>
 
-            <div className="p-6 bg-gradient-to-br from-background to-muted/50 rounded-lg border border-border hover:shadow-lg transition-shadow">
-              <div className="text-4xl mb-4">🎓</div>
-              <h3 className="text-xl font-semibold mb-3">Academic Resources</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Curated references, scholarly annotations, and citation tools for researchers
-                and students conducting cultural studies.
-              </p>
-            </div>
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-6">
+                <div className="text-4xl mb-4">🎓</div>
+                <h3 className="text-xl font-semibold mb-3">Academic Resources</h3>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Curated references, scholarly annotations, and citation tools for researchers
+                  and students conducting cultural studies.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
@@ -1070,6 +1083,9 @@ export default function AboutPage() {
       </main>
 
       <Footer onNavClick={handleNavClick} />
+
+      {/* Scroll to top button (instant by default). */}
+      <ScrollToTopButton smooth={false} threshold={200} />
     </div>
   )
 }

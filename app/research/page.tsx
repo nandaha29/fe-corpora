@@ -208,15 +208,15 @@ export default function ResearchPage() {
 
           <AnimatedReveal animation="fade-up" delay={400}>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Tim Peneliti & Kontributor
+             Scientific Organizer and Contributor
               <span className="text-primary block">UB Corpora</span>
             </h1>
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={600}>
             <p className="text-lg text-muted-foreground max-w-3xl">
-              Tim multidisipliner yang berdedikasi untuk melestarikan dan mendokumentasikan 
-              warisan budaya Jawa Timur melalui penelitian dan kolaborasi.
+              A multidisciplinary team dedicated to preserving and documenting 
+              East Java's cultural heritage through research and collaboration.
             </p>
           </AnimatedReveal>
 
@@ -227,7 +227,7 @@ export default function ResearchPage() {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
-                  placeholder="Cari nama, institusi, atau keahlian..."
+                  placeholder="Search by name, institution, or expertise..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 bg-background/50 border-border focus:ring-primary/20"
@@ -238,9 +238,9 @@ export default function ResearchPage() {
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value)}
-                className="px-4 py-2 rounded-md border border-border bg-background/50 text-sm text-foreground shadow-sm cursor-pointer hover:bg-background transition-colors"
+                className="px-4 py-2 rounded-md border border-border bg-background/50 text-lg text-foreground shadow-sm cursor-pointer hover:bg-background transition-colors"
               >
-                <option value="all">Semua Role</option>
+                <option value="all">All Role</option>
                 {roles.map((role) => (
                   <option key={role} value={role}>
                     {role}
@@ -253,11 +253,11 @@ export default function ResearchPage() {
           {/* Results Info */}
           {(searchQuery || filterRole !== "all" || filteredContributors.length > 0) && (
             <AnimatedReveal animation="fade-up" delay={1000}>
-              <div className="mt-4 text-sm text-muted-foreground">
+              <div className="mt-4 text-lg text-muted-foreground">
                 {searchQuery || filterRole !== "all" ? (
-                  <>Menampilkan {filteredContributors.length} kontributor</>
+                  <>Show {filteredContributors.length} Contributor</>
                 ) : (
-                  <>Total {filteredContributors.length} kontributor</>
+                  <>Total {filteredContributors.length} Contributor</>
                 )}
               </div>
             </AnimatedReveal>
@@ -271,7 +271,7 @@ export default function ResearchPage() {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-              <p className="text-muted-foreground">Memuat data kontributor...</p>
+              <p className="text-muted-foreground">Loading contributor data...</p>
             </div>
           </div>
         ) : error ? (
@@ -279,7 +279,7 @@ export default function ResearchPage() {
             <div className="text-center">
               <p className="text-red-500 mb-4">Error: {error}</p>
               <Button onClick={() => window.location.reload()} variant="outline">
-                Coba Lagi
+                Try Again
               </Button>
             </div>
           </div>
@@ -309,7 +309,7 @@ export default function ResearchPage() {
 
                           {contributor.assetCount !== undefined && contributor.assetCount > 0 && (
                             <Badge variant="secondary" className="text-xs">
-                              {contributor.assetCount} Kontribusi
+                              {contributor.assetCount} Contributions
                             </Badge>
                           )}
                         </div>
@@ -322,7 +322,7 @@ export default function ResearchPage() {
                         {/* Role with Icon */}
                         <div className="flex items-center gap-2 mb-3">
                           <RoleIcon className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-medium text-primary">
+                          <span className="text-lg font-medium text-primary">
                             {contributor.expertiseArea}
                           </span>
                         </div>
@@ -331,7 +331,7 @@ export default function ResearchPage() {
                         {contributor.institusi && (
                           <div className="flex items-start gap-2 mb-3">
                             <Building2 className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-lg text-muted-foreground">
                               {contributor.institusi}
                             </span>
                           </div>
@@ -343,7 +343,7 @@ export default function ResearchPage() {
                             <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                             <a 
                               href={`mailto:${contributor.email}`}
-                              className="text-sm text-muted-foreground hover:text-primary transition-colors truncate"
+                              className="text-lg text-muted-foreground hover:text-primary transition-colors truncate"
                             >
                               {contributor.email}
                             </a>
@@ -352,8 +352,8 @@ export default function ResearchPage() {
 
                         {/* Registration Date */}
                         {contributor.registeredAt && (
-                          <div className="mt-3 text-xs text-muted-foreground">
-                            Bergabung: {new Date(contributor.registeredAt).toLocaleDateString('id-ID', {
+                          <div className="mt-3 text-lg text-muted-foreground">
+                            Joined: {new Date(contributor.registeredAt).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'long'
                             })}
@@ -369,8 +369,8 @@ export default function ResearchPage() {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border">
-                <div className="text-sm text-muted-foreground order-2 sm:order-1">
-                  Menampilkan {startIndex + 1}-{Math.min(endIndex, filteredContributors.length)} dari {filteredContributors.length} kontributor
+                <div className="text-lg text-muted-foreground order-2 sm:order-1">
+                  Showing {startIndex + 1}-{Math.min(endIndex, filteredContributors.length)} of {filteredContributors.length} contributors
                 </div>
 
                 <div className="flex items-center gap-2 order-1 sm:order-2">
@@ -384,7 +384,7 @@ export default function ResearchPage() {
                     }`}
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    <span className="hidden sm:inline ml-1">Sebelumnya</span>
+                    <span className="hidden sm:inline ml-1">Previous</span>
                   </Button>
 
                   <div className="flex items-center gap-1">
@@ -428,13 +428,13 @@ export default function ResearchPage() {
                       currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >
-                    <span className="hidden sm:inline mr-1">Selanjutnya</span>
+                    <span className="hidden sm:inline mr-1">Next</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
 
-                <div className="sm:hidden text-sm text-muted-foreground order-3">
-                  Halaman {currentPage} dari {totalPages}
+                <div className="sm:hidden text-lg text-muted-foreground order-3">
+                  Page {currentPage} of {totalPages}
                 </div>
               </div>
             )}
@@ -444,9 +444,9 @@ export default function ResearchPage() {
             <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground mb-2">Tidak ada kontributor ditemukan</p>
-            <p className="text-sm text-muted-foreground">
-              Coba kata kunci atau filter yang berbeda
+            <p className="text-muted-foreground mb-2">No contributors found</p>
+            <p className="text-lg text-muted-foreground">
+              Try a different keyword or filter
             </p>
           </div>
         )}
