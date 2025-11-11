@@ -627,17 +627,10 @@ export default function RegionDetailPage() {
       setLexiconLoading(true);
 
       try {
-        const searchParams = new URLSearchParams();
-        searchParams.append(
-          "subculture_id",
-          subcultureData.subcultureId.toString()
-        );
-        if (searchQuery.trim()) {
-          searchParams.append("search", searchQuery.trim());
-        }
-
         const response = await fetch(
-          `https://be-corpora.vercel.app/api/v1/search/advanced?${searchParams.toString()}`
+          `https://be-corpora.vercel.app/api/v1/search/advanced?kata=${encodeURIComponent(
+            searchQuery.trim()
+          )}&subculture_id=${subcultureData.subcultureId}`
         );
 
         if (!response.ok) {
@@ -1065,10 +1058,10 @@ export default function RegionDetailPage() {
         </div>
       </section>
 
-      <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
+      <main className="container mx-auto pace-y-8 scroll-smooth">
         {/* Navigation Tabs */}
         <nav
-          aria-label="Subsection pages"
+          aria-label="Page subsections"
           className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 border-b border-border transition-shadow duration-200 ${
             isNavSticky ? "shadow-md" : ""
           }`}
@@ -1078,13 +1071,15 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("region-profile")}
-                  className={`px-3 py-2 rounded-md text-lg transition-colors inline-block cursor-pointer ${
-                    activeSection === "region-profile" && !showLexiconOnly
+                  className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
+                    activeSection === "region-profile"
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
+                  <div className="text-xl">
                   Subculture Profile
+                  </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1093,13 +1088,15 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("photo-gallery")}
-                  className={`px-3 py-2 rounded-md text-lg transition-colors inline-block cursor-pointer ${
-                    activeSection === "photo-gallery" && !showLexiconOnly
+                  className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
+                    activeSection === "photo-gallery"
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
+                  <div className="text-xl">
                   Photo Gallery
+                  </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1108,13 +1105,15 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("viewer-3d")}
-                  className={`px-3 py-2 rounded-md text-lg transition-colors inline-block cursor-pointer ${
-                    activeSection === "viewer-3d" && !showLexiconOnly
+                  className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
+                    activeSection === "viewer-3d"
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
+                  <div className="text-xl">
                   3D Models
+                  </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1123,13 +1122,15 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("youtube-videos")}
-                  className={`px-3 py-2 rounded-md text-lg transition-colors inline-block cursor-pointer ${
-                    activeSection === "youtube-videos" && !showLexiconOnly
+                  className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
+                    activeSection === "youtube-videos"
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
+                  <div className="text-xl">
                   YouTube Videos
+                  </div>
                 </button>
               </li>
               <li aria-hidden="true" className="text-muted-foreground">
@@ -1143,13 +1144,15 @@ export default function RegionDetailPage() {
                     setCurrentPage(1);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className={`px-3 py-2 rounded-md text-lg transition-colors inline-block cursor-pointer ${
+                  className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
                     showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
                       : "hover:bg-accent/20 text-foreground"
                   }`}
                 >
+                  <div className="text-xl">
                   Lexicons
+                  </div>
                 </button>
               </li>
             </ul>
@@ -1157,7 +1160,7 @@ export default function RegionDetailPage() {
         </nav>
 
         {!showLexiconOnly ? (
-          <>
+          <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
             {/* Region Profile & Gallery Section */}
             <section
               id="region-profile"
@@ -1169,7 +1172,7 @@ export default function RegionDetailPage() {
                   id="photo-gallery"
                   className="bg-card/60 rounded-xl shadow-sm border border-border p-6"
                 >
-                  <h3 className="text-xl font-bold text-foreground mb-4">
+                  <h3 className="text-2xl font-bold text-foreground mb-4">
                     Gallery Of {subcultureData.profile?.displayName}
                   </h3>
                   {/* Main Image Display */}
@@ -1495,9 +1498,9 @@ export default function RegionDetailPage() {
                 columns={3}
               />
             </section>
-          </>
+          </main>
         ) : (
-          <>
+          < main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
             {/* Lexicon Section */}
             <section
               id="search-and-explore"
@@ -1508,9 +1511,9 @@ export default function RegionDetailPage() {
                   <h2 className="text-2xl font-bold text-foreground mb-2">
                     {subcultureData.profile?.displayName} Cultural Lexicon
                   </h2>
-                  <p className="text-lg text-muted-foreground mb-4">
-                    Search terms, meanings, transliterations in {subcultureData.profile?.displayName}...
-                  </p>
+                  {/* <p className="text-lg text-muted-foreground mb-4">
+                    Search terms, meanings, transliterations in {subcultureData.profile?.displayName}
+                  </p> */}
                 </div>
                 <SearchInput
                   aria-label={`Search within ${subcultureData.profile?.displayName} cultural lexicon`}
@@ -1531,9 +1534,9 @@ export default function RegionDetailPage() {
                     <div className="flex items-center justify-center py-12">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                        <p className="text-muted-foreground text-xl">
+                        <h3 className="text-muted-foreground text-xl">
                           Searching lexicon...
-                        </p>
+                        </h3>
                       </div>
                     </div>
                   );
@@ -1562,7 +1565,7 @@ export default function RegionDetailPage() {
                                   entry.term.slice(1)}
                               </h3>
 
-                              <div className="text-lg text-muted-foreground line-clamp-2 mt-1 min-h-[2.5rem]">
+                              <div className="text-xl text-muted-foreground line-clamp-2 mt-1 min-h-[2.5rem]">
                                 {(() => {
                                   // Priority: entry.translation > fetched translation > commonMeaning > culturalMeaning
                                   const raw =
@@ -1585,13 +1588,13 @@ export default function RegionDetailPage() {
                                     return (
                                       <div className="flex items-center gap-2">
                                         <Loader2 className="w-3 h-3 animate-spin" />
-                                        <span className="text-lg">Loading translation...</span>
+                                        <span className="text-xl">Loading translation...</span>
                                       </div>
                                     );
                                   }
 
                                   return (
-                                    <span className="text-lg italic text-muted-foreground/70">
+                                    <span className="text-xl italic text-muted-foreground/70">
                                       Translation not available
                                     </span>
                                   );
@@ -1609,7 +1612,9 @@ export default function RegionDetailPage() {
                                   size="lg"
                                   className="w-full bg-primary text-white hover:bg-primary/90 rounded-md py-3 cursor-pointer"
                                 >
+                                  <div className="text-xl">
                                   View Details &nbsp;→
+                                  </div>
                                 </Button>
                               </Link>
                             </div>
@@ -1713,7 +1718,7 @@ export default function RegionDetailPage() {
                 );
               })()}
             </section>
-          </>
+          </main>
         )}
       </main>
 
