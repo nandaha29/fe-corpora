@@ -487,7 +487,7 @@ export default function AboutPage() {
                         <Library className="w-5 h-5 text-purple-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-base text-xl font-semibold">Key References</CardTitle>
+                        <CardTitle className="text-lg text-xl font-semibold">Key References</CardTitle>
                         <h3 className="text-xl text-muted-foreground">5 academic sources</h3>
                       </div>
                     </div>
@@ -590,7 +590,7 @@ export default function AboutPage() {
                   1
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Focus Area</h3>
-                <div className="text-base text-white/80 leading-relaxed">
+                <div className="text-lg text-white/80 leading-relaxed">
                   The project began by focusing on culture-specific and language-specific expressions
                   found in East Java subcultures, such as Tengger and Panaraga.
                 </div>
@@ -601,7 +601,7 @@ export default function AboutPage() {
                   2
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Data Collection</h3>
-                <div className="text-base text-white/80 leading-relaxed">
+                <div className="text-lg text-white/80 leading-relaxed">
                   Cultural expressions were collected through extensive and systematic literature reviews:
                   <ul className="mt-4 space-y-2 list-none">
                     <li className="flex items-start gap-3">
@@ -625,7 +625,7 @@ export default function AboutPage() {
                   3
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Expert Consultation</h3>
-                <div className="text-base text-white/80 leading-relaxed">
+                <div className="text-lg text-white/80 leading-relaxed">
                   The team regularly consults with scholars and cultural activists specializing
                   in the studied subcultures to ensure accuracy and cultural sensitivity.
                 </div>
@@ -636,7 +636,7 @@ export default function AboutPage() {
                   4
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Data Categorization</h3>
-                <div className="text-base text-white/80 leading-relaxed">
+                <div className="text-lg text-white/80 leading-relaxed">
                   Collected data are divided into types or domains based on unique characteristics:
                   <ul className="mt-4 space-y-2 list-none">
                     <li className="flex items-start gap-3">
@@ -664,7 +664,7 @@ export default function AboutPage() {
                   5
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Digital Platform Development</h3>
-                <div className="text-base text-white/80 leading-relaxed">
+                <div className="text-lg text-white/80 leading-relaxed">
                   Designed a comprehensive digital platform featuring:
                   <ul className="mt-4 space-y-2 list-none">
                     <li className="flex items-start gap-3">
@@ -692,7 +692,7 @@ export default function AboutPage() {
                   6
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Field Documentation</h3>
-                <div className="text-base text-white/80 leading-relaxed">
+                <div className="text-lg text-white/80 leading-relaxed">
                   Conducted cultural trips to document real-life cultural events using advanced
                   media technology including 4K video, 360° photography, and 3D scanning.
                 </div>
@@ -703,7 +703,7 @@ export default function AboutPage() {
                   7
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Objective</h3>
-                <div className="text-base text-white/80 leading-relaxed">
+                <div className="text-lg text-white/80 leading-relaxed">
                   To present the complexity of cultural artifacts and their context in a digital,
                   user-friendly form accessible to both experts and the general public.
                 </div>
