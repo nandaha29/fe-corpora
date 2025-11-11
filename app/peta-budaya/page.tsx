@@ -284,7 +284,7 @@ export default function PetaBudayaPage() {
                   </li>
                   <li aria-hidden="true">›</li>
                   <li>
-                    <Link href="/daerah/id" className="hover:underline">
+                    <Link href="/budaya/daerah/-" className="hover:underline">
                       Subcultural Regions
                     </Link>
                   </li>
