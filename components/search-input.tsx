@@ -38,7 +38,7 @@ export function SearchInput({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={cn("text-2xl pl-10 pr-10 bg-background/50 border-border focus:ring-primary/20", className)}
+          className={cn("text-xl pl-10 pr-10 bg-background/50 border-border focus:ring-primary/20", className)}
           {...props}
         />
         {value && (

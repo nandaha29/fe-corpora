@@ -16,7 +16,7 @@ interface NavigationProps {
 
 export function Navigation({ onNavClick, className }: NavigationProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState("beranda");
+  const [activeNav, setActiveNav] = useState("home");
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -60,7 +60,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
     } else if (section === "lexicons") {
       const currentPath = window.location.pathname;
       router.push(`/budaya/daerah/-?from=${encodeURIComponent(currentPath)}`);
-    } else if (section === "beranda" && !isHomepage) {
+    } else if (section === "home" && !isHomepage) {
       router.push("/");
     } else {
       onNavClick(section);
@@ -70,7 +70,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
 
   // Normal nav items untuk homepage
   const normalNavItems = [
-    { id: "beranda", label: "Home" },
+    { id: "home", label: "Home" },
     { id: "eksplorasi", label: "Explore" },
     { id: "tentang", label: "About" },
     { id: "kontak", label: "Contact" },
