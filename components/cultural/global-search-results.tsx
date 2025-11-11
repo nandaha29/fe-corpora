@@ -114,7 +114,7 @@ export function GlobalSearchResults({
                           searchQuery
                         )}
                       </h4>
-                      <span className={`px-2 py-1 text-xs font-medium rounded whitespace-nowrap ${
+                      <span className={`px-2 py-1 text-lg font-medium rounded whitespace-nowrap ${
                         isRegion 
                           ? 'bg-blue-500/10 text-blue-500' 
                           : 'bg-purple-500/10 text-purple-500'
@@ -123,7 +123,7 @@ export function GlobalSearchResults({
                       </span>
                     </div>
                     
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                    <p className="text-lg text-muted-foreground line-clamp-2 mb-2">
                       {highlightText(
                         isRegion ? item.description || "" : item.definition,
                         searchQuery
@@ -131,13 +131,13 @@ export function GlobalSearchResults({
                     </p>
 
                     {!isRegion && item.transliterasi && (
-                      <div className="text-xs text-muted-foreground mt-2 italic">
-                        Transliterasi: {item.transliterasi}
+                      <div className="text-lg text-muted-foreground mt-2 italic">
+                        Transliteration: {item.transliterasi}
                       </div>
                     )}
 
                     {!isRegion && lexiconRegionMap[item.termCode] && (
-                      <div className="text-xs text-primary mt-2 font-medium flex items-center gap-1">
+                      <div className="text-lg text-primary mt-2 font-medium flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         <span>From: <span className="font-semibold">{lexiconRegionMap[item.termCode]}</span></span>
                       </div>
@@ -170,14 +170,14 @@ export function GlobalSearchResults({
             {isSearching ? (
               <div className="flex items-center justify-center gap-2 text-muted-foreground">
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary/30 border-t-primary" />
-                <p className="text-sm">Searching...</p>
+                <p className="text-lg">Searching...</p>
               </div>
             ) : (
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-lg text-muted-foreground">
                   No results found for "{searchQuery}"
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-lg text-muted-foreground">
                   Try different keywords or check your spelling
                 </p>
               </div>

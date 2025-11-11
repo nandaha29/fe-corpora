@@ -19,7 +19,7 @@ export function SearchCategoryFilter({
       <div className="flex gap-2 flex-wrap">
         <button
           onClick={() => onCategoryChange("all")}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-sm ${
+          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-lg ${
             selectedCategory === "all"
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -29,7 +29,7 @@ export function SearchCategoryFilter({
         </button>
         <button
           onClick={() => onCategoryChange("subculture")}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-sm ${
+          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-lg ${
             selectedCategory === "subculture"
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -39,7 +39,7 @@ export function SearchCategoryFilter({
         </button>
         <button
           onClick={() => onCategoryChange("lexicon")}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-sm ${
+          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-lg ${
             selectedCategory === "lexicon"
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground hover:bg-muted/80"
