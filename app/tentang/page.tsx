@@ -24,6 +24,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import ScrollToTopButton from "@/components/common/scroll-to-top"
 
 interface LandingData {
   visiMisiSection: {
@@ -1082,6 +1083,9 @@ export default function AboutPage() {
       </main>
 
       <Footer onNavClick={handleNavClick} />
+
+      {/* Scroll to top button (instant by default). */}
+      <ScrollToTopButton smooth={false} threshold={200} />
     </div>
   )
 }

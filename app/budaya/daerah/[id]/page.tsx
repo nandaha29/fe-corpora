@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import ScrollToTopButton from '../../../../components/common/scroll-to-top';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -1713,6 +1714,7 @@ export default function RegionDetailPage() {
       </main>
 
       <Footer onNavClick={handleNavClick} />
+      <ScrollToTopButton smooth threshold={200} />
     </div>
   );
 }

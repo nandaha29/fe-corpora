@@ -35,6 +35,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { YouTubeSection } from "@/components/sections/youtube-section";
 import { Model3DSection } from "@/components/sections/model-3d-section";
 import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
+import ScrollToTopButton from '@/components/common/scroll-to-top';
 
 interface LexiconAsset {
   leksikonId: number;
@@ -1017,6 +1018,7 @@ export default function CulturalWordDetailPage({
       </AnimatePresence>
 
       <Footer onNavClick={handleNavClick} />
+      <ScrollToTopButton smooth threshold={200} />
     </div>
   );
 }
