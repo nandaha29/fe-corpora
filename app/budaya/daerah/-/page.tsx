@@ -685,14 +685,14 @@ export default function AllCulturalWordsPage() {
           variant="secondary"
           className="bg-blue-950/60 text-blue-300 text-lg border border-blue-900 px-4 py-1 rounded-full mb-4"
         >
-          🧩 CULTURAL LEXICON
+          🧩 Cultural Lexicon
         </Badge>
 
         <h1 className="text-4xl font-extrabold text-foreground mb-2">
           Explore Cultural Lexicon
         </h1>
-        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-          
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        Explore East Java’s rich vocabulary and cultural expressions — each term reflecting deep tradition, history, and local wisdom. Search, filter by subculture, and experience the language of heritage.
         </p>
 
         {/* Filter + Search */}
@@ -776,7 +776,7 @@ export default function AllCulturalWordsPage() {
           <div className="flex justify-center items-center py-16">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading...</p>
+              <h3 className="text-xl text-muted-foreground">Loading...</h3>
             </div>
           </div>
         ) : error ? (
@@ -818,7 +818,7 @@ export default function AllCulturalWordsPage() {
                       <Card className="bg-card/40 border border-border backdrop-blur-sm rounded-2xl p-4 transition-all hover:shadow-lg hover:border-primary/40 h-full flex flex-col">
                         <CardHeader className="pb-2 flex items-center justify-between">
                           <CardTitle className="text-2xl font-extrabold text-foreground">
-                            {normalized.term}
+                            {normalized.term.charAt(0).toUpperCase() + normalized.term.slice(1)}
                           </CardTitle>
                           <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
                             <span className="text-xl">🧺</span>
