@@ -157,15 +157,15 @@ export function HeroSection({
 
               {/* Card kiri bawah */}
               <div className="relative h-36 rounded-2xl overflow-hidden shadow-lg group">
-                <img
-                  src="/mount-bromo-sunrise-volcanic-landscape-east-java.jpg"
-                  alt="Bromo Tengger Semeru"
+                  <img
+                  src={uniqueHighlightAssets.length > 0 ? uniqueHighlightAssets[0].asset.url : (assets && assets.length > 1 ? assets[1] : "/WhatsApp_Image_2025-11-08_at_10.20.48_PM.jpeg")}
+                  alt="Brawijaya University"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/40 to-purple-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">
-                  <Mountain className="h-5 w-5" />
-                  Mount Bromo Tengger
+                  <Landmark className="h-5 w-5" />
+                  UB Corpora Activity
                 </div>
               </div>
 
@@ -185,7 +185,7 @@ export function HeroSection({
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-indigo-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">
                   <Waves className="h-5 w-5" />
-                  Panaragan Culture
+                  Panaragan Culture 
                 </div>
               </div>
             </div>
