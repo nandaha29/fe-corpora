@@ -425,28 +425,28 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
               <div className="grid grid-cols-3 gap-px bg-border/50">
                 <div className="bg-card p-3 text-center">
                   <Users className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
-                  <p className="text-xs font-semibold text-foreground">{currentRegion.population}</p>
-                  <p className="text-[10px] text-muted-foreground">Population</p>
+                  <h3 className="text-lg font-semibold text-foreground">{currentRegion.population}</h3>
+                  <h3 className="text-lg text-muted-foreground">Population</h3>
                 </div>
                 <div className="bg-card p-3 text-center">
                   <Award className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
-                  <p className="text-xs font-semibold text-foreground">{currentRegion.highlights.length}</p>
-                  <p className="text-[10px] text-muted-foreground">Highlights</p>
+                  <h3 className="text-lg font-semibold text-foreground">{currentRegion.highlights.length}</h3>
+                  <h3 className="text-lg text-muted-foreground">Highlights</h3>
                 </div>
                 <div className="bg-card p-3 text-center">
                   <TrendingUp className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
-                  <p className="text-xs font-semibold text-foreground">4.8</p>
-                  <p className="text-[10px] text-muted-foreground">Rating</p>
+                  <h3 className="text-lg font-semibold text-foreground">4.8</h3>
+                  <h3 className="text-lg text-muted-foreground">Rating</h3>
                 </div>
               </div>
 
               <div className="p-4 space-y-3 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-                <p className="text-sm text-muted-foreground leading-relaxed">{currentRegion.description}</p>
+                <h3 className="text-lg text-muted-foreground leading-relaxed">{currentRegion.description}</h3>
 
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Sparkles className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-bold text-foreground uppercase tracking-wide">Key Features</span>
+                    <span className="text-lg font-bold text-foreground uppercase tracking-wide">Key Features</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {currentRegion.highlights.map((highlight: string, idx: number) => (
@@ -458,7 +458,7 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
                           className="w-2 h-2 rounded-full flex-shrink-0"
                           style={{ backgroundColor: currentRegion.color }}
                         />
-                        <span className="text-xs font-medium text-foreground truncate">{highlight}</span>
+                        <span className="text-lg font-medium text-foreground truncate">{highlight}</span>
                       </div>
                     ))}
                   </div>
@@ -476,7 +476,9 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
                     }
                   }}
                 >
-                  Explore Subculture
+                  <div className="text-lg">
+                  Let's Explore
+                  </div>
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </Button>
               </div>

@@ -279,13 +279,17 @@ export default function PetaBudayaPage() {
                 <ol className="flex items-center space-x-2">
                   <li>
                     <Link href="/" className="hover:underline">
+                    <div className="text-xl">
                       Home
+                    </div>
                     </Link>
                   </li>
                   <li aria-hidden="true">›</li>
                   <li>
                     <Link href="/budaya/daerah/-" className="hover:underline">
+                    <div className="text-xl">
                       Subcultural Regions
+                    </div>
                     </Link>
                   </li>
                 </ol>
@@ -343,15 +347,15 @@ export default function PetaBudayaPage() {
                   className="mt-3 text-sm text-gray-200"
                 >
                   {isSearching ? (
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-2 text-xl">
                       <span className="animate-spin">⏳</span> Searching...
                     </span>
                   ) : (
                     <>
                       {searchResults.length > 0 ? (
-                        <>Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchQuery}"</>
+                        <div className="text-xl">Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchQuery}"</div>
                       ) : (
-                        <>No results found for "{searchQuery}"</>
+                        <div className="text-xl">No results found for "{searchQuery}"</div>
                       )}
                     </>
                   )}
@@ -362,7 +366,7 @@ export default function PetaBudayaPage() {
         </section>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-6 text-2xl">
           <div className="w-full">
             {/* Search Results - Main Content Area */}
             {showSearchResults && searchQuery && (
