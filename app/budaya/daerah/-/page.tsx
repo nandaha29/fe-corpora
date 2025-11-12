@@ -211,6 +211,7 @@ export default function AllCulturalWordsPage() {
   const searchParams = useSearchParams();
 
   const [region, setRegion] = useState<string>("all");
+  const [domain, setDomain] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   // 🔧 FIX: Ubah tipe state dari OriginalLexiconEntry[] menjadi LexiconEntry[]
   const [allLexicons, setAllLexicons] = useState<LexiconEntry[]>([]);
@@ -345,19 +346,32 @@ export default function AllCulturalWordsPage() {
     fetchAllLexicons();
   }, []);
 
-  // ✅ FIX: Function untuk apply filter by region
-  const applyRegionFilter = useCallback(
-    (data: LexiconEntry[], regionFilter: string): LexiconEntry[] => {
-      if (regionFilter === "all") {
-        return data;
+  // ✅ FIX: Function untuk apply filter by region and domain
+  const applyFilters = useCallback(
+    (data: LexiconEntry[], regionFilter: string, domainFilter: string): LexiconEntry[] => {
+      let filtered = data;
+
+      // Apply region filter
+      if (regionFilter !== "all") {
+        filtered = filtered.filter((entry) => {
+          if (isAdvancedEntry(entry)) {
+            return entry.domainKodifikasi?.subculture?.slug === regionFilter;
+          }
+          return entry.regionKey === regionFilter;
+        });
       }
 
-      return data.filter((entry) => {
-        if (isAdvancedEntry(entry)) {
-          return entry.domainKodifikasi?.subculture?.slug === regionFilter;
-        }
-        return entry.regionKey === regionFilter;
-      });
+      // Apply domain filter
+      if (domainFilter !== "all") {
+        filtered = filtered.filter((entry) => {
+          if (isAdvancedEntry(entry)) {
+            return entry.domainKodifikasi?.namaDomain === domainFilter;
+          }
+          return entry.domain === domainFilter;
+        });
+      }
+
+      return filtered;
     },
     []
   );
@@ -388,8 +402,8 @@ export default function AllCulturalWordsPage() {
         console.log("📋 EMPTY QUERY - Resetting to all data");
         setIsSearching(false);
 
-        // Apply region filter to all data
-        const results = applyRegionFilter([...allLexicons], region);
+        // Apply region and domain filter to all data
+        const results = applyFilters([...allLexicons], region, domain);
 
         console.log("✅ Reset complete:", results.length, "results");
         setFilteredLexicons(results);
@@ -432,9 +446,9 @@ export default function AllCulturalWordsPage() {
         }
 
         if (result.success && Array.isArray(result.data)) {
-          // 🔧 FIX: Cast result.data sebagai LexiconEntry[] dan apply region filter
+          // 🔧 FIX: Cast result.data sebagai LexiconEntry[] dan apply region and domain filter
           const searchResults = result.data as LexiconEntry[];
-          const results = applyRegionFilter(searchResults, region);
+          const results = applyFilters(searchResults, region, domain);
 
           console.log("✅ API Results:", results.length);
           setFilteredLexicons(results);
@@ -556,8 +570,8 @@ export default function AllCulturalWordsPage() {
           );
         });
 
-        // Apply region filter
-        results = applyRegionFilter(results, region);
+        // Apply region and domain filter
+        results = applyFilters(results, region, domain);
 
         console.log("✅ Fallback Results:", results.length);
         setFilteredLexicons(results);
@@ -578,7 +592,7 @@ export default function AllCulturalWordsPage() {
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [searchQuery, region, allLexicons, applyRegionFilter]);
+  }, [searchQuery, region, domain, allLexicons, applyFilters]);
 
   // 🔧 FIX: Get unique regions dari allLexicons dengan proper type handling
   const regions = Array.from(
@@ -594,10 +608,24 @@ export default function AllCulturalWordsPage() {
     )
   ).sort();
 
+  // 🔧 FIX: Get unique domains dari allLexicons dengan proper type handling
+  const domains = Array.from(
+    new Set(
+      allLexicons
+        .map((entry) => {
+          if (isAdvancedEntry(entry)) {
+            return entry.domainKodifikasi?.namaDomain;
+          }
+          return entry.domain;
+        })
+        .filter(Boolean)
+    )
+  ).sort();
+
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [region, searchQuery]);
+  }, [region, domain, searchQuery]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredLexicons.length / ITEMS_PER_PAGE);
@@ -719,6 +747,28 @@ export default function AllCulturalWordsPage() {
             </select>
           </div>
 
+                    <div className="flex items-center gap-2">
+            <label
+              htmlFor="domain-filter"
+              className="text-xl font-medium text-muted-foreground"
+            >
+              Domain Filter:
+            </label>
+            <select
+              id="domain-filter"
+              className="px-4 py-2 rounded-md border border-border bg-background text-lg text-foreground shadow-sm cursor-pointer"
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
+            >
+              <option value="all">All Domains</option>
+              {domains.map((dk) => (
+                <option key={dk} value={dk}>
+                  {dk}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none z-10" />
             <Input
@@ -764,6 +814,7 @@ export default function AllCulturalWordsPage() {
                 Show {filteredLexicons.length} result
                 {searchQuery.trim() && ` untuk "${searchQuery.trim()}"`}
                 {region !== "all" && ` di ${region}`}
+                {domain !== "all" && ` dalam domain ${domain}`}
               </>
             )}
           </div>
@@ -817,7 +868,7 @@ export default function AllCulturalWordsPage() {
                     >
                       <Card className="bg-card/40 border border-border backdrop-blur-sm rounded-2xl p-4 transition-all hover:shadow-lg hover:border-primary/40 h-full flex flex-col">
                         <CardHeader className="pb-2 flex items-center justify-between">
-                          <CardTitle className="text-2xl font-extrabold text-foreground">
+                          <CardTitle className="text-2xl font-extrabold text-foreground capitalize leading-tight">
                             {normalized.term.charAt(0).toUpperCase() + normalized.term.slice(1)}
                           </CardTitle>
                           <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -826,11 +877,19 @@ export default function AllCulturalWordsPage() {
                         </CardHeader>
 
                         <CardContent className="flex-1 flex flex-col">
-                          <p className="text-lg text-muted-foreground mb-6 line-clamp-3 flex-1">
-                            {normalized.lexiconId && lexiconTranslations[normalized.lexiconId.toString()]
-                              ? lexiconTranslations[normalized.lexiconId.toString()]
-                              : "Loading translation..."}
-                          </p>
+                          <h3 className="text-xl text-muted-foreground mb-6 line-clamp-3 flex-1">
+                            {(() => {
+                              const translation = normalized.lexiconId && lexiconTranslations[normalized.lexiconId.toString()]
+                                ? lexiconTranslations[normalized.lexiconId.toString()]
+                                : null;
+                              
+                              if (!translation || translation.trim() === "" || translation === "NaN") {
+                                return "Translation not available";
+                              }
+                              
+                              return translation;
+                            })()}
+                          </h3>
 
                           <div className="flex items-center gap-2 mb-3">
                             <span className="font-bold text-lg text-muted-foreground">Subculture:</span>
@@ -893,11 +952,12 @@ export default function AllCulturalWordsPage() {
                     ? `Tidak ada leksikon yang cocok dengan "${searchQuery.trim()}"`
                     : "Coba kata kunci atau filter yang berbeda"}
                 </p>
-                {(searchQuery || region !== "all") && (
+                {(searchQuery || region !== "all" || domain !== "all") && (
                   <Button
                     onClick={() => {
                       setSearchQuery("");
                       setRegion("all");
+                      setDomain("all");
                       currentQueryRef.current = "";
                     }}
                     variant="outline"
