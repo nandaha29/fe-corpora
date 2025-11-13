@@ -1,3 +1,384 @@
+// // app/tentang/page.tsx
+// "use client"
+
+// import { useState, useEffect } from "react"
+// import { Badge } from "@/components/ui/badge"
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+// import {
+//   Heart,
+//   Users,
+//   BookOpen,
+//   Globe,
+//   Award,
+//   Sparkles,
+//   ArrowLeft,
+//   Play,
+//   Library,
+//   ExternalLink
+// } from "lucide-react"
+// import { AnimatedReveal } from "@/components/common/animated-reveal"
+// import { Navigation } from "@/components/layout/navigation"
+// import { Footer } from "@/components/layout/footer"
+// import { useNavigation } from "@/hooks/use-navigation"
+// import Image from "next/image"
+// import { Button } from "@/components/ui/button"
+// import Link from "next/link"
+// import { motion } from "framer-motion"
+// import ScrollToTopButton from "@/components/common/scroll-to-top"
+// import { aboutPageData } from "@/data/about-page"
+// import {
+//   AboutHero,
+//   AboutOverview,
+//   AboutContent,
+//   AboutSteps,
+//   AboutProcess,
+//   AboutRoadmap,
+//   AboutFeatures,
+//   AboutTeam,
+//   AboutGallery,
+//   AboutVideo,
+//   AboutCTA
+// } from "@/components/sections/about"
+
+// interface LandingData {
+//   visiMisiSection: {
+//     publishedCultures: number
+//     publishedSubcultures: number
+//     publishedLeksikons: number
+//     totalContributors: number
+//     totalAssets: number
+//   }
+//   teamScientis: Array<{
+//     namaContributor: string
+//     expertiseArea: string
+//     institusi?: string
+//     email?: string
+//   }>
+//   collaborationAssets: Array<{
+//     asset: {
+//       url: string
+//       namaFile: string
+//       penjelasan: string
+//       tipe: string
+//     }
+//     contributor: {
+//       namaContributor: string
+//       institusi: string
+//     }
+//   }>
+// }
+
+// export default function AboutPage() {
+//   const { handleNavClick } = useNavigation()
+//   const [landingData, setLandingData] = useState<LandingData | null>(null)
+//   const [loading, setLoading] = useState(true)
+//   const [activeSection, setActiveSection] = useState<string>("overview")
+
+//   const [isNavSticky, setIsNavSticky] = useState(false)
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const response = await fetch('https://be-corpora.vercel.app/api/v1/public/landing')
+//         if (!response.ok) throw new Error('Failed to fetch data')
+//         const result = await response.json()
+//         if (result.success) {
+//           setLandingData(result.data)
+//         }
+//       } catch (err) {
+//         console.error('Error fetching landing data:', err)
+//       } finally {
+//         setLoading(false)
+//       }
+//     }
+
+//     fetchData()
+//   }, [])
+
+//   useEffect(() => {
+//     const handleScroll = () => {
+//       const headerHeight = 64
+//       setIsNavSticky(window.scrollY > headerHeight)
+
+//       const sections = ["overview", "about", "steps", "process", "roadmap", "features", "team", "gallery", "video"]
+//       for (const sectionId of sections) {
+//         const element = document.getElementById(sectionId)
+//         if (element) {
+//           const rect = element.getBoundingClientRect()
+//           if (rect.top <= 200) {
+//             setActiveSection(sectionId)
+//           }
+//         }
+//       }
+//     }
+
+//     window.addEventListener("scroll", handleScroll, { passive: true })
+//     return () => window.removeEventListener("scroll", handleScroll)
+//   }, [])
+
+//   const scrollToSection = (sectionId: string) => {
+//     const element = document.getElementById(sectionId)
+//     if (element) {
+//       const navbarHeight = 80
+//       const elementPosition = element.offsetTop - navbarHeight
+//       window.scrollTo({
+//         top: elementPosition,
+//         behavior: "smooth",
+//       })
+//     }
+//   }
+
+//   const handleSectionClick = (sectionId: string) => {
+//     setActiveSection(sectionId)
+
+//     const element = document.getElementById(sectionId)
+//     if (element) {
+//       const navbarHeight = 96
+//       const elementPosition = element.offsetTop - navbarHeight
+
+//       window.scrollTo({
+//         top: elementPosition,
+//         behavior: "smooth",
+//       })
+//     }
+//   }
+
+//   // Filter gallery images from collaboration assets
+//   const galleryImages = landingData?.collaborationAssets
+//     .filter(ca => ca.asset.tipe === 'image')
+//     .map(ca => ({
+//       url: ca.asset.url,
+//       alt: ca.asset.namaFile,
+//       description: ca.asset.penjelasan,
+//       contributor: ca.contributor.namaContributor,
+//       institution: ca.contributor.institusi
+//     })) || []
+
+//   // Filter videos from collaboration assets
+//   const videos = landingData?.collaborationAssets
+//     .filter(ca => ca.asset.tipe === 'video')
+//     .map(ca => ({
+//       url: ca.asset.url,
+//       title: ca.asset.namaFile,
+//       description: ca.asset.penjelasan,
+//       thumbnail: ca.asset.url.replace(/\.[^/.]+$/, ".jpg"), // Simple thumbnail assumption
+//       duration: "00:00", // Placeholder
+//       contributor: ca.contributor.namaContributor,
+//       institution: ca.contributor.institusi
+//     })) || []
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+//       <Navigation onNavClick={handleNavClick} />
+
+//       {/* Hero Section */}
+//       <AboutHero data={aboutPageData.hero} />
+
+//       {/* Navigation Tabs - Similar to Subculture */}
+//       <nav
+//         aria-label="Page subsections"
+//         className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 border-b border-border transition-shadow duration-200 ${isNavSticky ? "shadow-md" : ""
+//           }`}
+//       >
+//         <div className="container mx-auto px-4">
+//           <ul className="flex gap-2 overflow-x-auto py-2 no-scrollbar items-center">
+//             <li>
+//               <button
+//                 onClick={() => handleSectionClick("overview")}
+//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "overview"
+//                     ? "bg-primary/20 text-primary font-medium"
+//                     : "hover:bg-accent/20 text-foreground"
+//                   }`}
+//               >
+//                 <div className="text-xl">
+//                   Overview
+//                 </div>
+//               </button>
+//             </li>
+//             <li aria-hidden="true" className="text-muted-foreground">
+//               /
+//             </li>
+//             <li>
+//               <button
+//                 onClick={() => handleSectionClick("about")}
+//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "about"
+//                     ? "bg-primary/20 text-primary font-medium"
+//                     : "hover:bg-accent/20 text-foreground"
+//                   }`}
+//               >
+//                 <div className="text-xl">
+//                   About UB Corpora
+//                 </div>
+//               </button>
+//             </li>
+//             <li aria-hidden="true" className="text-muted-foreground">
+//               /
+//             </li>
+//             <li>
+//               <button
+//                 onClick={() => handleSectionClick("steps")}
+//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "steps"
+//                     ? "bg-primary/20 text-primary font-medium"
+//                     : "hover:bg-accent/20 text-foreground"
+//                   }`}
+//               >
+//                 <div className="text-xl">
+//                   Project Steps
+//                 </div>
+//               </button>
+//             </li>
+//             <li aria-hidden="true" className="text-muted-foreground">
+//               /
+//             </li>
+//             <li>
+//               <button
+//                 onClick={() => handleSectionClick("process")}
+//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "process"
+//                     ? "bg-primary/20 text-primary font-medium"
+//                     : "hover:bg-accent/20 text-foreground"
+//                   }`}
+//               >
+//                 <div className="text-xl">
+//                   Process
+//                 </div>
+//               </button>
+//             </li>
+//             <li aria-hidden="true" className="text-muted-foreground">
+//               /
+//             </li>
+//             <li>
+//               <button
+//                 onClick={() => handleSectionClick("roadmap")}
+//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "roadmap"
+//                     ? "bg-primary/20 text-primary font-medium"
+//                     : "hover:bg-accent/20 text-foreground"
+//                   }`}
+//               >
+//                 <div className="text-xl">
+//                   Roadmap
+//                 </div>
+//               </button>
+//             </li>
+//             <li aria-hidden="true" className="text-muted-foreground">
+//               /
+//             </li>
+//             <li>
+//               <button
+//                 onClick={() => handleSectionClick("features")}
+//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "features"
+//                     ? "bg-primary/20 text-primary font-medium"
+//                     : "hover:bg-accent/20 text-foreground"
+//                   }`}
+//               >
+//                 <div className="text-xl">
+//                   Features
+//                 </div>
+//               </button>
+//             </li>
+//             <li aria-hidden="true" className="text-muted-foreground">
+//               /
+//             </li>
+//             <li>
+//               <button
+//                 onClick={() => handleSectionClick("team")}
+//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "team"
+//                     ? "bg-primary/20 text-primary font-medium"
+//                     : "hover:bg-accent/20 text-foreground"
+//                   }`}
+//               >
+//                 <div className="text-xl">
+//                   Team
+//                 </div>
+//               </button>
+//             </li>
+//             <li aria-hidden="true" className="text-muted-foreground">
+//               /
+//             </li>
+//             <li>
+//               <button
+//                 onClick={() => handleSectionClick("gallery")}
+//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "gallery"
+//                     ? "bg-primary/20 text-primary font-medium"
+//                     : "hover:bg-accent/20 text-foreground"
+//                   }`}
+//               >
+//                 <div className="text-xl">
+//                   Gallery
+//                 </div>
+//               </button>
+//             </li>
+//             <li aria-hidden="true" className="text-muted-foreground">
+//               /
+//             </li>
+//             <li>
+//               <button
+//                 onClick={() => handleSectionClick("video")}
+//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "video"
+//                     ? "bg-primary/20 text-primary font-medium"
+//                     : "hover:bg-accent/20 text-foreground"
+//                   }`}
+//               >
+//                 <div className="text-xl">
+//                   Video
+//                 </div>
+//               </button>
+//             </li>
+//           </ul>
+//         </div>
+//       </nav>
+
+//       <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
+//         {/* Overview Section */}
+//         <AboutOverview
+//           data={aboutPageData.overview}
+//           stats={landingData?.visiMisiSection}
+//         />
+
+//         {/* About UB Corpora Section */}
+//         <AboutContent data={aboutPageData.about} />
+
+//         {/* Project Steps Section */}
+//         <AboutSteps data={aboutPageData.steps} />
+
+//         {/* Process Section */}
+//         <AboutProcess data={aboutPageData.process} />
+
+//         {/* Roadmap Section */}
+//         <AboutRoadmap data={aboutPageData.roadmap} />
+
+//         {/* Features Section */}
+//         <AboutFeatures data={aboutPageData.features} />
+
+//         {/* Team Section */}
+//         <AboutTeam
+//           data={aboutPageData.team}
+//           loading={loading}
+//         />
+
+//         {/* Gallery Section */}
+//         <AboutGallery
+//           data={aboutPageData.gallery}
+//           galleryImages={galleryImages}
+//         />
+
+//         {/* Video Section */}
+//         <AboutVideo
+//           data={{
+//             ...aboutPageData.video,
+//             emptyMessage: "No videos available at the moment."
+//           }}
+//           videos={videos}
+//         />
+
+//       </main>
+
+//       <Footer onNavClick={handleNavClick} />
+//       <ScrollToTopButton />
+//     </div>
+//   )
+// }
+
+
 // app/tentang/page.tsx
 "use client"
 
@@ -532,7 +913,7 @@ export default function AboutPage() {
         <section id="steps" className="scroll-mt-24">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">The Steps of the Project</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-2xl text-muted-foreground max-w-2xl mx-auto">
               A systematic approach to documenting and digitalizing cultural heritage
             </p>
           </div>
@@ -547,7 +928,7 @@ export default function AboutPage() {
                   1
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Focus Area</h3>
-                <div className="text-lg text-white/80 leading-relaxed">
+                <div className="text-xl text-white/80 leading-relaxed">
                   The project began by focusing on culture-specific and language-specific expressions
                   found in East Java subcultures, such as Tengger and Panaraga.
                 </div>
@@ -558,20 +939,20 @@ export default function AboutPage() {
                   2
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Data Collection</h3>
-                <div className="text-lg text-white/80 leading-relaxed">
+                <div className="text-xl text-white/80 leading-relaxed">
                   Cultural expressions were collected through extensive and systematic literature reviews:
                   <ul className="mt-4 space-y-2 list-none">
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Early 20th century (colonial scholars' journals and reports)</span>
+                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
+                      <span className="text-xl">Early 20th century (colonial scholars' journals and reports)</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Mid-20th century scholarly works</span>
+                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
+                      <span className="text-xl">Mid-20th century scholarly works</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Early 21st century contemporary research</span>
+                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
+                      <span className="text-xl">Early 21st century contemporary research</span>
                     </li>
                   </ul>
                 </div>
@@ -582,7 +963,7 @@ export default function AboutPage() {
                   3
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Expert Consultation</h3>
-                <div className="text-lg text-white/80 leading-relaxed">
+                <div className="text-xl text-white/80 leading-relaxed">
                   The team regularly consults with scholars and cultural activists specializing
                   in the studied subcultures to ensure accuracy and cultural sensitivity.
                 </div>
@@ -593,23 +974,23 @@ export default function AboutPage() {
                   4
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Data Categorization</h3>
-                <div className="text-lg text-white/80 leading-relaxed">
+                <div className="text-xl text-white/80 leading-relaxed">
                   Collected data are divided into types or domains based on unique characteristics:
                   <ul className="mt-4 space-y-2 list-none">
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
                       <span>Tenggerese and Nature</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Tenggerese Ritual Performance</span>
+                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
+                      <span >Tenggerese Ritual Performance</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
                       <span>Daily Language and Expressions</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
+                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
                       <span>Traditional Arts and Crafts</span>
                     </li>
                   </ul>
@@ -621,24 +1002,24 @@ export default function AboutPage() {
                   5
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Digital Platform Development</h3>
-                <div className="text-lg text-white/80 leading-relaxed">
+                <div className="text-xl text-white/80 leading-relaxed">
                   Designed a comprehensive digital platform featuring:
                   <ul className="mt-4 space-y-2 list-none">
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Cultural-specific expressions (words and phrases)</span>
+                      <span className=" text-xl text-blue-400 font-bold mt-0.5">→</span>
+                      <span className="text-xl">Cultural-specific expressions (words and phrases)</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Glosses from academic sources</span>
+                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
+                      <span className="text-xl">Glosses from academic sources</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Commentaries and annotations</span>
+                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
+                      <span className="text-xl">Commentaries and annotations</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Photos, videos, and 3D models for each artifact</span>
+                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
+                      <span className="text-xl">Photos, videos, and 3D models for each artifact</span>
                     </li>
                   </ul>
                 </div>
@@ -649,7 +1030,7 @@ export default function AboutPage() {
                   6
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Field Documentation</h3>
-                <div className="text-lg text-white/80 leading-relaxed">
+                <div className="text-xl text-white/80 leading-relaxed">
                   Conducted cultural trips to document real-life cultural events using advanced
                   media technology including 4K video, 360° photography, and 3D scanning.
                 </div>
@@ -660,7 +1041,7 @@ export default function AboutPage() {
                   7
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-blue-400">Objective</h3>
-                <div className="text-lg text-white/80 leading-relaxed">
+                <div className="text-xl text-white/80 leading-relaxed">
                   To present the complexity of cultural artifacts and their context in a digital,
                   user-friendly form accessible to both experts and the general public.
                 </div>
@@ -672,7 +1053,7 @@ export default function AboutPage() {
         <section id="process" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24" style={{background: 'rgba(255, 255, 255, 0.02)'}}>
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">The Project Process</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-2xl text-muted-foreground max-w-2xl mx-auto">
               Multi-disciplinary approach with specialist teams
             </p>
           </div>
@@ -682,10 +1063,10 @@ export default function AboutPage() {
               <CardContent className="p-6 text-center">
                 <div className="text-4xl mb-4">👥</div>
                 <h3 className="text-xl font-semibold mb-3">Specialist Teams</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <h3 className="text-xl text-muted-foreground leading-relaxed">
                   Each stage is handled by dedicated specialist teams ensuring smooth
                   and accurate execution of all project components.
-                </p>
+                </h3>
               </CardContent>
             </Card>
 
@@ -693,10 +1074,10 @@ export default function AboutPage() {
               <CardContent className="p-6 text-center">
                 <div className="text-4xl mb-4">📝</div>
                 <h3 className="text-xl font-semibold mb-3">Textual Analysis</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <h3 className="text-xl text-muted-foreground leading-relaxed">
                   Comprehensive transcription, transliteration, translation, and
                   annotation of cultural texts and expressions.
-                </p>
+                </h3>
               </CardContent>
             </Card>
 
@@ -704,10 +1085,10 @@ export default function AboutPage() {
               <CardContent className="p-6 text-center">
                 <div className="text-4xl mb-4">🎭</div>
                 <h3 className="text-xl font-semibold mb-3">Physical Analysis</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <h3 className="text-xl text-muted-foreground leading-relaxed">
                   Body movement analysis through biomechanical methods to understand
                   traditional dance and performance art.
-                </p>
+                </h3>
               </CardContent>
             </Card>
 
@@ -715,10 +1096,10 @@ export default function AboutPage() {
               <CardContent className="p-6 text-center">
                 <div className="text-4xl mb-4">🎵</div>
                 <h3 className="text-xl font-semibold mb-3">Auditory Analysis</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <h3 className="text-xl text-muted-foreground leading-relaxed">
                   Documentation and analysis of sounds and music embedded in
                   cultural performances and rituals.
-                </p>
+                </h3>
               </CardContent>
             </Card>
 
@@ -726,10 +1107,10 @@ export default function AboutPage() {
               <CardContent className="p-6 text-center">
                 <div className="text-4xl mb-4">📊</div>
                 <h3 className="text-xl font-semibold mb-3">Data Integration</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <h3 className="text-xl text-muted-foreground leading-relaxed">
                   Systematic organization of multi-modal data into a unified,
                   searchable digital database.
-                </p>
+                </h3>
               </CardContent>
             </Card>
 
@@ -737,10 +1118,10 @@ export default function AboutPage() {
               <CardContent className="p-6 text-center">
                 <div className="text-4xl mb-4">🌐</div>
                 <h3 className="text-xl font-semibold mb-3">Public Access</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <h3 className="text-xl text-muted-foreground leading-relaxed">
                   Development of user-friendly interfaces for scholars, students,
                   and the general public to access cultural data.
-                </p>
+                </h3>
               </CardContent>
             </Card>
           </div>
@@ -749,9 +1130,9 @@ export default function AboutPage() {
         <section id="roadmap" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Project Roadmap</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <h3 className="text-2xl text-muted-foreground max-w-2xl mx-auto">
               Three-year implementation plan leading to Brawijaya Corpora establishment
-            </p>
+            </h3>
           </div>
 
           <div className="max-w-4xl mx-auto">
@@ -764,19 +1145,27 @@ export default function AboutPage() {
                     <ul className="space-y-2 text-lg text-muted-foreground">
                       <li className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                       <h3 className="text-xl">
                         Database development
+                       </h3>
                       </li>
                       <li className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                       <h3 className="text-xl">
                         Preliminary website launch
+                       </h3>
                       </li>
                       <li className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        <h3 className="text-xl">
                         Initial data collection
+                        </h3>
                       </li>
                       <li className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                       <h3 className="text-xl">
                         Team formation
+                       </h3>
                       </li>
                     </ul>
                   </div>
@@ -790,20 +1179,28 @@ export default function AboutPage() {
                   <div className="text-left">
                     <ul className="space-y-2 text-lg text-muted-foreground">
                       <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        <div className=" w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        <h3 className="text-xl">
                         Database expansion
+                        </h3>
                       </li>
                       <li className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        <h3 className="text-xl">
                         Full website establishment
+                        </h3>
                       </li>
                       <li className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        <h3 className="text-xl">
                         Additional subcultures
+                        </h3>
                       </li>
                       <li className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        <h3 className="text-xl">
                         Public beta testing
+                        </h3>
                       </li>
                     </ul>
                   </div>
@@ -818,19 +1215,27 @@ export default function AboutPage() {
                     <ul className="space-y-2 text-lg text-muted-foreground">
                       <li className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        <h3 className="text-xl">
                         Brawijaya Corpora established
+                        </h3>
                       </li>
                       <li className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        <h3 className="text-xl">
                         Special task unit formation
+                        </h3>
                       </li>
                       <li className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                        <h3 className="text-xl">
                         University integration
+                        </h3>
                       </li>
                       <li className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                       <h3 className="text-xl">
                         Long-term sustainability
+                       </h3>
                       </li>
                     </ul>
                   </div>
@@ -844,9 +1249,9 @@ export default function AboutPage() {
         <section id="features" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24" style={{background: 'rgba(255, 255, 255, 0.02)'}}>
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Platform Features</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <h3 className="text-2xl text-muted-foreground max-w-2xl mx-auto">
               Cutting-edge technology meets traditional culture
-            </p>
+            </h3>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -854,10 +1259,10 @@ export default function AboutPage() {
               <CardContent className="p-6">
                 <div className="text-4xl mb-4">🗂️</div>
                 <h3 className="text-xl font-semibold mb-3">Comprehensive Database</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <h3 className="text-xl text-muted-foreground leading-relaxed">
                   Systematic organization of cultural expressions with multi-layered annotations,
                   glosses, and contextual information from verified academic sources.
-                </p>
+                </h3>
               </CardContent>
             </Card>
 
@@ -865,10 +1270,10 @@ export default function AboutPage() {
               <CardContent className="p-6">
                 <div className="text-4xl mb-4">📸</div>
                 <h3 className="text-xl font-semibold mb-3">Rich Media Documentation</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <h3 className="text-xl text-muted-foreground leading-relaxed">
                   High-quality photos, 4K videos, 360° panoramas, and 3D models accompanying
                   each cultural artifact for immersive exploration.
-                </p>
+                </h3>
               </CardContent>
             </Card>
 
@@ -876,10 +1281,10 @@ export default function AboutPage() {
               <CardContent className="p-6">
                 <div className="text-4xl mb-4">🔍</div>
                 <h3 className="text-xl font-semibold mb-3">Advanced Search</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <h3 className="text-xl text-muted-foreground leading-relaxed">
                   Powerful search capabilities across multiple parameters: subculture, domain,
                   time period, artifact type, and linguistic features.
-                </p>
+                </h3>
               </CardContent>
             </Card>
 
@@ -887,10 +1292,10 @@ export default function AboutPage() {
               <CardContent className="p-6">
                 <div className="text-4xl mb-4">🎓</div>
                 <h3 className="text-xl font-semibold mb-3">Academic Resources</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <h3 className="text-xl text-muted-foreground leading-relaxed">
                   Curated references, scholarly annotations, and citation tools for researchers
                   and students conducting cultural studies.
-                </p>
+                </h3>
               </CardContent>
             </Card>
           </div>
@@ -898,7 +1303,7 @@ export default function AboutPage() {
 
         {/* Team Section */}
         <section id="team" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Scientific Organizer & Contributors of UB Corpora</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-4">Scientific Organizer & Contributors of UB Corpora</h2>
           <h3 className="text-muted-foreground mb-8 text-xl">
             A multidisciplinary team dedicated to preserving and introducing
             the cultural heritage of East Java to the world.

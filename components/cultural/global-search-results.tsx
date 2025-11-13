@@ -123,16 +123,16 @@ export function GlobalSearchResults({
                       </span>
                     </div>
                     
-                    <p className="text-lg text-muted-foreground line-clamp-2 mb-2">
+                    <h3 className="text-xl text-muted-foreground line-clamp-2 mb-2">
                       {highlightText(
                         isRegion ? item.description || "" : item.definition,
                         searchQuery
                       )}
-                    </p>
+                    </h3>
 
                     {!isRegion && item.transliterasi && (
-                      <div className="text-lg text-muted-foreground mt-2 italic">
-                        Transliteration: {item.transliterasi}
+                      <div className="text-lg text-muted-foreground mt-2 font-medium">
+                        Transliterasi: {item.transliterasi}
                       </div>
                     )}
 
@@ -148,13 +148,13 @@ export function GlobalSearchResults({
                         {item.highlights.slice(0, 3).map((highlight, i) => (
                           <span
                             key={i}
-                            className="text-xs px-2 py-0.5 rounded bg-muted/50 text-muted-foreground"
+                            className="text-lg px-2 py-0.5 rounded bg-muted/50 text-muted-foreground"
                           >
                             {highlight}
                           </span>
                         ))}
                         {item.highlights.length > 3 && (
-                          <span className="text-xs px-2 py-0.5 rounded bg-muted/50 text-muted-foreground">
+                          <span className="text-lg px-2 py-0.5 rounded bg-muted/50 text-muted-foreground">
                             +{item.highlights.length - 3} more
                           </span>
                         )}
@@ -170,16 +170,16 @@ export function GlobalSearchResults({
             {isSearching ? (
               <div className="flex items-center justify-center gap-2 text-muted-foreground">
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary/30 border-t-primary" />
-                <p className="text-lg">Searching...</p>
+                <h3 className="text-lg">Searching...</h3>
               </div>
             ) : (
               <div className="space-y-2">
-                <p className="text-lg text-muted-foreground">
+                <h3 className="text-lg text-muted-foreground">
                   No results found for "{searchQuery}"
-                </p>
-                <p className="text-lg text-muted-foreground">
+                </h3>
+                <h3 className="text-lg text-muted-foreground">
                   Try different keywords or check your spelling
-                </p>
+                </h3>
               </div>
             )}
           </div>

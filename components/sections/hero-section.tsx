@@ -165,7 +165,7 @@ export function HeroSection({
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/40 to-purple-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">
                   <Mountain className="h-5 w-5" />
-                  Mount Bromo & Tengger Semeru
+                  Mount Bromo Tengger
                 </div>
               </div>
 

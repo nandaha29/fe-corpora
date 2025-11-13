@@ -19,7 +19,7 @@ export function SearchCategoryFilter({
       <div className="flex gap-2 flex-wrap">
         <button
           onClick={() => onCategoryChange("all")}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-lg ${
+          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-xl ${
             selectedCategory === "all"
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -29,7 +29,7 @@ export function SearchCategoryFilter({
         </button>
         <button
           onClick={() => onCategoryChange("subculture")}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-lg ${
+          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-xl ${
             selectedCategory === "subculture"
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -39,7 +39,7 @@ export function SearchCategoryFilter({
         </button>
         <button
           onClick={() => onCategoryChange("lexicon")}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-lg ${
+          className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer text-xl ${
             selectedCategory === "lexicon"
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -50,13 +50,13 @@ export function SearchCategoryFilter({
       </div>
       
       <div className="flex items-center gap-4">
-        <div className="text-sm font-medium text-foreground bg-primary/10 px-3 py-1 rounded-full">
+        <div className="text-lg font-medium text-foreground bg-primary/10 px-3 py-1 rounded-full">
           {resultsCount} result{resultsCount !== 1 ? 's' : ''}
         </div>
         {onClear && (
           <button
             onClick={onClear}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="text-lg text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             ✕ Close
           </button>
