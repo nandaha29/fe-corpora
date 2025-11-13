@@ -1561,8 +1561,7 @@ export default function RegionDetailPage() {
                           >
                             <div className="px-4 py-3 flex-grow">
                               <h3 className="font-semibold text-foreground text-lg">
-                                {entry.term.charAt(0).toUpperCase() +
-                                  entry.term.slice(1)}
+                                {entry.term.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                               </h3>
 
                               <div className="text-xl text-muted-foreground line-clamp-2 mt-1 min-h-[2.5rem]">
