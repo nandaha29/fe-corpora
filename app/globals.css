@@ -5,7 +5,7 @@
 
 :root {
   /* Updated color tokens to match modern NFT marketplace design */
-  --background: #1f2937; /* Dark gradient background */
+  --background:   #1f2937; /* Dark gradient background */
   --foreground: #f8fafc; /* Light text */
   --card: #374151; /* Dark card background */
   --card-foreground: #f8fafc;

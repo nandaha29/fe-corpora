@@ -827,9 +827,13 @@ export default function AllCulturalWordsPage() {
 
                         <CardContent className="flex-1 flex flex-col">
                           <p className="text-lg text-muted-foreground mb-6 line-clamp-3 flex-1">
-                            {normalized.lexiconId && lexiconTranslations[normalized.lexiconId.toString()]
-                              ? lexiconTranslations[normalized.lexiconId.toString()]
-                              : "Loading translation..."}
+                            {(() => {
+                              const translationKey = normalized.lexiconId ? normalized.lexiconId.toString() : null;
+                              const translation = translationKey ? lexiconTranslations[translationKey] : undefined;
+                              if (translation === undefined) return "Loading translation...";
+                              if (translation === null || translation === "null" || translation === "NaN") return "Translation not available";
+                              return translation;
+                            })()}
                           </p>
 
                           <div className="flex items-center gap-2 mb-3">
