@@ -1020,13 +1020,13 @@ export default function RegionDetailPage() {
             >
               <ol className="flex items-center space-x-2">
                 <li>
-                  <Link href="/" className="hover:underline">
+                  <Link href="/" className="hover:underline text-xl">
                     Home
                   </Link>
                 </li>
                 <li aria-hidden="true">›</li>
                 <li>
-                  <Link href="/peta-budaya" className="hover:underline">
+                  <Link href="/peta-budaya" className="hover:underline text-xl">
                     Culture Map
                   </Link>
                 </li>
@@ -1046,7 +1046,7 @@ export default function RegionDetailPage() {
             </motion.h1>
 
             <motion.p
-              className="mt-4 text-xl md:text-xl text-gray-200 max-w-2xl leading-relaxed"
+              className="mt-4 text-2xl md:text-xl text-gray-200 max-w-2xl leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -1612,7 +1612,7 @@ export default function RegionDetailPage() {
                                   size="lg"
                                   className="w-full bg-primary text-white hover:bg-primary/90 rounded-md py-3 cursor-pointer"
                                 >
-                                  <div className="text-xl">
+                                  <div className="text-lg">
                                   View Details &nbsp;→
                                   </div>
                                 </Button>
