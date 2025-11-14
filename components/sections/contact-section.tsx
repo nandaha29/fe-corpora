@@ -125,17 +125,17 @@ export function ContactSection() {
                   </p>
                     <div className="flex space-x-3">
                     <Button variant="outline" size="sm" className="text-lg">
-                      <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
+                      <a href="https://www.facebook.com/brawijayacorpora" target="_blank" rel="noopener noreferrer">
                         Facebook
                       </a>
                     </Button>
                     <Button variant="outline" size="sm" className="text-lg" asChild>
-                      <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
+                      <a href="https://www.instagram.com/brawijayacorpora" target="_blank" rel="noopener noreferrer">
                       Instagram
                       </a>
                     </Button>
                     <Button variant="outline" size="sm" className="text-lg">
-                      <a href="https://x.com" target="_blank" rel="noopener noreferrer">
+                      <a href="https://x.com/CorporaPro61224" target="_blank" rel="noopener noreferrer">
                         X (Twitter)
                       </a>
                     </Button>

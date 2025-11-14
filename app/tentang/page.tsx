@@ -583,9 +583,9 @@ export default function AboutPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
             >
-              {subcultureData?.profile?.title ||
+              {/* {subcultureData?.profile?.title ||
                 `Discover the Living Tapestry of ${subcultureData?.profile?.displayName || "UB Corpora"
-                }`}
+                }`} */}Explore this website to discover the rich diversity of East Java’s cultural artefacts
             </motion.h1>
 
             <motion.p
