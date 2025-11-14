@@ -142,7 +142,7 @@ export function HeroSection({
                       ? uniqueHighlightAssets[0].asset.url
                       : assets && assets.length > 1
                       ? assets[1]
-                      : "/WhatsApp_Image_2025-11-08_at_10.20.48_PM.jpeg"
+                      : "/WhatsApp Image 2025-09-21 at 20.07.38.jpeg"
                   }
                   alt="Brawijaya University"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
