@@ -32,7 +32,7 @@ const REGIONS: Region[] = [
 
   // jabar
   {
-    id: "jabar",
+    id: "west-java",
     name: "Jawa Barat",
     color: "#FF0DEF",
     description: "Island identity with strong maritime traditions",
@@ -44,8 +44,8 @@ const REGIONS: Region[] = [
 
   // jateng
   {
-    id: "jateng",
-    name: "Jawa Tengah",
+    id: "central-java",
+    name: "Central Java",
     color: "#FAFA10",
     description: "Refined Javanese etiquette and gamelan traditions",
     population: "~3.6M",
@@ -129,7 +129,7 @@ const REGIONS: Region[] = [
   // 11. MADURA-KANGEAN - Pulau kecil kanan atas (#D75323)
   {
     id: "madura-kangean",
-    name: "Madura-Kangean",
+    name: "Kangean",
     color: "#D75323",
     description: "Northeastern island cluster with coastal identity",
     population: "~85K",
@@ -140,8 +140,8 @@ const REGIONS: Region[] = [
 
   // 12. DIY (Red area) - Area merah (#FF5151)
   {
-    id: "red-area",
-    name: "DIY",
+    id: "diy-yogyakarta",
+    name: "DIY Yogyakarta",
     color: "#FF5151",
     description: "Special cultural preservation area",
     population: "Variable",
