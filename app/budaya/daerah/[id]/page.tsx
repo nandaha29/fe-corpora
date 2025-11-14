@@ -608,7 +608,9 @@ export default function RegionDetailPage() {
 
           if (result.success && result.data) {
             const lexicons = result.data;
-            const mappedItems = lexicons.map((entry: any) => ({
+            // Filter for only PUBLISHED entries
+            const publishedLexicons = lexicons.filter((entry: any) => entry.status === "PUBLISHED");
+            const mappedItems = publishedLexicons.map((entry: any) => ({
               ...entry,
               term: entry.kataLeksikon,
               definition:
@@ -653,7 +655,9 @@ export default function RegionDetailPage() {
 
         if (result.success && result.data) {
           const lexicons = result.data;
-          const mappedItems = lexicons.map((entry: any) => ({
+          // Filter for only PUBLISHED entries
+          const publishedLexicons = lexicons.filter((entry: any) => entry.status === "PUBLISHED");
+          const mappedItems = publishedLexicons.map((entry: any) => ({
             ...entry,
             term: entry.kataLeksikon,
             definition:
@@ -1573,8 +1577,10 @@ export default function RegionDetailPage() {
                           >
                             <div className="px-4 py-3 flex-grow">
                               <h3 className="font-semibold text-foreground text-lg">
-                                {entry.term.charAt(0).toUpperCase() +
-                                  entry.term.slice(1)}
+                                {entry.term
+                                  .split(' ')
+                                  .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                                  .join(' ')}
                               </h3>
 
                               <div className="text-xl text-muted-foreground line-clamp-2 mt-1 min-h-[2.5rem]">
