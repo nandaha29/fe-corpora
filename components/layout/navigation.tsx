@@ -60,8 +60,13 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
     } else if (section === "lexicons") {
       const currentPath = window.location.pathname;
       router.push(`/budaya/daerah/-?from=${encodeURIComponent(currentPath)}`);
-    } else if (section === "home" && !isHomepage) {
-      router.push("/");
+    } else if (section === "home") {
+      if (!isHomepage) {
+        router.push("/");
+      } else {
+        // On homepage, scroll to top
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     } else {
       onNavClick(section);
     }

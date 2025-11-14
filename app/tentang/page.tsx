@@ -406,6 +406,15 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import ScrollToTopButton from "@/components/common/scroll-to-top"
+import {
+  subcultureData,
+  heroImageUrl,
+  academicReferences,
+  projectSteps,
+  projectProcess,
+  projectRoadmap,
+  platformFeatures
+} from "@/data/about"
 
 interface LandingData {
   visiMisiSection: {
@@ -510,18 +519,7 @@ export default function AboutPage() {
     }
   }
 
-  // Hero image for about page
-  const heroImageUrl = "/east-java-temple-sunset-landscape-with-traditional.jpg"
-  const regionId = "UB Corpora"
 
-  // Mock subculture data for about page
-  const subcultureData = {
-    profile: {
-      salamKhas: "Preserving Cultural Heritage",
-      displayName: "UB Corpora",
-      artiSalamKhas: "UB Corpora is an innovative digital platform dedicated to documenting, preserving, and introducing the cultural wealth of East Java to present and future generations."
-    }
-  }
 
   // Filter gallery images from collaboration assets
   const galleryImages = landingData?.collaborationAssets
@@ -585,8 +583,8 @@ export default function AboutPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
             >
-              {subcultureData?.profile?.salamKhas ||
-                `Discover the Living Tapestry of ${subcultureData?.profile?.displayName || regionId
+              {subcultureData?.profile?.title ||
+                `Discover the Living Tapestry of ${subcultureData?.profile?.displayName || "UB Corpora"
                 }`}
             </motion.h1>
 
@@ -869,54 +867,13 @@ export default function AboutPage() {
                       </div>
                       <div>
                         <CardTitle className="text-lg text-xl font-semibold">Key References</CardTitle>
-                        <h3 className="text-xl text-muted-foreground">5 academic sources</h3>
+                        <h3 className="text-xl text-muted-foreground">{academicReferences.length} academic sources</h3>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
-                      {[
-                        {
-                          judul: "Tall Tree, Nest of the Wind: the Javanese Shadow-play Dewa Ruci Performed by Ki Anom Soeroto: A Study in Performance Philology",
-                          penulis: "B. Arps",
-                          tahunTerbit: "2016",
-                          penjelasan: "Comprehensive study of Javanese shadow-play performance and philology",
-                          tipeReferensi: "Book",
-                          citationNote: "Performance Philology"
-                        },
-                        {
-                          judul: "Elements of General Linguistics",
-                          penulis: "André Martinet",
-                          tahunTerbit: "1960",
-                          penjelasan: "Classic work on general linguistics principles, translated by Elisabeth Palmer",
-                          tipeReferensi: "Book",
-                          citationNote: "Linguistic Theory"
-                        },
-                        {
-                          judul: "Corpora in Applied Linguistics",
-                          penulis: "Susan Hunston",
-                          tahunTerbit: "2002",
-                          penjelasan: "Pioneering work on corpus linguistics applications in applied linguistics",
-                          tipeReferensi: "Book",
-                          citationNote: "Corpus Linguistics"
-                        },
-                        {
-                          judul: "Pemetaan Kebudayaan di Jawa Timur",
-                          penulis: "Ayu Sutarto",
-                          tahunTerbit: "2004",
-                          penjelasan: "Cultural mapping and documentation of East Java cultural heritage",
-                          tipeReferensi: "Book",
-                          citationNote: "Cultural Mapping"
-                        },
-                        {
-                          judul: "Theater as Data: Computational Journeys into Theater Research",
-                          penulis: "Miguel Escobar Varela",
-                          tahunTerbit: "2021",
-                          penjelasan: "Computational approaches to theater research and digital humanities",
-                          tipeReferensi: "Book",
-                          citationNote: "Digital Humanities"
-                        }
-                      ].map((ref, idx) => (
+                      {academicReferences.map((ref, idx) => (
                         <div
                           key={idx}
                           className="p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group"
