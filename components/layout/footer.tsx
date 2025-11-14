@@ -94,7 +94,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
                 asChild
               >
                 <a
-                  href="https://facebook.com/universitasbrawijaya"
+                  href="https://www.facebook.com/brawijayacorpora"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -108,7 +108,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
                 asChild
               >
                 <a
-                  href="https://instagram.com/universitasbrawijaya"
+                  href="https://www.instagram.com/brawijayacorpora"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -122,7 +122,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
                 asChild
               >
                 <a
-                  href="https://twitter.com/universitasub"
+                  href="https://x.com/CorporaPro61224"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

@@ -89,7 +89,7 @@ export function HeroSection({
               bannerAssetUrl ||
               (assets && assets.length > 0
                 ? assets[0]
-                : "/east-java-temple-sunset-landscape-with-traditional.jpg")
+                : "/Pura Luhur POTEN.JPG")
             }')`,
           }}
         />
@@ -158,14 +158,14 @@ export function HeroSection({
               {/* Card kiri bawah */}
               <div className="relative h-36 rounded-2xl overflow-hidden shadow-lg group">
                 <img
-                  src="/mount-bromo-sunrise-volcanic-landscape-east-java.jpg"
+                  src="/C0433.00_00_00_08.Still006.png"
                   alt="Bromo Tengger Semeru"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/40 to-purple-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">
                   <Mountain className="h-5 w-5" />
-                  Mount Bromo Tengger
+                  Tengger
                 </div>
               </div>
 
@@ -185,7 +185,7 @@ export function HeroSection({
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-indigo-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">
                   <Waves className="h-5 w-5" />
-                  Panaragan Culture
+                  Panaragan 
                 </div>
               </div>
             </div>
