@@ -79,10 +79,10 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
 
           <AnimatedReveal animation="fade-up" delay={300}>
             <h2 id="showcase-heading" className="text-3xl md:text-4xl font-bold text-balance">
-               To experience the cultural richness of East Java.
-              {/* <span className="block text-primary">
-                the vibrant cultural diversity of East Java
-              </span> */}
+               To experience the cultural richness of 
+              <span className="block text-primary">
+                East Java.
+              </span>
             </h2>
           </AnimatedReveal>
 
