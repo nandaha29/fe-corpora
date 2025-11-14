@@ -136,7 +136,7 @@ export function GlobalSearchContainer({
 
       {/* Results Count - Only show if there are results */}
       {(searchQuery || searchResults.length > 0) && !showResultsInline && (
-        <div className="text-sm text-gray-200 mt-2">
+        <div className="text-lg text-gray-200 mt-2">
           {searchQuery ? (
             <>Menampilkan {searchResults.length} hasil untuk "{searchQuery}"</>
           ) : (

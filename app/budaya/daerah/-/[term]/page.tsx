@@ -881,7 +881,7 @@ export default function CulturalWordDetailPage({
                     </div> */}
                     {entry.details.ipa && (
                       <div className="flex justify-between items-center pb-2 border-b border-border/50">
-                        <span className="text-lg text-muted-foreground">IPA</span>
+                        <span className="text-lg text-muted-foreground">Transliteration</span>
                         <span className="text-lg font-mono">{entry.details.ipa}</span>
                       </div>
                     )}

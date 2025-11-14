@@ -274,7 +274,7 @@ export default function PetaBudayaPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="text-sm text-gray-200 mb-3"
+                className="text-xl text-gray-200 mb-3"
               >
                 <ol className="flex items-center space-x-2">
                   <li>
@@ -344,7 +344,7 @@ export default function PetaBudayaPage() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="mt-3 text-sm text-gray-200"
+                  className="mt-3 text-xl text-gray-200"
                 >
                   {isSearching ? (
                     <span className="flex items-center gap-2 text-xl">
