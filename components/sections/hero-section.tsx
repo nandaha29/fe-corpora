@@ -79,7 +79,7 @@ export function HeroSection({
 
   const carouselImages = highlightAssetsList.length > 0
     ? highlightAssetsList.map(h => h.asset.url)
-    : ["DSC08518.JPG","/WhatsApp Image 2025-09-21 at 20.07.38.jpeg", "/WhatsApp_Image_2025-11-08_at_10.20.48_PM.jpeg", "\Rapat_2025_08_12.jpg"];
+    : ["DSC08518.JPG","/WhatsApp_Image_2025-09-21_at_20.07.38 2.jpeg", "/WhatsApp Image 2025-11-08 at 10.20.47 PM.jpeg", "/Rapat_2025_08_12.jpg"];
 
   useEffect(() => {
     if (carouselImages.length <= 1) return;

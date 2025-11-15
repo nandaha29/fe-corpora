@@ -135,7 +135,7 @@ export function ContactSection() {
                       </a>
                     </Button>
                     <Button variant="outline" size="sm" className="text-lg">
-                      <a href="https://x.com/CorporaPro61224" target="_blank" rel="noopener noreferrer">
+                      <a href="https://x.com/BCP_CorporaUB" target="_blank" rel="noopener noreferrer">
                         X (Twitter)
                       </a>
                     </Button>
