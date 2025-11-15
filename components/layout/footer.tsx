@@ -122,7 +122,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
                 asChild
               >
                 <a
-                  href="https://x.com/BCP_CoporaUB"
+                  href="https://x.com/BCP_CorporaUB"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
