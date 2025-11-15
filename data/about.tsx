@@ -9,7 +9,7 @@ export const subcultureData = {
 }
 
 // Hero image for about page
-export const heroImageUrl = "/east-java-temple-sunset-landscape-with-traditional.jpg"
+export const heroImageUrl = "/DSC08518.JPG"
 
 // Academic references data
 export const academicReferences = [
