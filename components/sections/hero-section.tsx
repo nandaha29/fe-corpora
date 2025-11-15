@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Landmark, Mountain, Waves, Sparkles } from "lucide-react";
 import { AnimatedReveal } from "@/components/common/animated-reveal";
@@ -74,6 +75,20 @@ export function HeroSection({
 
   const uniqueHighlightAssets = getUniqueHighlightAssets();
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const carouselImages = highlightAssetsList.length > 0
+    ? highlightAssetsList.map(h => h.asset.url)
+    : ["DSC08518.JPG","/WhatsApp Image 2025-09-21 at 20.07.38.jpeg", "/WhatsApp_Image_2025-11-08_at_10.20.48_PM.jpeg", "\Rapat_2025_08_12.jpg"];
+
+  useEffect(() => {
+    if (carouselImages.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % carouselImages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [carouselImages.length]);
+
   return (
     <section
       id="beranda"
@@ -136,21 +151,22 @@ export function HeroSection({
             <div className="grid grid-cols-2 gap-6 lg:gap-8">
               {/* Card besar atas */}
               <div className="col-span-2 h-48 relative rounded-2xl overflow-hidden shadow-lg group">
-                <img
-                  src={
-                    uniqueHighlightAssets.length > 0
-                      ? uniqueHighlightAssets[0].asset.url
-                      : assets && assets.length > 1
-                      ? assets[1]
-                      : "/WhatsApp Image 2025-09-21 at 20.07.38.jpeg"
-                  }
-                  alt="Brawijaya University"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
+                <div className="absolute inset-0">
+                  {carouselImages.map((src, index) => (
+                    <img
+                      key={src}
+                      src={src}
+                      alt="UB Corpora Activity"
+                      className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
+                        index === currentIndex ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    />
+                  ))}
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/40 to-indigo-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">
                   <Landmark className="h-5 w-5" />
-                  
+
                   UB Corpora Activity
                 </div>
               </div>
