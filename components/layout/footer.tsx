@@ -59,9 +59,9 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
       href: "/research"
     },
     { 
-      label: "Gallery", 
+      label: "Resources & References", 
       type: "internal" as const,
-      href: "/gallery"
+      href: "/resources"
     },
   ];
 
