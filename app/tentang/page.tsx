@@ -406,6 +406,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import ScrollToTopButton from "@/components/common/scroll-to-top"
+import { API_BASE_URL } from "@/lib/config"
 import {
   subcultureData,
   heroImageUrl,
@@ -455,7 +456,7 @@ export default function AboutPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://be-corpora.vercel.app/api/v1/public/landing')
+        const response = await fetch(`${API_BASE_URL}landing`)
         if (!response.ok) throw new Error('Failed to fetch data')
         const result = await response.json()
         if (result.success) {

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Users, Sparkles, TrendingUp, Award, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { API_BASE_URL } from "@/lib/config"
 
 interface Region {
   id: string
@@ -255,8 +256,8 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
 
       // Use different endpoints based on region type
       const endpoint = region.type === 'subculture'
-        ? `https://be-corpora.vercel.app/api/v1/public/subcultures/${regionId}`
-        : `https://be-corpora.vercel.app/api/v1/public/regions/${regionId}`
+        ? `${API_BASE_URL}subcultures/${regionId}`
+        : `${API_BASE_URL}regions/${regionId}`
 
       const response = await fetch(endpoint)
       if (!response.ok) {

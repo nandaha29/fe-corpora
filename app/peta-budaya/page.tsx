@@ -14,6 +14,7 @@ import { Footer } from "@/components/layout/footer";
 import { AdvancedPopupMap, REGIONS } from "@/components/cultural/advanced-popup-map";
 import { GlobalSearchBar } from "@/components/cultural/global-search-bar";
 import { GlobalSearchResults } from "@/components/cultural/global-search-results";
+import { API_BASE_URL } from "@/lib/config";
 
 interface SearchResult {
   term: string
@@ -89,7 +90,7 @@ export default function PetaBudayaPage() {
       const abortController = new AbortController();
       searchAbortControllerRef.current = abortController;
 
-      const url = `https://be-corpora.vercel.app/api/v1/search/global?q=${encodeURIComponent(
+      const url = `${API_BASE_URL.replace('/public/', '/search/')}global?q=${encodeURIComponent(
         trimmedQuery
       )}&category=${encodeURIComponent(searchCategory)}`;
       

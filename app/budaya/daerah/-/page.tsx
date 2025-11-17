@@ -23,6 +23,7 @@ import { useNavigation } from "@/hooks/use-navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
+import { API_BASE_URL } from "@/lib/config";
 
 interface LexiconAsset {
   leksikonId: number;
@@ -262,7 +263,7 @@ export default function AllCulturalWordsPage() {
         setError(null);
 
         const response = await fetch(
-          "https://be-corpora.vercel.app/api/v1/public/lexicons",
+          `${API_BASE_URL}lexicons`,
           {
             method: "GET",
             headers: {
@@ -300,7 +301,7 @@ export default function AllCulturalWordsPage() {
                 if (!lexiconId) return null;
                 try {
                   const detailResponse = await fetch(
-                    `https://be-corpora.vercel.app/api/v1/public/lexicons/${lexiconId}`
+                    `${API_BASE_URL}lexicons/${lexiconId}`
                   );
                   if (!detailResponse.ok) return null;
                   const detailResult = await detailResponse.json();
@@ -416,7 +417,7 @@ export default function AllCulturalWordsPage() {
 
       try {
         const response = await fetch(
-          `https://be-corpora.vercel.app/api/v1/search/advanced?kata=${encodeURIComponent(
+          `${API_BASE_URL.replace('/public/', '/search/')}advanced?kata=${encodeURIComponent(
             trimmedQuery
           )}`,
           {
@@ -467,7 +468,7 @@ export default function AllCulturalWordsPage() {
                 if (!lexiconId) return null;
                 try {
                   const detailResponse = await fetch(
-                    `https://be-corpora.vercel.app/api/v1/public/lexicons/${lexiconId}`
+                    `${API_BASE_URL}lexicons/${lexiconId}`
                   );
                   if (!detailResponse.ok) return null;
                   const detailResult = await detailResponse.json();

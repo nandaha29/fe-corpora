@@ -39,6 +39,7 @@ import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
 import { RichTextViewer } from "@/components/rich-text/rich-text-viewer";
 import { convertSubcultureHistory } from "@/lib/rich-text-helpers";
 import { REGIONS } from "@/components/cultural/advanced-popup-map";
+import { API_BASE_URL } from "@/lib/config";
 
 interface SearchResult {
   leksikonId: number;
@@ -215,8 +216,8 @@ export default function RegionDetailPage() {
 
         // Use different endpoints based on region type
         const endpoint = region.type === 'subculture'
-          ? `https://be-corpora.vercel.app/api/v1/public/subcultures/${regionId}`
-          : `https://be-corpora.vercel.app/api/v1/public/regions/${regionId}`;
+          ? `${API_BASE_URL}subcultures/${regionId}`
+          : `${API_BASE_URL}regions/${regionId}`;
 
         const response = await fetch(endpoint);
 
@@ -475,7 +476,7 @@ export default function RegionDetailPage() {
 
     try {
       const response = await fetch(
-        `https://be-corpora.vercel.app/api/v1/public/lexicons/${slug}`
+        `${API_BASE_URL}lexicons/${slug}`
       );
 
       if (!response.ok) {
@@ -597,7 +598,7 @@ export default function RegionDetailPage() {
           );
 
           const response = await fetch(
-            `https://be-corpora.vercel.app/api/v1/search/advanced?${searchParams.toString()}`
+            `${API_BASE_URL.replace('/public/', '/search/')}advanced?${searchParams.toString()}`
           );
 
           if (!response.ok) {
@@ -642,7 +643,7 @@ export default function RegionDetailPage() {
 
       try {
         const response = await fetch(
-          `https://be-corpora.vercel.app/api/v1/search/advanced?kata=${encodeURIComponent(
+          `${API_BASE_URL.replace('/public/', '/search/')}advanced?kata=${encodeURIComponent(
             searchQuery.trim()
           )}&subculture_id=${subcultureData.subcultureId}`
         );

@@ -13,6 +13,7 @@ import { Camera, Image as ImageIcon, Loader2, Search, Library } from "lucide-rea
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
+import { API_BASE_URL } from "@/lib/config"
 
 interface GalleryAsset {
   referensiId: number
@@ -41,7 +42,7 @@ export default function ResourcePage() {
       try {
         setLoading(true)
         // Fetch references dari backend API
-        const response = await fetch('https://be-corpora.vercel.app/api/v1/public/references')
+        const response = await fetch(`${API_BASE_URL}references`)
         if (!response.ok) throw new Error('Failed to fetch resource data')
         
         const result = await response.json()

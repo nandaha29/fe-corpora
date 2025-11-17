@@ -12,6 +12,7 @@ import { useNavigation } from "@/hooks/use-navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
+import { API_BASE_URL } from "@/lib/config"
 
 interface SubcultureData {
   id: string
@@ -59,7 +60,7 @@ export default function SubculturesGalleryPage() {
         params.append('page', currentPage.toString());
         params.append('limit', ITEMS_PER_PAGE.toString());
 
-                const response = await fetch(`https://be-corpora.vercel.app/api/v1/public/subcultures?${params.toString()}`);
+                const response = await fetch(`${API_BASE_URL}subcultures?${params.toString()}`);
         
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);

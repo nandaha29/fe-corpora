@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { GlobalSearchBar } from "./global-search-bar"
 import { GlobalSearchResults } from "./global-search-results"
+import { API_BASE_URL } from "@/lib/config"
 
 interface SearchResult {
   term: string
@@ -60,7 +61,7 @@ export function GlobalSearchContainer({
 
     try {
       setIsSearching(true)
-      const url = `https://be-corpora.vercel.app/api/v1/search/global?q=${encodeURIComponent(
+      const url = `${API_BASE_URL.replace('/public/', '/search/')}global?q=${encodeURIComponent(
         query
       )}&category=${encodeURIComponent(searchCategory)}`
       
