@@ -11,6 +11,7 @@ import { useNavigation } from "@/hooks/use-navigation"
 import { ShowcaseSection } from "@/components/sections/showcase-section"
 import { NewsletterSection } from "@/components/sections/newsletter-section"
 import { useState, useEffect } from "react"
+import { API_BASE_URL } from "@/lib/config"
 
 interface LandingData {
   heroSection: {
@@ -109,8 +110,8 @@ export default function CulturalHeritagePage() {
         // endpoint for populating the galleries section (so landing page
         // uses the same list as /budaya page).
         const [landingRes, subculturesRes] = await Promise.all([
-          fetch('https://be-corpora.vercel.app/api/v1/public/landing'),
-          fetch('https://be-corpora.vercel.app/api/v1/public/subcultures'),
+          fetch(`${API_BASE_URL}landing`),
+          fetch(`${API_BASE_URL}subcultures`),
         ])
 
         if (!landingRes.ok) {

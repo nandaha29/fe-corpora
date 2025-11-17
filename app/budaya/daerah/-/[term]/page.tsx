@@ -36,6 +36,7 @@ import { YouTubeSection } from "@/components/sections/youtube-section";
 import { Model3DSection } from "@/components/sections/model-3d-section";
 import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
 import ScrollToTopButton from '@/components/common/scroll-to-top';
+import { API_BASE_URL } from "@/lib/config";
 
 interface LexiconAsset {
   leksikonId: number;
@@ -181,7 +182,7 @@ export default function CulturalWordDetailPage({
         setLoading(true);
 
         const response = await fetch(
-          "https://be-corpora.vercel.app/api/v1/public/lexicons"
+          `${API_BASE_URL}lexicons`
         );
 
         if (!response.ok) {
@@ -223,7 +224,7 @@ export default function CulturalWordDetailPage({
             if (entryId) {
               try {
                 const detailResponse = await fetch(
-                  `https://be-corpora.vercel.app/api/v1/public/lexicons/${entryId}`
+                  `${API_BASE_URL}lexicons/${entryId}`
                 );
                 if (detailResponse.ok) {
                   const detailResult = await detailResponse.json();
