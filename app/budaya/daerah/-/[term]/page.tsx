@@ -995,9 +995,9 @@ export default function CulturalWordDetailPage({
                             <Badge variant="outline" className="text-sm">
                               {ref.referensi.tipeReferensi}
                             </Badge>
-                            <Badge variant="outline" className="text-sm">
+                            {/* <Badge variant="outline" className="text-sm">
                               {ref.citationNote}
-                            </Badge>
+                            </Badge> */}
                           </div>
                         </div>
                       ))}
