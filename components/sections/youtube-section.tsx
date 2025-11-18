@@ -155,9 +155,9 @@ export function YouTubeSection({
                   <h4 className="text-xl font-bold text-foreground mb-2">
                     {currentVideo.title}
                   </h4>
-                  <p className="text-xl text-muted-foreground leading-relaxed">
+                  {/* <p className="text-xl text-muted-foreground leading-relaxed">
                     {currentVideo.description}
-                  </p>
+                  </p> */}
                 </div>
                 
                 {currentVideo.duration && (

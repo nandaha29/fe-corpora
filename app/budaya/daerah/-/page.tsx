@@ -23,7 +23,7 @@ import { useNavigation } from "@/hooks/use-navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
-import { API_BASE_URL } from "@/lib/config";
+import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config";
 
 interface LexiconAsset {
   leksikonId: number;
@@ -417,7 +417,7 @@ export default function AllCulturalWordsPage() {
 
       try {
         const response = await fetch(
-          `${API_BASE_URL.replace('/public/', '/search/')}advanced?kata=${encodeURIComponent(
+          `${API_SEARCH_URL}advanced?kata=${encodeURIComponent(
             trimmedQuery
           )}`,
           {

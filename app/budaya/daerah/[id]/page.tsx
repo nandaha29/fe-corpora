@@ -39,7 +39,7 @@ import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
 import { RichTextViewer } from "@/components/rich-text/rich-text-viewer";
 import { convertSubcultureHistory } from "@/lib/rich-text-helpers";
 import { REGIONS } from "@/components/cultural/advanced-popup-map";
-import { API_BASE_URL } from "@/lib/config";
+import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config";
 
 interface SearchResult {
   leksikonId: number;
@@ -476,7 +476,7 @@ export default function RegionDetailPage() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}lexicons/${slug}`
+        `${API_BASE_URL}/lexicons/${slug}`
       );
 
       if (!response.ok) {
@@ -598,7 +598,7 @@ export default function RegionDetailPage() {
           );
 
           const response = await fetch(
-            `${API_BASE_URL.replace('/public/', '/search/')}advanced?${searchParams.toString()}`
+            `${API_SEARCH_URL}advanced?${searchParams.toString()}`
           );
 
           if (!response.ok) {
@@ -643,7 +643,7 @@ export default function RegionDetailPage() {
 
       try {
         const response = await fetch(
-          `${API_BASE_URL.replace('/public/', '/search/')}advanced?kata=${encodeURIComponent(
+          `${API_SEARCH_URL}advanced?kata=${encodeURIComponent(
             searchQuery.trim()
           )}&subculture_id=${subcultureData.subcultureId}`
         );

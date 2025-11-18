@@ -238,7 +238,7 @@ export function Model3DSection({
                     : "border-border hover:border-primary/50"
                 )}
               >
-                <div className="aspect-square relative">
+                {/* <div className="aspect-square relative">
                   {model.thumbnailUrl ? (
                     <img
                       src={model.thumbnailUrl}
@@ -249,18 +249,19 @@ export function Model3DSection({
                     <div className="w-full h-full flex items-center justify-center">
                       <RotateCcw className="w-8 h-8 text-muted-foreground animate-spin" />
                     </div>
-                  )}
+                  )} */}
 
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  {/* <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" /> */}
 
                   {/* Current Indicator */}
-                  {currentModelIndex === index && (
+                 {currentModelIndex === index && (
                     <div className="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">
                       Active
                     </div>
-                  )}
-                </div>
+                  )
+                  }
+                {/* </div>  */}
 
                 <div className="p-3 border-t border-border">
                   <p className="text-sm font-medium text-foreground text-left line-clamp-2 group-hover:text-primary transition-colors">
