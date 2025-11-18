@@ -36,7 +36,6 @@
 //   AboutFeatures,
 //   AboutTeam,
 //   AboutGallery,
-//   AboutVideo,
 //   AboutCTA
 // } from "@/components/sections/about"
 
@@ -404,7 +403,7 @@ import { useNavigation } from "@/hooks/use-navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import ScrollToTopButton from "@/components/common/scroll-to-top"
 import { API_BASE_URL } from "@/lib/config"
 import {
@@ -416,6 +415,8 @@ import {
   projectRoadmap,
   platformFeatures
 } from "@/data/about"
+import { YouTubeSection, type YouTubeVideo } from "@/components/sections/youtube-section"
+import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils"
 
 interface LandingData {
   visiMisiSection: {
@@ -452,6 +453,17 @@ export default function AboutPage() {
   const [activeSection, setActiveSection] = useState<string>("overview")
 
   const [isNavSticky, setIsNavSticky] = useState(false)
+
+  // Gallery slideshow state
+  const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0)
+
+  const galleryPhotos = [
+    "DSC08518.JPG",
+    "/WhatsApp_Image_2025-09-21_at_20.07.38 2.jpeg",
+    "/WhatsApp Image 2025-11-08 at 10.20.47 PM.jpeg",
+    "/Rapat_2025_08_12.jpg",
+    "/Rapat 2025_11_14.jpg"
+  ]
 
   useEffect(() => {
     const fetchData = async () => {
@@ -493,6 +505,17 @@ export default function AboutPage() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // Gallery slideshow effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentGalleryIndex((prevIndex) => 
+        (prevIndex + 1) % galleryPhotos.length
+      )
+    }, 4000) // Change image every 4 seconds
+
+    return () => clearInterval(interval)
+  }, [galleryPhotos.length])
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
@@ -532,6 +555,17 @@ export default function AboutPage() {
       contributor: ca.contributor.namaContributor,
       institution: ca.contributor.institusi
     })) || []
+
+  // YouTube video data
+  const youtubeVideos: YouTubeVideo[] = [
+    {
+      videoId: "p3S3Tu-cMXk",
+      title: "PROFILE BRAWIJAYA CORPORA PROJECT 2025",
+      description: "Watch the introduction video to understand UB Corpora's vision, mission, and impact in preserving East Java's culture.",
+      thumbnail: getYouTubeThumbnail("p3S3Tu-cMXk", "maxres"),
+      duration: "",
+    }
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
@@ -1350,67 +1384,61 @@ export default function AboutPage() {
             cultural communities in East Java.
           </h3>
 
-          {galleryImages.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {galleryImages.map((image, idx) => (
-                <div
-                  key={idx}
-                  className="rounded-xl overflow-hidden border border-border bg-background/50 hover:scale-[1.02] transition-transform shadow-sm group"
-                >
-                  <div className="aspect-video relative">
-                    <img
-                      src={image.url || "/placeholder.svg"}
-                      alt={image.alt}
-                      className="w-full h-full object-cover"
-                      crossOrigin="anonymous"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  {image.description && (
-                    <div className="p-4">
-                      <p className="text-lg text-foreground font-medium mb-1">{image.description}</p>
-                      {image.contributor && (
-                        <h3 className="text-lg text-muted-foreground">
-                          By {image.contributor} {image.institution && `• ${image.institution}`}
-                        </h3>
-                      )}
-                    </div>
-                  )}
+          <div className="relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentGalleryIndex}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.5 }}
+                className="rounded-xl overflow-hidden border border-border bg-background/50 shadow-lg"
+              >
+                <div className="aspect-video relative">
+                  <img
+                    src={galleryPhotos[currentGalleryIndex]}
+                    alt={`UB Corpora Activity ${currentGalleryIndex + 1}`}
+                    className="w-full h-full object-cover"
+                    crossOrigin="anonymous"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Navigation Dots */}
+            <div className="flex justify-center mt-4 space-x-2">
+              {galleryPhotos.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentGalleryIndex(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentGalleryIndex
+                      ? "bg-primary scale-125"
+                      : "bg-muted-foreground/50 hover:bg-muted-foreground"
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
               ))}
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-muted-foreground text-xl">Activity gallery will be added soon</h3>
+
+            {/* Image Counter */}
+            <div className="text-center mt-2">
+              <span className="text-sm text-muted-foreground">
+                {currentGalleryIndex + 1} / {galleryPhotos.length}
+              </span>
             </div>
-          )}
+          </div>
         </section>
 
         {/* Video Section */}
         <section id="video" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Getting to Know UB Corpora Better</h2>
-          <h3 className="text-muted-foreground mb-8 text-xl">
-            Watch the introduction video to understand UB Corpora's vision, mission, and impact
-            in preserving East Java's culture.
-          </h3>
-
-          <div className="max-w-4xl mx-auto">
-            <Card className="border-0 shadow-2xl overflow-hidden">
-              <div className="aspect-video bg-muted flex items-center justify-center relative">
-                {/* Placeholder - akan diganti dengan video embed */}
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Play className="h-10 w-10 text-primary" />
-                  </div>
-                  <p className="text-muted-foreground">Video will be available soon</p>
-                  <p className="text-lg text-muted-foreground mt-2">Coming Soon</p>
-                </div>
-              </div>
-            </Card>
-          </div>
+          <YouTubeSection
+            videos={youtubeVideos}
+            title="Getting to Know UB Corpora Better"
+            description="Watch the introduction video to understand UB Corpora's vision, mission, and impact in preserving East Java's culture."
+            showThumbnails={false}
+          />
         </section>
 
         {/* CTA Section */}
