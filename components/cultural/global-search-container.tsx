@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { GlobalSearchBar } from "./global-search-bar"
 import { GlobalSearchResults } from "./global-search-results"
-import { API_BASE_URL } from "@/lib/config"
+import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config"
 
 interface SearchResult {
   term: string
@@ -61,7 +61,7 @@ export function GlobalSearchContainer({
 
     try {
       setIsSearching(true)
-      const url = `${API_BASE_URL.replace('/public/', '/search/')}global?q=${encodeURIComponent(
+      const url = `${API_SEARCH_URL}global?q=${encodeURIComponent(
         query
       )}&category=${encodeURIComponent(searchCategory)}`
       

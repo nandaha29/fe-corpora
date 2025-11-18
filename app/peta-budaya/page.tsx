@@ -14,7 +14,7 @@ import { Footer } from "@/components/layout/footer";
 import { AdvancedPopupMap, REGIONS } from "@/components/cultural/advanced-popup-map";
 import { GlobalSearchBar } from "@/components/cultural/global-search-bar";
 import { GlobalSearchResults } from "@/components/cultural/global-search-results";
-import { API_BASE_URL } from "@/lib/config";
+import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config";
 
 interface SearchResult {
   term: string
@@ -42,6 +42,14 @@ interface GlobalSearchResponse {
 export default function PetaBudayaPage() {
   const router = useRouter();
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  
+  // Hero carousel state
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+  const heroImages = [
+    "/C0024.00_09_13_44.Still035.png",
+    "/C0399.00_00_08_17.Still001.png",
+    "/Pura Luhur POTEN.JPG"
+  ];
   
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,7 +98,7 @@ export default function PetaBudayaPage() {
       const abortController = new AbortController();
       searchAbortControllerRef.current = abortController;
 
-      const url = `${API_BASE_URL.replace('/public/', '/search/')}global?q=${encodeURIComponent(
+      const url = `${API_SEARCH_URL}global?q=${encodeURIComponent(
         trimmedQuery
       )}&category=${encodeURIComponent(searchCategory)}`;
       
@@ -248,6 +256,15 @@ export default function PetaBudayaPage() {
     };
   }, []);
 
+  // Auto-play hero carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
   // Extract onNavClick handler for reuse
   const handleNavClick = useCallback((section: string) => {
     const element = document.getElementById(section);
@@ -262,14 +279,42 @@ export default function PetaBudayaPage() {
         {/* Hero Section */}
         <section className="relative">
           <ParallaxBackground className="relative h-[320px] md:h-[420px] overflow-hidden">
-            <Image
-              src="/east-java-temple-sunset-landscape-with-traditional.jpg"
-              alt="Cultural landscape of East Java"
-              fill
-              priority
-              className="object-cover"
-            />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentHeroIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1 }}
+                className="absolute inset-0"
+              >
+                <Image
+                  src={heroImages[currentHeroIndex]}
+                  alt={`Cultural landscape of East Java - Image ${currentHeroIndex + 1}`}
+                  fill
+                  priority={currentHeroIndex === 0}
+                  className="object-cover"
+                />
+              </motion.div>
+            </AnimatePresence>
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-background/20 to-background/90" />
+            
+            {/* Carousel Indicators */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+              {heroImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentHeroIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentHeroIndex
+                      ? "bg-white w-8"
+                      : "bg-white/50 hover:bg-white/75"
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+
             <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-end pb-8 md:pb-10">
               <motion.nav
                 initial={{ opacity: 0, y: -10 }}
@@ -302,7 +347,10 @@ export default function PetaBudayaPage() {
                 transition={{ duration: 0.6 }}
                 className="text-3xl md:text-5xl font-bold text-white"
               >
-                Discover the Living Tapestry of East Java
+                {/* Navigate through this website to uncover the vibrant cultural diversity of East Java */}
+                {/* Explore the vibrant culture of East Java */}
+                To uncover the vibrant cultural diversity of East Java
+
               </motion.h1>
               
               <motion.p
@@ -314,6 +362,7 @@ export default function PetaBudayaPage() {
                 Navigate an elegant cultural map to explore regions, traditions,
                 artifacts, and events—curated to reveal identity, history, and
                 significance with clarity and beauty.
+                {/* Navigate an elegant map that reveals the identity, traditions, artifacts, and stories behind each region. */}
               </motion.p>
 
               {/* Search Bar - Hero Section */}

@@ -53,7 +53,7 @@ export default function ResearchPage() {
       try {
         setLoading(true)
         // Fetch dari landing API untuk mendapatkan contributor data
-        const response = await fetch(`${API_BASE_URL}landing`)
+        const response = await fetch(`${API_BASE_URL}/landing`)
         if (!response.ok) throw new Error('Failed to fetch contributors data')
         
         const result = await response.json()
