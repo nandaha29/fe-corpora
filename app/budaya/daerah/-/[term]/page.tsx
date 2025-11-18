@@ -983,15 +983,15 @@ export default function CulturalWordDetailPage({
                               </a>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">
+                          <h3 className="text-lg text-muted-foreground mb-2">
                             {ref.referensi.penulis} • {ref.referensi.tahunTerbit}
-                          </p>
+                          </h3>
                           {ref.referensi.penjelasan && (
-                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                            <h3 className="text-lg text-muted-foreground mb-2 line-clamp-2">
                               {ref.referensi.penjelasan}
-                            </p>
+                            </h3>
                           )}
-                          <div className="flex gap-1 flex-wrap">
+                          <div className="flex gap-1 flex-wrap ">
                             <Badge variant="outline" className="text-sm">
                               {ref.referensi.tipeReferensi}
                             </Badge>
