@@ -1,7 +1,7 @@
 // app/budaya/daerah/-/[term]/page.tsx/page.tsx
 "use client"
 
-import { use, useState, useEffect, useRef, useCallback } from "react";
+import { use, useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -151,6 +151,9 @@ export default function CulturalWordDetailPage({
 }) {
   const { handleNavClick } = useNavigation();
   const resolvedParams = use(params);
+  const metadataRef = useRef<HTMLDivElement | null>(null);
+  const [sourcesTop, setSourcesTop] = useState<number | undefined>(96); // undefined when not sticky
+  const [isLarge, setIsLarge] = useState<boolean>(typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : false);
   const [entry, setEntry] = useState<LexiconEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -378,6 +381,44 @@ export default function CulturalWordDetailPage({
 
     fetchEntry();
   }, [resolvedParams.term]);
+
+  useLayoutEffect(() => {
+    const baseTop = 96; // Tailwind `top-24` -> 6rem -> 96px
+    const gap = 16; // spacing between cards
+
+    const computeTop = () => {
+      if (!isLarge) {
+        setSourcesTop(undefined);
+        return;
+      }
+
+      const metaHeight = metadataRef.current ? Math.ceil(metadataRef.current.getBoundingClientRect().height) : 0;
+      setSourcesTop(baseTop + metaHeight + gap);
+    };
+
+    // recompute after images/fonts load and on resize/viewport change
+    computeTop();
+    window.addEventListener("resize", computeTop);
+    window.addEventListener("load", computeTop);
+
+    const mql = window.matchMedia("(min-width: 1024px)");
+    const handleMq = (e: MediaQueryListEvent | MediaQueryList) => {
+      setIsLarge(e.matches);
+      // compute after change
+      setTimeout(computeTop, 50);
+    };
+
+    // older browsers use addListener
+    if (mql.addEventListener) mql.addEventListener("change", handleMq as any);
+    else mql.addListener(handleMq as any);
+
+    return () => {
+      window.removeEventListener("resize", computeTop);
+      window.removeEventListener("load", computeTop);
+      if (mql.removeEventListener) mql.removeEventListener("change", handleMq as any);
+      else mql.removeListener(handleMq as any);
+    };
+  }, [entry, isLarge]);
 
   useEffect(() => {
     return () => {
@@ -840,17 +881,16 @@ export default function CulturalWordDetailPage({
           </div>
 
           {/* RIGHT SIDEBAR - Metadata & References (4 columns on desktop) */}
-          <div className="col-span-12 lg:col-span-4 space-y-6">
-            
-            {/* Metadata Card - Sticky */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="lg:sticky lg:top-24"
-            >
-              <Card className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
-                <CardHeader className="pb-3">
+          <div className="col-span-12 lg:col-span-4">
+            <div className="flex flex-col gap-6 lg:sticky lg:top-24">
+              {/* Metadata Card */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <Card ref={metadataRef} className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
+                  <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
                     <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
                       <Info className="w-5 h-5 text-blue-600" />
@@ -897,37 +937,37 @@ export default function CulturalWordDetailPage({
                   
                   </div>
                 </CardContent>
-              </Card>
-            </motion.div>
+                </Card>
+              </motion.div>
 
-            {/* Information Sources - Scrollable */}
-            {entry.leksikonReferensis && entry.leksikonReferensis.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <Card className="bg-card/60">
-                  <CardHeader className="pb-3">
+              {/* Information Sources - Scrollable */}
+              {entry.leksikonReferensis && entry.leksikonReferensis.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <Card className="bg-card/60">
+                    <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
                       <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
                         <Library className="w-5 h-5 text-purple-600" />
                       </div>
                       <div>
                         <CardTitle className="text-base">Sources</CardTitle>
-                        <p className="text-xs text-muted-foreground">{entry.leksikonReferensis.length} references</p>
+                        <p className="text-lg text-muted-foreground">{entry.leksikonReferensis.length} references</p>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
+                    <div className="space-y-3 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
                       {entry.leksikonReferensis.map((ref, idx) => (
                         <div
                           key={idx}
-                          className="p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group"
+                          className="p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group text-base"
                         >
                           <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="font-semibold text-sm text-foreground line-clamp-2 flex-1">
+                            <h4 className="font-semibold text-base text-foreground line-clamp-2 flex-1">
                               {ref.referensi.judul}
                             </h4>
                             {ref.referensi.url && (
@@ -943,19 +983,19 @@ export default function CulturalWordDetailPage({
                               </a>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground mb-2">
+                          <p className="text-sm text-muted-foreground mb-2">
                             {ref.referensi.penulis} • {ref.referensi.tahunTerbit}
                           </p>
                           {ref.referensi.penjelasan && (
-                            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
                               {ref.referensi.penjelasan}
                             </p>
                           )}
                           <div className="flex gap-1 flex-wrap">
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-sm">
                               {ref.referensi.tipeReferensi}
                             </Badge>
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-sm">
                               {ref.citationNote}
                             </Badge>
                           </div>
@@ -966,7 +1006,7 @@ export default function CulturalWordDetailPage({
                 </Card>
               </motion.div>
             )}
-
+            </div>
           </div>
 
         </div>
