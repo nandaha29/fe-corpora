@@ -88,32 +88,18 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
   ]
 
   const displaySubcultures = subcultures ? subcultures.map(sc => {
-    // Handle both API formats: landing page (complex) vs subcultures gallery (simple)
-    const isSimpleFormat = (sc.id || sc.subcultureId) && (sc.name || sc.namaSubculture) && (sc.description !== undefined || sc.penjelasan !== undefined)
-
-    if (isSimpleFormat) {
-      // Simple format from subcultures gallery API or landing API subcultureSection
-      const name = sc.name || sc.namaSubculture!
-      const description = sc.description !== undefined ? sc.description : sc.penjelasan!
-      const image = sc.image || sc.heroImage || "/sub-daerah-pandalungan.jpg"
-      return {
-        id: (sc.id || sc.subcultureId)!.toString(),
-        name: name,
-        description: description,
-        image: image,
-        slug: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-      }
-    } else {
-      // Complex format from landing page API
-      const thumbnailAsset = sc.subcultureAssets?.find(asset => asset.assetRole === "thumbnail")?.asset
-      return {
-        id: sc.subcultureId!.toString(),
-        name: sc.namaSubculture!,
-        description: sc.penjelasan!,
-        image: thumbnailAsset?.url || "/sub-daerah-pandalungan.jpg",
-        slug: sc.namaSubculture!.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-      }
-    }
+    // Always prioritize thumbnail asset if available
+    const thumbnailAsset = sc.subcultureAssets?.find(asset => asset.assetRole === "thumbnail")?.asset;
+    const name = sc.name || sc.namaSubculture!;
+    const description = sc.description !== undefined ? sc.description : sc.penjelasan!;
+    const image = thumbnailAsset?.url || sc.image || sc.heroImage || "/sub-daerah-pandalungan.jpg";
+    return {
+      id: (sc.id || sc.subcultureId)!.toString(),
+      name: name,
+      description: description,
+      image: image,
+      slug: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+    };
   }).slice(0, 4) : defaultSubRegions
 
   return (
