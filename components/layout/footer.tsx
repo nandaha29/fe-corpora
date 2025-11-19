@@ -58,11 +58,11 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
       type: "internal" as const,
       href: "/research"
     },
-    { 
-      label: "Resources & References", 
-      type: "internal" as const,
-      href: "/resources"
-    },
+    // { 
+    //   label: "Resources & References", 
+    //   type: "internal" as const,
+    //   href: "/resources"
+    // },
   ];
 
   return (
