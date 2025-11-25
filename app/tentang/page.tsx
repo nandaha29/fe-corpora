@@ -800,9 +800,12 @@ export default function AboutPage() {
                 </Badge>
               </div>
 
-              <h2 className="text-3xl md:text-4xl font-bold">
+              {/* <h2 className="text-3xl md:text-4xl font-bold">
                 Preserving Cultural Heritage
                 <span className="text-primary block">East Java</span>
+              </h2> */}
+              <h2 className="text-3xl md:text-4xl font-extrabold mt-6 leading-tight">
+              Preserving Cultural Heritage  <span className="text-primary">East Java</span>
               </h2>
 
               <h3 className="text-muted-foreground leading-relaxed text-xl">
@@ -831,7 +834,7 @@ export default function AboutPage() {
               <div className="text-center p-6 bg-gradient-to-br from-rose-100 to-rose-200 rounded-lg border border-rose-200/50 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
                 <Award className="h-8 w-8 text-rose-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-rose-700">
-                  {landingData?.visiMisiSection.publishedCultures || 500}+
+                  {landingData?.visiMisiSection.publishedCultures || 100}+
                 </div>
                 <div className="text-xl text-rose-600/80">
                   Documented Cultures

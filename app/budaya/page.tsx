@@ -327,7 +327,9 @@ export default function SubculturesGalleryPage() {
                           className="w-full cursor-pointer mt-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 text-white border-none"
                           onClick={() => router.push(`/budaya/daerah/${sc.id}`)}
                         >
+                          <div className="text-lg">
                           Explore
+                          </div>
                         </EnhancedButton>
                       </div>
                     </div>

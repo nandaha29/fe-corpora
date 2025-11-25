@@ -18,7 +18,7 @@ interface AboutSectionProps {
     totalAssets: number;
   };
   team?: Array<{
-    namaContributor: string;
+    contributorName: string;
     expertiseArea: string;
   }>;
 }
@@ -37,7 +37,7 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
 
   const displayTeam = team
     ? team.map((t) => ({
-        name: t.namaContributor,
+        name: t.contributorName,
         role: t.expertiseArea,
       }))
     : defaultMembers;
@@ -75,9 +75,12 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={400}>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">
+            {/* <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">
               Preserving Cultural Heritage
               <span className="text-primary block">East Java</span>
+            </h2> */}
+            <h2 className="text-3xl md:text-4xl font-extrabold mt-6 leading-tight">
+              Preserving Cultural Heritage  <span className="text-primary">East Java</span>
             </h2>
           </AnimatedReveal>
 
@@ -149,7 +152,7 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
                   <Award className="h-8 w-8 text-rose-700" />
                 </div>
                 <div className="text-3xl font-bold text-rose-700">
-                  {stats?.publishedCultures || 500}+
+                  {stats?.publishedCultures || 100}+
                 </div>
                 <div className="text-xl text-muted-foreground">
                   Documented Cultures

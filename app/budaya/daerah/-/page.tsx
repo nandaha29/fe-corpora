@@ -26,19 +26,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config";
 
 interface LexiconAsset {
-  leksikonId: number;
+  lexiconId: number;
   assetId: number;
   assetRole: string;
   createdAt: string;
   asset: {
     assetId: number;
-    namaFile: string;
-    tipe: string;
-    penjelasan: string;
+    fileName: string;
+    fileType: string;
+    description: string | null;
     url: string;
-    fileSize: string;
-    hashChecksum: string;
-    metadataJson: string;
+    fileSize: string | null;
+    hashChecksum: string | null;
+    metadataJson: string | null;
     status: string;
     createdAt: string;
     updatedAt: string;
@@ -47,47 +47,48 @@ interface LexiconAsset {
 
 interface ContributorDetail {
   contributorId: number;
-  namaContributor: string;
-  institusi: string;
+  contributorName: string;
+  institution: string;
   email: string;
   expertiseArea: string;
   contactInfo: string;
   isCoordinator: boolean;
-  statusCoordinator: string;
+  coordinatorStatus: string;
   registeredAt: string;
 }
 
 interface DomainKodifikasi {
-  domainKodifikasiId: number;
-  kode: string;
-  namaDomain: string;
-  penjelasan: string;
+  domainId: number;
+  code: string;
+  domainName: string;
+  explanation: string;
   subcultureId: number;
   status: string;
   createdAt: string;
   updatedAt: string;
   subculture: {
     subcultureId: number;
-    namaSubculture: string;
+    subcultureName: string;
     slug: string;
-    salam_khas: string;
-    penjelasan: string;
+    traditionalGreeting: string;
+    greetingMeaning: string | null;
+    explanation: string;
     cultureId: number;
     status: string;
-    statusKonservasi: string;
+    conservationStatus: string;
     createdAt: string;
     updatedAt: string;
     culture: {
       cultureId: number;
-      namaBudaya: string;
-      pulauAsal: string;
-      provinsi: string;
-      kotaDaerah: string;
-      klasifikasi: string;
-      karakteristik: string;
-      statusKonservasi: string;
-      latitude: number;
-      longitude: number;
+      cultureName: string;
+      originIsland: string;
+      province: string;
+      cityRegion: string;
+      classification: string | null;
+      characteristics: string | null;
+      conservationStatus: string;
+      latitude: number | null;
+      longitude: number | null;
       status: string;
       createdAt: string;
       updatedAt: string;
@@ -122,26 +123,27 @@ interface OriginalLexiconEntry {
 }
 
 interface AdvancedLexiconEntry {
-  leksikonId: number;
-  kataLeksikon: string;
-  ipa: string;
-  transliterasi: string;
-  maknaEtimologi: string;
-  maknaKultural: string;
+  lexiconId: number;
+  lexiconWord: string;
+  slug?: string;
+  ipaInternationalPhoneticAlphabet: string;
+  transliteration: string;
+  etymologicalMeaning: string;
+  culturalMeaning: string;
   commonMeaning: string;
   translation: string;
-  varian: string;
-  translationVarians: string | null;
-  deskripsiLain: string | null;
-  domainKodifikasiId: number;
-  statusPreservasi: string;
+  variant: string | null;
+  variantTranslations: string | null;
+  otherDescription: string | null;
+  domainId: number;
+  preservationStatus: string;
   contributorId: number;
   status: string;
   createdAt: string;
   updatedAt: string;
-  domainKodifikasi: DomainKodifikasi;
+  codificationDomain: DomainKodifikasi;
   contributor: ContributorDetail;
-  leksikonAssets: any[];
+  lexiconAssets: LexiconAsset[];
 }
 
 type LexiconEntry = OriginalLexiconEntry | AdvancedLexiconEntry;
@@ -157,13 +159,13 @@ function slugify(input: string) {
 }
 
 function isAdvancedEntry(entry: LexiconEntry): entry is AdvancedLexiconEntry {
-  return "kataLeksikon" in entry && "domainKodifikasi" in entry;
+  return "lexiconWord" in entry && "codificationDomain" in entry;
 }
 
 // Helper function to get lexicon ID from entry
 function getLexiconId(entry: LexiconEntry): string | number | null {
   if (isAdvancedEntry(entry)) {
-    return entry.leksikonId;
+    return entry.lexiconId;
   }
   return entry.id || null;
 }
@@ -180,17 +182,17 @@ function normalizeLexiconEntry(entry: LexiconEntry): {
 } {
   if (isAdvancedEntry(entry)) {
     return {
-      term: entry.kataLeksikon || "Unknown",
+      term: entry.lexiconWord || "Unknown",
       definition:
-        entry.commonMeaning || entry.maknaKultural || "No definition available",
+        entry.commonMeaning || entry.culturalMeaning || "No definition available",
       subcultureName:
-        entry.domainKodifikasi?.subculture?.namaSubculture || "Unknown",
+        entry.codificationDomain?.subculture?.subcultureName || "Unknown",
       province:
-        entry.domainKodifikasi?.subculture?.culture?.provinsi || "Unknown",
-      domain: entry.domainKodifikasi?.namaDomain || "General",
-      contributor: entry.contributor?.namaContributor || "Anonymous",
-      regionKey: entry.domainKodifikasi?.subculture?.slug || "unknown",
-      lexiconId: entry.leksikonId,
+        entry.codificationDomain?.subculture?.culture?.province || "Unknown",
+      domain: entry.codificationDomain?.domainName || "General",
+      contributor: entry.contributor?.contributorName || "Anonymous",
+      regionKey: entry.codificationDomain?.subculture?.slug || "unknown",
+      lexiconId: entry.lexiconId,
     };
   }
 
@@ -356,7 +358,7 @@ export default function AllCulturalWordsPage() {
       if (regionFilter !== "all") {
         filtered = filtered.filter((entry) => {
           if (isAdvancedEntry(entry)) {
-            return entry.domainKodifikasi?.subculture?.slug === regionFilter;
+            return entry.codificationDomain?.subculture?.slug === regionFilter;
           }
           return entry.regionKey === regionFilter;
         });
@@ -366,7 +368,7 @@ export default function AllCulturalWordsPage() {
       if (domainFilter !== "all") {
         filtered = filtered.filter((entry) => {
           if (isAdvancedEntry(entry)) {
-            return entry.domainKodifikasi?.namaDomain === domainFilter;
+            return entry.codificationDomain?.domainName === domainFilter;
           }
           return entry.domain === domainFilter;
         });
@@ -526,11 +528,11 @@ export default function AllCulturalWordsPage() {
 
           // Untuk AdvancedEntry, search di field tambahan
           if (isAdvancedEntry(entry)) {
-            const transliterasiMatch = entry.transliterasi
+            const transliterasiMatch = entry.transliteration
               ?.toLowerCase()
               .includes(query);
-            const ipaMatch = entry.ipa?.toLowerCase().includes(query);
-            const kulturalMatch = entry.maknaKultural
+            const ipaMatch = entry.ipaInternationalPhoneticAlphabet?.toLowerCase().includes(query);
+            const kulturalMatch = entry.culturalMeaning
               ?.toLowerCase()
               .includes(query);
 
@@ -601,7 +603,7 @@ export default function AllCulturalWordsPage() {
       allLexicons
         .map((entry) => {
           if (isAdvancedEntry(entry)) {
-            return entry.domainKodifikasi?.subculture?.slug;
+            return entry.codificationDomain?.subculture?.slug;
           }
           return entry.regionKey;
         })
@@ -615,7 +617,7 @@ export default function AllCulturalWordsPage() {
       allLexicons
         .map((entry) => {
           if (isAdvancedEntry(entry)) {
-            return entry.domainKodifikasi?.namaDomain;
+            return entry.codificationDomain?.domainName;
           }
           return entry.domain;
         })
@@ -855,9 +857,10 @@ export default function AllCulturalWordsPage() {
               <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr mb-8">
                 {paginatedEntries.map((entry, index) => {
                   const normalized = normalizeLexiconEntry(entry);
+                  // Always use slugify for consistent URL generation across both pages
                   const termSlug = slugify(normalized.term);
                   const uniqueKey = isAdvancedEntry(entry)
-                    ? `advanced-${entry.leksikonId}-${index}`
+                    ? `advanced-${entry.lexiconId}-${index}`
                     : `original-${normalized.term}-${index}`;
 
                   return (

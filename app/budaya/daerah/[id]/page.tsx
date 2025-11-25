@@ -42,45 +42,41 @@ import { REGIONS } from "@/components/cultural/advanced-popup-map";
 import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config";
 
 interface SearchResult {
-  leksikonId: number;
-  kataLeksikon: string;
-  ipa: string;
-  transliterasi: string;
-  maknaEtimologi: string;
-  maknaKultural: string;
+  lexiconId: number;
+  lexiconWord: string;
+  ipaInternationalPhoneticAlphabet: string;
+  transliteration: string;
+  etymologicalMeaning: string;
+  culturalMeaning: string;
   commonMeaning: string;
   translation: string;
-  varian: string;
-  translationVarians: string | null;
-  deskripsiLain: string | null;
-  domainKodifikasi: {
-    domainKodifikasiId: number;
-    kode: string;
-    namaDomain: string;
-    penjelasan: string;
+  variant: string | null;
+  variantTranslations: string | null;
+  otherDescription: string | null;
+  codificationDomain: {
+    domainId: number;
+    code: string;
+    domainName: string;
+    explanation: string;
     subculture: {
       subcultureId: number;
-      namaSubculture: string;
+      subcultureName: string;
       slug: string;
       culture: {
         cultureId: number;
-        namaBudaya: string;
-        provinsi: string;
-        kotaDaerah: string;
+        cultureName: string;
+        originIsland: string;
+        province: string;
+        cityRegion: string;
       };
     };
   };
   contributor: {
     contributorId: number;
-    namaContributor: string;
-    institusi: string;
+    contributorName: string;
+    institution: string;
   };
-  leksikonAssets: any[];
-  term: string;
-  culturalMeaning: string;
-  category: string;
-  region: string;
-  slug: string;
+  lexiconAssets: any[];
 }
 
 interface SubcultureData {
@@ -207,7 +203,8 @@ export default function RegionDetailPage() {
         setErrorDetails(null);
 
         // Find the region to determine its type
-        const region = REGIONS.find((r) => r.id === regionId);
+        const region =  regionId;
+        console.log("Found region:", regionId);
         if (!region) {
           setError(`Region ${regionId} not found`);
           setSubcultureData(null);
@@ -215,9 +212,7 @@ export default function RegionDetailPage() {
         }
 
         // Use different endpoints based on region type
-        const endpoint = region.type === 'subculture'
-          ? `${API_BASE_URL}subcultures/${regionId}`
-          : `${API_BASE_URL}regions/${regionId}`;
+        const endpoint = `${API_BASE_URL}subcultures/${region}`
 
         const response = await fetch(endpoint);
 
@@ -226,6 +221,7 @@ export default function RegionDetailPage() {
         if (!result.success) {
           const errorResponse = result as ApiErrorResponse;
           setError(errorResponse.message || "Failed to fetch subculture data");
+          console.log("API Error:", errorResponse);
           setErrorDetails({
             statusCode: errorResponse.statusCode || response.status,
             technicalError: errorResponse.error,
@@ -337,16 +333,6 @@ export default function RegionDetailPage() {
         url: "/traditional-east-java-handicrafts-and-batik-art.jpg",
         description: "Traditional Architecture",
         caption: "Historic buildings showcasing traditional design",
-      },
-      {
-        url: "/traditional-east-java-handicrafts-and-batik-art.jpg",
-        description: "Cultural Ceremonies",
-        caption: "Local ceremonies and traditional practices",
-      },
-      {
-        url: "/traditional-east-java-handicrafts-and-batik-art.jpg",
-        description: "Daily Life",
-        caption: "Everyday activities and community life",
       },
     ];
   }, [subcultureData]);
@@ -471,23 +457,32 @@ export default function RegionDetailPage() {
     return videos;
   }, [subcultureData]);
 
-  const fetchLexiconTranslation = async (slug: string): Promise<string> => {
-    console.log(`🔍 Fetching translation for slug: ${slug}`);
+  const fetchLexiconTranslation = async (lexiconWord: string): Promise<string> => {
+    // Generate slug from lexiconWord for consistency
+    const termSlug = lexiconWord
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
+
+    console.log(`🔍 Fetching translation for slug: ${termSlug}`);
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/lexicons/${slug}`
+        `${API_BASE_URL}/lexicons/${termSlug}`
       );
 
       if (!response.ok) {
         console.warn(
-          `⚠️ Failed to fetch translation for lexicon ${slug}: ${response.status}`
+          `⚠️ Failed to fetch translation for lexicon ${termSlug}: ${response.status}`
         );
         return "";
       }
 
       const result = await response.json();
-      console.log(`📄 API Response for ${slug}:`, {
+      console.log(`📄 API Response for ${termSlug}:`, {
         success: result.success,
         hasData: !!result.data,
         hasDetails: !!result.data?.details,
@@ -500,29 +495,41 @@ export default function RegionDetailPage() {
         return result.data.details.translation;
       }
 
-      console.warn(`⚠️ No translation found in response for ${slug}`);
+      console.warn(`⚠️ No translation found in response for ${termSlug}`);
       return "";
     } catch (error) {
-      console.error(`❌ Error fetching translation for lexicon ${slug}:`, error);
+      console.error(`❌ Error fetching translation for lexicon ${termSlug}:`, error);
       return "";
     }
   };
 
   const fetchTranslationsForItems = async (items: SearchResult[]) => {
-    const itemsNeedingTranslation = items.filter(
+    // Generate slugs from lexiconWord for consistent key storage
+    const itemsWithSlug = items.map((item) => {
+      const termSlug = item.lexiconWord
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "-");
+      return { ...item, termSlug };
+    });
+
+    const itemsNeedingTranslation = itemsWithSlug.filter(
       (item) =>
-        item.slug &&
+        item.termSlug &&
         !item.translation &&
-        !lexiconTranslations[item.slug] &&
-        !translationsLoading.has(item.slug)
+        !lexiconTranslations[item.termSlug] &&
+        !translationsLoading.has(item.termSlug)
     );
 
     console.log("🔄 fetchTranslationsForItems:", {
       totalItems: items.length,
       itemsNeedingTranslation: itemsNeedingTranslation.length,
-      itemsWithSlug: items.filter((i) => i.slug).length,
+      itemsWithSlug: itemsWithSlug.filter((i) => i.termSlug).length,
       itemsWithExistingTranslation: items.filter((i) => i.translation).length,
-      slugsNeedingFetch: itemsNeedingTranslation.map((i) => i.slug),
+      slugsNeedingFetch: itemsNeedingTranslation.map((i) => i.termSlug),
     });
 
     if (itemsNeedingTranslation.length === 0) {
@@ -535,20 +542,20 @@ export default function RegionDetailPage() {
     setTranslationsLoading((prev) => {
       const newSet = new Set(prev);
       itemsNeedingTranslation.forEach((item) => {
-        newSet.add(item.slug);
+        newSet.add(item.termSlug);
       });
       return newSet;
     });
 
     const translationPromises = itemsNeedingTranslation.map(async (item) => {
-      const translation = await fetchLexiconTranslation(item.slug);
+      const translation = await fetchLexiconTranslation(item.lexiconWord);
       console.log(
-        `✅ Fetched translation for ${item.term} (${item.slug}):`,
+        `✅ Fetched translation for ${item.lexiconWord} (${item.termSlug}):`,
         translation ? translation.substring(0, 50) + "..." : "empty"
       );
 
       return {
-        slug: item.slug,
+        termSlug: item.termSlug,
         translation,
       };
     });
@@ -558,7 +565,7 @@ export default function RegionDetailPage() {
     const newTranslations: Record<string, string> = {};
     results.forEach((result) => {
       if (result && result.translation) {
-        newTranslations[result.slug] = result.translation;
+        newTranslations[result.termSlug] = result.translation;
       }
     });
 
@@ -573,7 +580,7 @@ export default function RegionDetailPage() {
       const newSet = new Set(prev);
       results.forEach((result) => {
         if (result) {
-          newSet.delete(result.slug);
+          newSet.delete(result.termSlug);
         }
       });
       return newSet;
@@ -618,12 +625,13 @@ export default function RegionDetailPage() {
                 entry.commonMeaning || entry.translation || entry.maknaKultural,
               category: entry.domainKodifikasi?.namaDomain || "",
               region: entry.domainKodifikasi?.subculture?.namaSubculture || "",
-              slug: entry.kataLeksikon
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, "-")
-                .replace(/(^-|-$)/g, ""),
+              slug: entry.kataLeksikon && typeof entry.kataLeksikon === 'string'
+                ? entry.kataLeksikon
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/(^-|-$)/g, "")
+                : "",
             }));
 
             setLexiconItems(mappedItems);
@@ -1564,7 +1572,14 @@ export default function RegionDetailPage() {
                     {/* Items Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       {paginatedItems.map((entry, i) => {
-                        const termSlug = entry.slug;
+                        // Generate slug from lexiconWord for consistency with [-]/page.tsx
+                        const termSlug = entry.lexiconWord
+                          .toLowerCase()
+                          .normalize("NFD")
+                          .replace(/[\u0300-\u036f]/g, "")
+                          .replace(/[^a-z0-9\s-]/g, "")
+                          .trim()
+                          .replace(/\s+/g, "-");
 
                         // Get translation from state using slug as key
                         const translation = lexiconTranslations[termSlug];
@@ -1573,14 +1588,14 @@ export default function RegionDetailPage() {
 
                         return (
                           <article
-                            key={`${entry.term}-${i}`}
+                            key={`${entry.lexiconWord}-${i}`}
                             className="rounded-xl shadow-sm border bg-card/60 border-border overflow-hidden flex flex-col"
                           >
                             <div className="px-4 py-3 flex-grow">
                               <h3 className="font-semibold text-foreground text-lg">
-                                {entry.term
+                                {entry.lexiconWord
                                   .split(' ')
-                                  .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                                  .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
                                   .join(' ')}
                               </h3>
 
@@ -1624,7 +1639,7 @@ export default function RegionDetailPage() {
                             <div className="px-4 pb-4 mt-auto">
                               <Link
                                 href={`/budaya/daerah/-/${termSlug}`}
-                                aria-label={`View details for term ${entry.term}`}
+                                // aria-label={`View details for term ${entry.lexiconWord}`}
                                 className="block"
                               >
                                 <Button

@@ -24,17 +24,24 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
-import { API_BASE_URL } from "@/lib/config"
+import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config"
 
 interface Contributor {
   contributorId: number
-  namaContributor: string
-  institusi: string
-  email: string
+  contributorName: string
+  institution: string
   expertiseArea: string
-  contactInfo: string
+  displayPriorityStatus: string
   registeredAt: string
-  assetCount?: number
+  contributorAssets: any[]
+}
+
+interface SearchMeta {
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+  query?: string
 }
 
 export default function ResearchPage() {
@@ -46,57 +53,30 @@ export default function ResearchPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [filterRole, setFilterRole] = useState<string>("all")
   const [currentPage, setCurrentPage] = useState(1)
+  const [meta, setMeta] = useState<SearchMeta | null>(null)
   const ITEMS_PER_PAGE = 12
 
   useEffect(() => {
     const fetchContributors = async () => {
       try {
         setLoading(true)
-        // Fetch dari landing API untuk mendapatkan contributor data
-        const response = await fetch(`${API_BASE_URL}landing`)
-        if (!response.ok) throw new Error('Failed to fetch contributors data')
+        setError(null)
+        
+        let response;
+        if (searchQuery.trim() === "") {
+          // Fetch all contributors
+          response = await fetch(`${API_BASE_URL}contributors?page=${currentPage}&limit=${ITEMS_PER_PAGE}`)
+        } else {
+          // Fetch search results
+          response = await fetch(`${API_SEARCH_URL}coordinator?q=${encodeURIComponent(searchQuery)}&page=${currentPage}&limit=${ITEMS_PER_PAGE}`)
+        }
+        
+        if (!response.ok) throw new Error('Failed to fetch contributors')
         
         const result = await response.json()
-        if (result.success) {
-          // Ekstrak unique contributors dari collaborationAssets
-          const contributorMap = new Map<number, Contributor>()
-          
-          if (result.data.collaborationAssets) {
-            result.data.collaborationAssets.forEach((ca: any) => {
-              const contributor = ca.contributor
-              if (!contributorMap.has(contributor.contributorId)) {
-                contributorMap.set(contributor.contributorId, {
-                  ...contributor,
-                  assetCount: 1
-                })
-              } else {
-                const existing = contributorMap.get(contributor.contributorId)!
-                existing.assetCount = (existing.assetCount || 0) + 1
-              }
-            })
-          }
-
-          // Tambahkan team scientists jika ada
-          if (result.data.teamScientis) {
-            result.data.teamScientis.forEach((scientist: any, index: number) => {
-              const id = 1000 + index // ID sementara untuk team scientists
-              if (!contributorMap.has(id)) {
-                contributorMap.set(id, {
-                  contributorId: id,
-                  namaContributor: scientist.namaContributor,
-                  institusi: scientist.institusi || "Universitas Brawijaya",
-                  email: scientist.email || "",
-                  expertiseArea: scientist.expertiseArea,
-                  contactInfo: "",
-                  registeredAt: new Date().toISOString(),
-                  assetCount: 0
-                })
-              }
-            })
-          }
-
-          const contributorsList = Array.from(contributorMap.values())
-          setContributors(contributorsList)
+        if (result.success && result.data) {
+          setContributors(result.data)
+          setMeta(result.meta)
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
@@ -106,25 +86,19 @@ export default function ResearchPage() {
     }
 
     fetchContributors()
-  }, [])
+  }, [searchQuery, currentPage])
 
   // Get unique roles for filter
   const roles = Array.from(new Set(contributors.map(c => c.expertiseArea))).filter(Boolean)
 
-  // Filter contributors based on search and role
+  // Filter contributors based on role (since search is server-side)
   const filteredContributors = contributors.filter((contributor) => {
-    const matchesSearch = 
-      contributor.namaContributor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contributor.institusi.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contributor.expertiseArea.toLowerCase().includes(searchQuery.toLowerCase())
-    
     const matchesRole = filterRole === "all" || contributor.expertiseArea === filterRole
-
-    return matchesSearch && matchesRole
+    return matchesRole
   })
 
-  // Pagination
-  const totalPages = Math.ceil(filteredContributors.length / ITEMS_PER_PAGE)
+  // Pagination based on meta
+  const totalPages = meta?.totalPages || 1
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const endIndex = startIndex + ITEMS_PER_PAGE
   const paginatedContributors = filteredContributors.slice(startIndex, endIndex)
@@ -252,13 +226,13 @@ export default function ResearchPage() {
           </AnimatedReveal>
 
           {/* Results Info */}
-          {(searchQuery || filterRole !== "all" || filteredContributors.length > 0) && (
+          {(searchQuery || filterRole !== "all" || (meta && meta.total > 0)) && (
             <AnimatedReveal animation="fade-up" delay={1000}>
               <div className="mt-4 text-lg text-muted-foreground">
                 {searchQuery || filterRole !== "all" ? (
-                  <>Show {filteredContributors.length} Contributor</>
+                  <>Show {meta?.total || 0} Contributor</>
                 ) : (
-                  <>Total {filteredContributors.length} Contributor</>
+                  <>Total {meta?.total || 0} Contributor</>
                 )}
               </div>
             </AnimatedReveal>
@@ -284,7 +258,7 @@ export default function ResearchPage() {
               </Button>
             </div>
           </div>
-        ) : paginatedContributors.length > 0 ? (
+        ) : (meta && meta.total > 0) ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedContributors.map((contributor, index) => {
@@ -300,24 +274,24 @@ export default function ResearchPage() {
                   >
                     <Card className="group hover:shadow-lg transition-all duration-300 border-border bg-card/60 backdrop-blur-sm h-full">
                       <CardContent className="p-6">
-                        {/* Header with Avatar and Role Badge */}
+                        {/* Header with Avatar and Priority Badge */}
                         <div className="flex items-start justify-between mb-4">
                           <div className={`w-16 h-16 bg-gradient-to-br ${roleColor} rounded-full flex items-center justify-center flex-shrink-0 shadow-md`}>
                             <span className="text-2xl font-bold text-foreground">
-                              {contributor.namaContributor.charAt(0).toUpperCase()}
+                              {contributor.contributorName.charAt(0).toUpperCase()}
                             </span>
                           </div>
-
-                          {contributor.assetCount !== undefined && contributor.assetCount > 0 && (
+{/* 
+                          {contributor.displayPriorityStatus === "HIGH" && (
                             <Badge variant="secondary" className="text-xs">
-                              {contributor.assetCount} Contributions
+                              Priority
                             </Badge>
-                          )}
+                          )} */}
                         </div>
 
                         {/* Name */}
                         <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                          {contributor.namaContributor}
+                          {contributor.contributorName}
                         </h3>
 
                         {/* Role with Icon */}
@@ -329,25 +303,12 @@ export default function ResearchPage() {
                         </div>
 
                         {/* Institution */}
-                        {contributor.institusi && (
+                        {contributor.institution && (
                           <div className="flex items-start gap-2 mb-3">
                             <Building2 className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                             <span className="text-lg text-muted-foreground">
-                              {contributor.institusi}
+                              {contributor.institution}
                             </span>
-                          </div>
-                        )}
-
-                        {/* Email */}
-                        {contributor.email && (
-                          <div className="flex items-center gap-2 pt-3 border-t border-border/50">
-                            <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <a 
-                              href={`mailto:${contributor.email}`}
-                              className="text-lg text-muted-foreground hover:text-primary transition-colors truncate"
-                            >
-                              {contributor.email}
-                            </a>
                           </div>
                         )}
 
@@ -371,7 +332,7 @@ export default function ResearchPage() {
             {totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border">
                 <div className="text-lg text-muted-foreground order-2 sm:order-1">
-                  Showing {startIndex + 1}-{Math.min(endIndex, filteredContributors.length)} of {filteredContributors.length} contributors
+                  Showing {startIndex + 1}-{Math.min(endIndex, meta?.total || 0)} of {meta?.total || 0} contributors
                 </div>
 
                 <div className="flex items-center gap-2 order-1 sm:order-2">

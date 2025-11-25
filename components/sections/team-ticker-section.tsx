@@ -12,7 +12,7 @@ type Member = {
 
 interface TeamTickerSectionProps {
   team?: Array<{
-    namaContributor: string
+    contributorName: string
     expertiseArea: string
   }>
 }
@@ -31,7 +31,7 @@ const DEFAULT_MEMBERS: Member[] = [
 export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
   const members = team
     ? team.map((t) => ({
-        name: t.namaContributor,
+        name: t.contributorName,
         role: t.expertiseArea,
       }))
     : DEFAULT_MEMBERS
