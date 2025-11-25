@@ -13,7 +13,7 @@ import { Camera, Image as ImageIcon, Loader2, Search, Library } from "lucide-rea
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
-import { API_BASE_URL } from "@/lib/config"
+import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config"
 
 interface GalleryAsset {
   referensiId: number
@@ -23,8 +23,17 @@ interface GalleryAsset {
   url: string
   penulis: string
   tahunTerbit: string
+  topicCategory: string
   createdAt?: string
   updatedAt?: string
+}
+
+interface SearchMeta {
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+  query: string
 }
 
 export default function ResourcePage() {
@@ -35,32 +44,59 @@ export default function ResourcePage() {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
+  const [meta, setMeta] = useState<SearchMeta | null>(null)
   const itemsPerPage = 10
 
   useEffect(() => {
-    const fetchResourceAssets = async () => {
+    const fetchReferences = async () => {
       try {
         setLoading(true)
-        // Fetch references dari backend API
-        const response = await fetch(`${API_BASE_URL}references`)
-        if (!response.ok) throw new Error('Failed to fetch resource data')
+        setError(null)
+        
+        let response;
+        if (searchQuery.trim() === "") {
+          // Fetch all references
+          response = await fetch(`${API_BASE_URL}references`)
+        } else {
+          // Fetch search results
+          response = await fetch(`${API_SEARCH_URL}references?q=${encodeURIComponent(searchQuery)}&page=${currentPage}&limit=${itemsPerPage}`)
+        }
+        
+        if (!response.ok) throw new Error('Failed to fetch references')
         
         const result = await response.json()
         if (result.success && result.data) {
-          // Process references data
+          // Process data
           const references = result.data.map((ref: any) => ({
-            referensiId: ref.referensiId,
-            judul: ref.judul,
-            tipeReferensi: ref.tipeReferensi,
-            penjelasan: ref.penjelasan,
+            referensiId: ref.referenceId,
+            judul: ref.title,
+            tipeReferensi: ref.referenceType,
+            penjelasan: ref.description,
             url: ref.url,
-            penulis: ref.penulis,
-            tahunTerbit: ref.tahunTerbit,
+            penulis: ref.authors,
+            tahunTerbit: ref.publicationYear,
+            topicCategory: ref.topicCategory,
             createdAt: ref.createdAt,
             updatedAt: ref.updatedAt
           }))
           
           setAssets(references)
+          
+          if (searchQuery.trim() === "") {
+            // For all references, set meta based on data length
+            const total = references.length
+            const totalPages = Math.ceil(total / itemsPerPage)
+            setMeta({
+              total,
+              page: 1,
+              limit: itemsPerPage,
+              totalPages,
+              query: ""
+            })
+          } else {
+            // For search, use meta from response
+            setMeta(result.meta)
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
@@ -69,18 +105,14 @@ export default function ResourcePage() {
       }
     }
 
-    fetchResourceAssets()
-  }, [])
+    fetchReferences()
+  }, [searchQuery, currentPage])
 
-  // Filter assets based on search
-  const filteredAssets = assets.filter((asset) =>
-    asset.judul.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    asset.penjelasan.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    asset.penulis.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // Assets are already filtered by the API
+  const filteredAssets = assets
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredAssets.length / itemsPerPage)
+  // Pagination logic based on meta
+  const totalPages = meta?.totalPages || 1
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const paginatedAssets = filteredAssets.slice(startIndex, endIndex)
@@ -133,13 +165,13 @@ export default function ResourcePage() {
           </AnimatedReveal>
 
           {/* Results Info */}
-          {(searchQuery || filteredAssets.length > 0) && (
+          {(searchQuery || (meta && meta.total > 0)) && (
             <AnimatedReveal animation="fade-up" delay={1000}>
               <div className="mt-4 text-lg text-muted-foreground">
                 {searchQuery ? (
-                  <>Showing {filteredAssets.length} results for "{searchQuery}"</>
+                  <>Showing {meta?.total || 0} results for "{searchQuery}"</>
                 ) : (
-                  <>Total {filteredAssets.length} references</>
+                  <>Total {meta?.total || 0} references</>
                 )}
               </div>
             </AnimatedReveal>
@@ -165,7 +197,7 @@ export default function ResourcePage() {
               </Button>
             </div>
           </div>
-        ) : filteredAssets.length > 0 ? (
+        ) : (meta && meta.total > 0) ? (
           <>
             {/* References Section */}
             <motion.div
@@ -182,7 +214,7 @@ export default function ResourcePage() {
                     <div>
                       <CardTitle className="text-lg text-xl font-semibold">Key References</CardTitle>
                       <h3 className="text-xl text-muted-foreground">
-                        {filteredAssets.length} academic sources • Page {currentPage} of {totalPages}
+                        {meta?.total || 0} academic sources • Page {currentPage} of {totalPages}
                       </h3>
                     </div>
                   </div>
@@ -208,8 +240,11 @@ export default function ResourcePage() {
                           </h3>
                         )}
                         <div className="flex gap-1 flex-wrap">
+                            <Badge variant="outline" className="text-xl">
+                            {asset.tipeReferensi.charAt(0).toUpperCase() + asset.tipeReferensi.slice(1).toLowerCase()}
+                            </Badge>
                           <Badge variant="outline" className="text-xl">
-                            {asset.tipeReferensi}
+                            {asset.topicCategory}
                           </Badge>
                         </div>
                       </div>
@@ -220,7 +255,7 @@ export default function ResourcePage() {
                   {totalPages > 1 && (
                     <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
                       <div className="text-lg text-muted-foreground">
-                        Showing {startIndex + 1}-{Math.min(endIndex, filteredAssets.length)} of {filteredAssets.length} references
+                        Showing {startIndex + 1}-{Math.min(endIndex, meta?.total || 0)} of {meta?.total || 0} references
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
@@ -277,6 +312,7 @@ export default function ResourcePage() {
             </p>
           </div>
         )}
+
       </main>
 
       <Footer onNavClick={handleNavClick} />

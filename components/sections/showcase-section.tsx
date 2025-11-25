@@ -35,25 +35,22 @@ interface ShowcaseSectionProps {
 }
 
 export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
-  const defaultLogos = [
-    { src: "/partner-logo-1.png", alt: "Cultural Heritage Foundation" },
-    { src: "/partner-logo-2.png", alt: "East Java Arts Council" },
-    { src: "/partner-logo-abstract-geometric.png", alt: "Indonesia Culture Hub" },
-    { src: "/partner-logo-abstract-geometric.png", alt: "Batik Heritage Studio" },
-    { src: "/partner-logo-abstract-5.png", alt: "Java Traditions Archive" },
-    { src: "/partner-logo-6.png", alt: "National Museum of Culture" },
+  const defaultImages = [
+    { src: "/Logo.png", alt: "Brawijaya Corpora Project" }
   ]
 
-  const displayAssets = collaborationAssets ? collaborationAssets.map(ca => ({
-    src: ca.asset.url,
-    alt: ca.asset.namaFile,
-    contributor: ca.contributor.namaContributor,
-    description: ca.asset.penjelasan
-  })) : defaultLogos
+  const displayAssets = collaborationAssets && collaborationAssets.length > 0 
+    ? collaborationAssets.map(ca => ({
+        src: ca.asset.url,
+        alt: ca.asset.namaFile,
+        contributor: ca.contributor.namaContributor,
+        description: ca.asset.penjelasan
+      })) 
+    : defaultImages
 
   // 🔧 Duplikasi logo minimal 8 kali untuk memastikan marquee penuh dan seamless
-  const minRepetitions = Math.max(8, Math.ceil(40 / displayAssets.length))
-  const repeatedLogos = Array(minRepetitions).fill(displayAssets).flat()
+  const minRepetitions = displayAssets.length > 0 ? Math.max(8, Math.ceil(40 / displayAssets.length)) : 0
+  const repeatedLogos = minRepetitions > 0 ? Array(minRepetitions).fill(displayAssets).flat() : []
 
   return (
     <section
@@ -72,25 +69,26 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
           <AnimatedReveal animation="fade-up" delay={150}>
             <Badge className="bg-blue-900/40 text-blue-300 border border-blue-500/30 ">
                 <div className="text-xl">
-              Discover • Explore • Connect
+              Heritage • Culture • Tradition
                 </div>
             </Badge>
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={300}>
-            <h2 id="showcase-heading" className="text-3xl md:text-4xl font-bold text-balance">
-               To experience the cultural richness of 
+            {/* <h2 id="showcase-heading" className="text-3xl md:text-4xl font-bold text-balance">
+               Cultural Heritage Showcase of 
               <span className="block text-primary">
-                East Java.
+                East Java
               </span>
+            </h2> */} 
+            <h2 className="text-3xl md:text-4xl font-extrabold mt-6 leading-tight">
+              Cultural Heritage Showcase of  <span className="text-primary">East Java</span>
             </h2>
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={450}>
             <p className="text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty">
-              Navigate a world of traditions, artifacts from every region.
-              Enjoy a sleek, modern experience with beautiful visuals and intuitive
-              navigation across devices.
+              Explore the vibrant cultural heritage of East Java through stunning visuals and immersive experiences. From traditional dances to natural wonders, discover the beauty that defines our region.
             </p>
           </AnimatedReveal>
         </div>
@@ -117,7 +115,7 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
                   alt={logo.alt}
                   height={64}
                   width={160}
-                  className="h-16 w-[160px] object-contain"
+                  className="h-16 w-[160px] object-contain rounded-lg shadow-sm"
                 />
                 <p className="mt-2 text-lg text-muted-foreground font-medium text-center max-w-[160px]">
                   {logo.alt}

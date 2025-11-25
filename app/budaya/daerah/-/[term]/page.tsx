@@ -39,19 +39,19 @@ import ScrollToTopButton from '@/components/common/scroll-to-top';
 import { API_BASE_URL } from "@/lib/config";
 
 interface LexiconAsset {
-  leksikonId: number;
+  lexiconId: number;
   assetId: number;
   assetRole: string;
   createdAt: string;
   asset: {
     assetId: number;
-    namaFile: string;
-    tipe: string;
-    penjelasan: string;
+    fileName: string;
+    fileType: string;
+    description: string | null;
     url: string;
-    fileSize: string;
-    hashChecksum: string;
-    metadataJson: string;
+    fileSize: string | null;
+    hashChecksum: string | null;
+    metadataJson: string | null;
     status: string;
     createdAt: string;
     updatedAt: string;
@@ -59,18 +59,19 @@ interface LexiconAsset {
 }
 
 interface LexiconReference {
-  leksikonId: number;
-  referensiId: number;
-  citationNote: string;
+  lexiconId: number;
+  referenceId: number;
+  citationNote: string | null;
+  displayOrder: number | null;
   createdAt: string;
-  referensi: {
-    referensiId: number;
-    judul: string;
-    tipeReferensi: string;
-    penjelasan: string;
-    url: string;
-    penulis: string;
-    tahunTerbit: string;
+  reference: {
+    referenceId: number;
+    title: string;
+    referenceType: string;
+    description: string | null;
+    url: string | null;
+    authors: string | null;
+    publicationYear: string | null;
     status: string;
     createdAt: string;
     updatedAt: string;
@@ -82,6 +83,56 @@ interface GalleryImage {
   description?: string;
   caption?: string;
   assetId?: number;
+}
+
+interface ContributorDetail {
+  contributorName: string;
+  institution: string;
+}
+
+interface AdvancedLexiconEntry {
+  lexiconId: number;
+  slug: string;
+  lexiconWord: string;
+  ipaInternationalPhoneticAlphabet: string;
+  transliteration: string;
+  etymologicalMeaning: string;
+  culturalMeaning: string;
+  commonMeaning: string;
+  translation: string;
+  variant: string | null;
+  variantTranslations: string | null;
+  otherDescription: string | null;
+  domainId: number;
+  preservationStatus: string;
+  contributorId: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  codificationDomain: {
+    domainId: number;
+    code: string;
+    domainName: string;
+    explanation: string;
+    subcultureId: number;
+    subculture: {
+      subcultureId: number;
+      subcultureName: string;
+      slug: string;
+      culture: {
+        cultureId: number;
+        cultureName: string;
+        province: string;
+      };
+    };
+  };
+  contributor: {
+    contributorId: number;
+    contributorName: string;
+    institution: string;
+  };
+  lexiconAssets?: LexiconAsset[];
+  lexiconReferences?: LexiconReference[];
 }
 
 interface LexiconEntry {
@@ -106,8 +157,8 @@ interface LexiconEntry {
     otherDescription: string;
   };
   galleryImages?: GalleryImage[];
-  leksikonAssets?: LexiconAsset[];
-  leksikonReferensis?: LexiconReference[];
+  lexiconAssets?: LexiconAsset[];
+  lexiconReferences?: LexiconReference[];
 }
 
 interface YouTubeVideo {
@@ -142,6 +193,71 @@ function capitalize(input: string): string {
     .split(" ")
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
+}
+
+function isAdvancedEntry(entry: any): entry is AdvancedLexiconEntry {
+  return entry && typeof entry.lexiconId === 'number' && typeof entry.lexiconWord === 'string';
+}
+
+function getLexiconId(entry: any): number | null {
+  if (isAdvancedEntry(entry)) {
+    return entry.lexiconId;
+  }
+  return entry.id || entry.leksikonId || null;
+}
+
+function normalizeLexiconEntry(entry: any): LexiconEntry {
+  if (isAdvancedEntry(entry)) {
+    return {
+      term: entry.lexiconWord || '',
+      definition: entry.culturalMeaning || '',
+      regionKey: entry.codificationDomain?.subculture?.slug || '',
+      subculture: {
+        name: entry.codificationDomain?.subculture?.subcultureName || '',
+        province: entry.codificationDomain?.subculture?.culture?.province || '',
+      },
+      domain: entry.codificationDomain?.domainName || '',
+      contributor: entry.contributor?.contributorName || '',
+      details: {
+        ipa: entry.ipaInternationalPhoneticAlphabet || '',
+        transliteration: entry.transliteration || '',
+        etymology: entry.etymologicalMeaning || '',
+        culturalMeaning: entry.culturalMeaning || '',
+        commonMeaning: entry.commonMeaning || '',
+        translation: entry.translation || '',
+        variants: entry.variant || '',
+        translationVariants: entry.variantTranslations || '',
+        otherDescription: entry.otherDescription || '',
+      },
+      galleryImages: [],
+      lexiconAssets: entry.lexiconAssets || [],
+      lexiconReferences: entry.lexiconReferences || [],
+    };
+  }
+
+  // Fallback for old format
+  return {
+    term: entry.term || '',
+    definition: entry.definition || '',
+    regionKey: entry.regionKey || '',
+    subculture: entry.subculture || { name: '', province: '' },
+    domain: entry.domain || '',
+    contributor: entry.contributor || '',
+    details: entry.details || {
+      ipa: '',
+      transliteration: '',
+      etymology: '',
+      culturalMeaning: '',
+      commonMeaning: '',
+      translation: '',
+      variants: '',
+      translationVariants: '',
+      otherDescription: '',
+    },
+    galleryImages: entry.galleryImages || [],
+    lexiconAssets: entry.lexiconAssets || [],
+    lexiconReferences: entry.lexiconReferences || [],
+  };
 }
 
 export default function CulturalWordDetailPage({
@@ -183,193 +299,150 @@ export default function CulturalWordDetailPage({
     const fetchEntry = async () => {
       try {
         setLoading(true);
+        setError(null);
 
+        // Directly fetch by slug/term parameter
         const response = await fetch(
-          `${API_BASE_URL}lexicons`
+          `${API_BASE_URL}lexicons/${resolvedParams.term}`
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch lexicons");
+          if (response.status === 404) {
+            setError(`Lexicon "${resolvedParams.term}" not found`);
+          } else {
+            throw new Error(`Failed to fetch lexicon: ${response.status}`);
+          }
+          setEntry(null);
+          return;
         }
 
         const result = await response.json();
 
-        if (result.success) {
-          let foundEntry = null;
+        if (result.success && result.data) {
+          const foundEntry = result.data;
+          const normalizedEntry = normalizeLexiconEntry(foundEntry);
+          setEntry(normalizedEntry);
 
-          foundEntry = result.data.find(
-            (item: any) => slugify(item.term) === resolvedParams.term
-          );
+          // Set translation from fetched data
+          const fetchedTranslation = foundEntry.culturalMeaning || foundEntry.translation || "";
+          setTranslation(fetchedTranslation);
 
-          if (!foundEntry) {
-            foundEntry = result.data.find(
-              (item: any) =>
-                item.term.toLowerCase() ===
-                resolvedParams.term.replace(/-/g, " ").toLowerCase()
+          // Process gallery images
+          const processedImages: GalleryImage[] = [];
+
+          if (normalizedEntry.galleryImages && Array.isArray(normalizedEntry.galleryImages)) {
+            const directImages: GalleryImage[] = normalizedEntry.galleryImages.map((img: any, idx: number) => ({
+              url: img.url || img,
+              description: img.description || `${normalizedEntry.term} - Image ${idx + 1}`,
+              caption: img.caption || `Cultural heritage of ${normalizedEntry.term}`,
+            }));
+            processedImages.push(...directImages);
+          }
+
+          // Process lexicon assets
+          if (
+            normalizedEntry.lexiconAssets &&
+            Array.isArray(normalizedEntry.lexiconAssets)
+          ) {
+            // Process audio files (PRONUNCIATION)
+            const audioAsset = normalizedEntry.lexiconAssets.find(
+              (asset: LexiconAsset) =>
+                asset.assetRole === "PRONUNCIATION" &&
+                asset.asset.fileType === "AUDIO"
             );
-          }
 
-          if (!foundEntry) {
-            foundEntry = result.data.find((item: any) => {
-              const itemSlug = slugify(item.term);
-              const searchTerm = resolvedParams.term.toLowerCase();
-              return (
-                itemSlug.includes(searchTerm) || searchTerm.includes(itemSlug)
-              );
-            });
-          }
-
-          if (foundEntry) {
-            setEntry(foundEntry);
-
-            // Fetch translation from detail endpoint BEFORE setting loading to false
-            const entryId = (foundEntry as any).id || (foundEntry as any).leksikonId;
-            if (entryId) {
-              try {
-                const detailResponse = await fetch(
-                  `${API_BASE_URL}lexicons/${entryId}`
-                );
-                if (detailResponse.ok) {
-                  const detailResult = await detailResponse.json();
-                  if (detailResult.success && detailResult.data) {
-                    const fetchedTranslation = detailResult.data.details?.translation || "";
-                    setTranslation(fetchedTranslation);
-                  }
-                }
-              } catch (error) {
-                console.error("Error fetching translation:", error);
-                // Fallback to translation from entry if available
-                if (foundEntry.details?.translation) {
-                  setTranslation(foundEntry.details.translation);
-                }
-              }
-            } else if (foundEntry.details?.translation) {
-              // If no ID, use translation from entry if available
-              setTranslation(foundEntry.details.translation);
+            if (audioAsset && audioAsset.asset.url) {
+              setHasAudioFile(true);
+              setAudioUrl(audioAsset.asset.url);
             }
 
-            const processedImages: GalleryImage[] = [];
-
-            if (foundEntry.galleryImages && Array.isArray(foundEntry.galleryImages)) {
-              const directImages: GalleryImage[] = foundEntry.galleryImages.map((img: any, idx: number) => ({
-                url: img.url || img,
-                description: img.description || `${foundEntry.term} - Image ${idx + 1}`,
-                caption: img.caption || `Cultural heritage of ${foundEntry.term}`,
-              }));
-              processedImages.push(...directImages);
-            }
-
-            if (
-              foundEntry.leksikonAssets &&
-              Array.isArray(foundEntry.leksikonAssets)
-            ) {
-              const audioAsset = foundEntry.leksikonAssets.find(
-                (asset: LexiconAsset) =>
-                  asset.assetRole === "PRONUNCIATION" &&
-                  asset.asset.tipe === "AUDIO"
-              );
-
-              if (audioAsset && audioAsset.asset.url) {
-                setHasAudioFile(true);
-                setAudioUrl(audioAsset.asset.url);
+            // Process gallery images (PHOTO with GALLERY role)
+            const imageAssets = normalizedEntry.lexiconAssets.filter(
+              (asset: LexiconAsset) => {
+                const isImageType = asset.asset.fileType === "PHOTO";
+                const isGalleryRole = asset.assetRole === "GALLERY";
+                return isImageType && isGalleryRole;
               }
+            );
 
-              const imageAssets = foundEntry.leksikonAssets.filter(
-                (asset: LexiconAsset) => {
-                  const isImageType = 
-                    asset.asset.tipe === "FOTO" || 
-                    asset.asset.tipe === "IMAGE" ||
-                    asset.asset.tipe === "GAMBAR" ||
-                    asset.asset.tipe === "PHOTO";
-                  
-                  const isGalleryRole = 
-                    asset.assetRole === "GALLERY" || 
-                    asset.assetRole === "FOTO" ||
-                    asset.assetRole === "IMAGE" ||
-                    asset.assetRole === "PHOTO";
-                  
-                  return isImageType || isGalleryRole;
-                }
-              );
+            const assetImages: GalleryImage[] = imageAssets.map((asset: LexiconAsset) => ({
+              url: asset.asset.url,
+              description: asset.asset.fileName || normalizedEntry.term,
+              caption: asset.asset.description || `Cultural heritage of ${normalizedEntry.term}`,
+              assetId: asset.asset.assetId,
+            }));
 
-              const assetImages: GalleryImage[] = imageAssets.map((asset: LexiconAsset) => ({
-                url: asset.asset.url,
-                description: asset.asset.namaFile || foundEntry.term,
-                caption: asset.asset.penjelasan || `Cultural heritage of ${foundEntry.term}`,
-                assetId: asset.asset.assetId,
-              }));
+            processedImages.push(...assetImages);
 
-              processedImages.push(...assetImages);
+            // Process videos
+            const videoAssets = normalizedEntry.lexiconAssets.filter(
+              (asset: LexiconAsset) => asset.asset.fileType === "VIDEO"
+            );
 
-              const videoAssets = foundEntry.leksikonAssets.filter(
-                (asset: LexiconAsset) => asset.asset.tipe === "VIDEO"
-              );
-
-              const videos: YouTubeVideo[] = videoAssets
-                .map((asset: LexiconAsset): YouTubeVideo | null => {
-                  const videoId = extractYouTubeId(asset.asset.url);
-                  if (videoId) {
-                    return {
-                      videoId: videoId,
-                      title: asset.asset.namaFile || "Video",
-                      description: asset.asset.penjelasan || "",
-                      thumbnail: getYouTubeThumbnail(videoId, "maxres"),
-                      duration: "",
-                    };
-                  }
-                  return null;
-                })
-                .filter(
-                  (video: YouTubeVideo | null): video is YouTubeVideo =>
-                    video !== null
-                );
-
-              setYoutubeVideos(videos);
-
-              const modelAssets = foundEntry.leksikonAssets.filter(
-                (asset: LexiconAsset) => asset.asset.tipe === "MODEL_3D"
-              );
-
-              const models: Model3D[] = modelAssets.map(
-                (asset: LexiconAsset) => {
-                  const urlMatch = asset.asset.url.match(
-                    /\/3d-models\/[^/]+-([a-f0-9]+)/
-                  );
-                  const sketchfabId = urlMatch ? urlMatch[1] : "";
-
+            const videos: YouTubeVideo[] = videoAssets
+              .map((asset: LexiconAsset): YouTubeVideo | null => {
+                const videoId = extractYouTubeId(asset.asset.url);
+                if (videoId) {
                   return {
-                    id: sketchfabId || asset.asset.assetId.toString(),
-                    title: asset.asset.namaFile || "3D Model",
-                    description: asset.asset.penjelasan || "",
-                    artifactType: "Cultural Artifact",
-                    tags: [],
+                    videoId: videoId,
+                    title: asset.asset.fileName || "Video",
+                    description: asset.asset.description || "",
+                    thumbnail: getYouTubeThumbnail(videoId, "maxres"),
+                    duration: "",
                   };
                 }
+                return null;
+              })
+              .filter(
+                (video: YouTubeVideo | null): video is YouTubeVideo =>
+                  video !== null
               );
 
-              setModels3D(models);
-            }
+            setYoutubeVideos(videos);
 
-            const uniqueImages = processedImages.filter((img, index, self) =>
-              index === self.findIndex((t) => t.url === img.url)
+            // Process 3D models
+            const modelAssets = normalizedEntry.lexiconAssets.filter(
+              (asset: LexiconAsset) => asset.asset.fileType === "MODEL_3D"
             );
 
-            setGalleryImages(uniqueImages);
+            const models: Model3D[] = modelAssets.map(
+              (asset: LexiconAsset) => {
+                const urlMatch = asset.asset.url.match(
+                  /\/3d-models\/[^/]+-([a-f0-9]+)/
+                );
+                const sketchfabId = urlMatch ? urlMatch[1] : "";
 
-            if (uniqueImages.length === 0) {
-              setGalleryImages([
-                {
-                  url: "/placeholder.svg",
-                  description: foundEntry.term,
-                  caption: `Cultural heritage of ${foundEntry.term}`,
-                }
-              ]);
-            }
-          } else {
-            notFound();
+                return {
+                  id: sketchfabId || asset.asset.assetId.toString(),
+                  title: asset.asset.fileName || "3D Model",
+                  description: asset.asset.description || "",
+                  artifactType: "Cultural Artifact",
+                  tags: [],
+                };
+              }
+            );
+
+            setModels3D(models);
+          }
+
+          // Remove duplicate images and set gallery
+          const uniqueImages = processedImages.filter((img, index, self) =>
+            index === self.findIndex((t) => t.url === img.url)
+          );
+
+          setGalleryImages(uniqueImages);
+
+          if (uniqueImages.length === 0) {
+            setGalleryImages([
+              {
+                url: "/placeholder.svg",
+                description: normalizedEntry.term,
+                caption: `Cultural heritage of ${normalizedEntry.term}`,
+              }
+            ]);
           }
         } else {
-          throw new Error(result.message || "Failed to fetch data");
+          setError(result.message || "Failed to fetch data");
         }
       } catch (err) {
         console.error("Fetch error:", err);
@@ -941,7 +1014,7 @@ export default function CulturalWordDetailPage({
               </motion.div>
 
               {/* Information Sources - Scrollable */}
-              {entry.leksikonReferensis && entry.leksikonReferensis.length > 0 && (
+              {entry.lexiconReferences && entry.lexiconReferences.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -955,24 +1028,24 @@ export default function CulturalWordDetailPage({
                       </div>
                       <div>
                         <CardTitle className="text-base">Sources</CardTitle>
-                        <p className="text-lg text-muted-foreground">{entry.leksikonReferensis.length} references</p>
+                        <p className="text-lg text-muted-foreground">{entry.lexiconReferences.length} references</p>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
-                      {entry.leksikonReferensis.map((ref, idx) => (
+                      {entry.lexiconReferences.map((ref: LexiconReference, idx: number) => (
                         <div
                           key={idx}
                           className="p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group text-base"
                         >
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <h4 className="font-semibold text-base text-foreground line-clamp-2 flex-1">
-                              {ref.referensi.judul}
+                              {ref.reference.title}
                             </h4>
-                            {ref.referensi.url && (
+                            {ref.reference.url && (
                               <a
-                                href={ref.referensi.url}
+                                href={ref.reference.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -984,16 +1057,16 @@ export default function CulturalWordDetailPage({
                             )}
                           </div>
                           <h3 className="text-lg text-muted-foreground mb-2">
-                            {ref.referensi.penulis} • {ref.referensi.tahunTerbit}
+                            {ref.reference.authors} • {ref.reference.publicationYear}
                           </h3>
-                          {ref.referensi.penjelasan && (
+                          {ref.reference.description && (
                             <h3 className="text-lg text-muted-foreground mb-2 line-clamp-2">
-                              {ref.referensi.penjelasan}
+                              {ref.reference.description}
                             </h3>
                           )}
                           <div className="flex gap-1 flex-wrap ">
                             <Badge variant="outline" className="text-sm">
-                              {ref.referensi.tipeReferensi}
+                              {ref.reference.referenceType}
                             </Badge>
                             {/* <Badge variant="outline" className="text-sm">
                               {ref.citationNote}
