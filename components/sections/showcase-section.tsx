@@ -5,22 +5,22 @@ import { AnimatedReveal } from "@/components/common/animated-reveal"
 
 interface ShowcaseSectionProps {
   collaborationAssets?: Array<{
-    contributorId: number
-    assetId: number
+    contributorId: number | null
+    assetId: number | null
     assetNote: string
-    createdAt: string
+    createdAt: string | null
     asset: {
-      assetId: number
-      namaFile: string
-      tipe: string
-      penjelasan: string
+      assetId: number | null
+      fileName: string
+      fileType: string
+      description: string
       url: string
       fileSize: string
       hashChecksum: string
-      metadataJson: string
+      metadataJson: string | null
       status: string
-      createdAt: string
-      updatedAt: string
+      createdAt: string | null
+      updatedAt: string | null
     }
     contributor: {
       contributorId: number
@@ -46,10 +46,14 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
 
   const displayAssets = collaborationAssets ? collaborationAssets.map(ca => ({
     src: ca.asset.url,
-    alt: ca.asset.namaFile,
+    alt: ca.asset.fileName,
     contributor: ca.contributor.namaContributor,
-    description: ca.asset.penjelasan
-  })) : defaultLogos
+    description: ca.asset.description
+  })) : defaultLogos.map(logo => ({
+    ...logo,
+    contributor: '',
+    description: ''
+  }))
 
   // 🔧 Duplikasi logo minimal 8 kali untuk memastikan marquee penuh dan seamless
   const minRepetitions = Math.max(8, Math.ceil(40 / displayAssets.length))

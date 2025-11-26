@@ -57,22 +57,22 @@ interface LandingData {
     }>
   }>
   collaborationAssets: Array<{
-    contributorId: number
-    assetId: number
+    contributorId: number | null
+    assetId: number | null
     assetNote: string
-    createdAt: string
+    createdAt: string | null
     asset: {
-      assetId: number
-      namaFile: string
-      tipe: string
-      penjelasan: string
+      assetId: number | null
+      fileName: string
+      fileType: string
+      description: string
       url: string
       fileSize: string
       hashChecksum: string
-      metadataJson: string
+      metadataJson: string | null
       status: string
-      createdAt: string
-      updatedAt: string
+      createdAt: string | null
+      updatedAt: string | null
     }
     contributor: {
       contributorId: number
@@ -297,5 +297,3 @@ export default function CulturalHeritagePage() {
     </div>
   )
 }
-
-
