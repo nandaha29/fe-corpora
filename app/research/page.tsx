@@ -83,7 +83,7 @@ export default function ResearchPage() {
               if (!contributorMap.has(id)) {
                 contributorMap.set(id, {
                   contributorId: id,
-                  namaContributor: scientist.namaContributor,
+                  namaContributor: scientist.contributorName,
                   institusi: scientist.institusi || "Universitas Brawijaya",
                   email: scientist.email || "",
                   expertiseArea: scientist.expertiseArea,

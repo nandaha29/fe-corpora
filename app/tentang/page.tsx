@@ -427,7 +427,7 @@ interface LandingData {
     totalAssets: number
   }
   teamScientis: Array<{
-    namaContributor: string
+    contributorName: string
     expertiseArea: string
     institusi?: string
     email?: string
@@ -1363,7 +1363,7 @@ export default function AboutPage() {
                       <Users className="h-8 w-8 text-white" />
                     </div>
 
-                    <h3 className="font-semibold text-xl mb-1 text-xl">{member.namaContributor}</h3>
+                    <h3 className="font-semibold text-xl mb-1 text-xl">{member.contributorName}</h3>
                     <h3 className="text-xl text-primary mb-2">{member.expertiseArea}</h3>
 
                     {member.institusi && (

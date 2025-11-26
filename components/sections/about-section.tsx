@@ -18,7 +18,7 @@ interface AboutSectionProps {
     totalAssets: number;
   };
   team?: Array<{
-    namaContributor: string;
+    contributorName: string;
     expertiseArea: string;
   }>;
 }
@@ -37,7 +37,7 @@ export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
 
   const displayTeam = team
     ? team.map((t) => ({
-        name: t.namaContributor,
+        name: t.contributorName,
         role: t.expertiseArea,
       }))
     : defaultMembers;

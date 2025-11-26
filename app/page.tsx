@@ -92,7 +92,7 @@ interface LandingData {
     totalAssets: number
   }
   teamScientis: Array<{
-    namaContributor: string
+    contributorName: string
     expertiseArea: string
   }>
 }
