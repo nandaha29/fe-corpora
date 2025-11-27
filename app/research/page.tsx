@@ -113,12 +113,12 @@ export default function ResearchPage() {
 
   // Filter contributors based on search and role
   const filteredContributors = contributors.filter((contributor) => {
-    const matchesSearch = 
-      contributor.namaContributor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contributor.institusi.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contributor.expertiseArea.toLowerCase().includes(searchQuery.toLowerCase())
-    
-    const matchesRole = filterRole === "all" || contributor.expertiseArea === filterRole
+    const matchesSearch =
+      (contributor.namaContributor?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (contributor.institusi?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (contributor.expertiseArea?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+
+    const matchesRole = filterRole === "all" || (contributor.expertiseArea && contributor.expertiseArea === filterRole)
 
     return matchesSearch && matchesRole
   })
@@ -134,9 +134,20 @@ export default function ResearchPage() {
     setCurrentPage(1)
   }, [searchQuery, filterRole])
 
+  // Ensure currentPage is within bounds when totalPages changes
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages)
+    } else if (currentPage < 1) {
+      setCurrentPage(1)
+    }
+  }, [totalPages, currentPage])
+
   const goToPage = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   const getPageNumbers = () => {
@@ -175,6 +186,7 @@ export default function ResearchPage() {
   }
 
   const getRoleIcon = (role: string) => {
+    if (!role) return Users
     const roleLower = role.toLowerCase()
     if (roleLower.includes('research') || roleLower.includes('riset')) return BookOpen
     if (roleLower.includes('kurator') || roleLower.includes('curator')) return Award
@@ -183,12 +195,28 @@ export default function ResearchPage() {
   }
 
   const getRoleColor = (role: string) => {
+    if (!role) return 'from-slate-900 to-slate-800 border-slate-700'
     const roleLower = role.toLowerCase()
-    if (roleLower.includes('research') || roleLower.includes('riset')) return 'from-blue-100 to-blue-200 border-blue-200'
-    if (roleLower.includes('kurator') || roleLower.includes('curator')) return 'from-purple-100 to-purple-200 border-purple-200'
-    if (roleLower.includes('developer') || roleLower.includes('engineer')) return 'from-green-100 to-green-200 border-green-200'
-    if (roleLower.includes('desain') || roleLower.includes('design')) return 'from-pink-100 to-pink-200 border-pink-200'
-    return 'from-gray-100 to-gray-200 border-gray-200'
+    if (roleLower.includes('research') || roleLower.includes('riset')) return 'from-cyan-500/20 to-blue-600/20 border-cyan-400/30'
+    if (roleLower.includes('kurator') || roleLower.includes('curator')) return 'from-violet-500/20 to-purple-600/20 border-violet-400/30'
+    if (roleLower.includes('developer') || roleLower.includes('engineer')) return 'from-emerald-500/20 to-teal-600/20 border-emerald-400/30'
+    if (roleLower.includes('desain') || roleLower.includes('design')) return 'from-rose-500/20 to-pink-600/20 border-rose-400/30'
+    return 'from-slate-500/20 to-gray-600/20 border-slate-400/30'
+  }
+
+  const getCardGradient = (role: string) => {
+    // Menggunakan warna yang sama untuk semua card
+    return 'from-slate-950/85 via-slate-900/65 to-slate-800/85'
+  }
+
+  const getGlowColors = (role: string) => {
+    // Menggunakan glow yang sama untuk semua card
+    return 'from-slate-400/15 via-gray-300/12 to-slate-400/15'
+  }
+
+  const getNeonBorder = (role: string) => {
+    // Menggunakan border yang sama untuk semua card
+    return 'from-slate-400/50 via-gray-300/40 to-slate-400/50'
   }
 
   return (
@@ -288,79 +316,206 @@ export default function ResearchPage() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedContributors.map((contributor, index) => {
-                const RoleIcon = getRoleIcon(contributor.expertiseArea)
-                const roleColor = getRoleColor(contributor.expertiseArea)
+                const RoleIcon = getRoleIcon(contributor.expertiseArea || "")
+                const roleColor = getRoleColor(contributor.expertiseArea || "")
+                const cardGradient = getCardGradient(contributor.expertiseArea || "")
+                const glowColors = getGlowColors(contributor.expertiseArea || "")
+                const neonBorder = getNeonBorder(contributor.expertiseArea || "")
 
                 return (
                   <motion.div
                     key={contributor.contributorId}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                    whileHover={{
+                      y: -12,
+                      scale: 1.02,
+                      transition: { duration: 0.3, ease: "easeOut" }
+                    }}
+                    whileTap={{ scale: 0.96 }}
                   >
-                    <Card className="group hover:shadow-lg transition-all duration-300 border-border bg-card/60 backdrop-blur-sm h-full">
-                      <CardContent className="p-6">
+                    <Card
+                      className={`group hover:shadow-2xl transition-all duration-700 border-2 h-full cursor-pointer overflow-hidden relative bg-gradient-to-br ${cardGradient}`}
+                      style={{
+                        transform: "perspective(1200px)",
+                        transformStyle: "preserve-3d",
+                        boxShadow: `0 4px 20px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)`
+                      }}
+                    >
+                      {/* Neon Glow Effect */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${glowColors} opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-lg blur-sm`} />
+
+                      {/* Animated Neon Border */}
+                      <div className="absolute inset-0 rounded-lg border-2 border-transparent p-[2px]">
+                        <div className={`w-full h-full bg-gradient-to-r ${neonBorder} opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-lg p-[1px]`}>
+                          <div className={`w-full h-full bg-gradient-to-br ${cardGradient} backdrop-blur-xl rounded-lg`} />
+                        </div>
+                      </div>
+
+                      {/* Dynamic Background Pattern */}
+                      <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
+                        <div className="w-full h-full bg-gradient-to-br from-transparent via-white/5 to-transparent rounded-lg" />
+                      </div>
+
+                      <CardContent className="p-6 relative z-10 group-hover:scale-[0.98] transition-transform duration-500">
                         {/* Header with Avatar and Role Badge */}
-                        <div className="flex items-start justify-between mb-4">
-                          <div className={`w-16 h-16 bg-gradient-to-br ${roleColor} rounded-full flex items-center justify-center flex-shrink-0 shadow-md`}>
-                            <span className="text-2xl font-bold text-foreground">
-                              {contributor.namaContributor.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
+                        <motion.div
+                          className="flex items-start justify-between mb-4"
+                          initial={{ y: 0 }}
+                          whileHover={{ y: -2 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <motion.div
+                            className={`w-16 h-16 bg-gradient-to-br ${roleColor} rounded-full flex items-center justify-center flex-shrink-0 shadow-md`}
+                            whileHover={{
+                              scale: 1.1,
+                              rotate: [0, -5, 5, 0],
+                              transition: { duration: 0.3 }
+                            }}
+                          >
+                            <motion.span
+                              className="text-2xl font-bold text-foreground"
+                              whileHover={{ scale: 1.2 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              {(contributor.namaContributor?.charAt(0) || "?").toUpperCase()}
+                            </motion.span>
+                          </motion.div>
 
                           {contributor.assetCount !== undefined && contributor.assetCount > 0 && (
-                            <Badge variant="secondary" className="text-xs">
-                              {contributor.assetCount} Contributions
-                            </Badge>
+                            <motion.div
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <Badge
+                                variant="secondary"
+                                className="text-xs bg-gradient-to-r from-primary/20 to-accent/20 hover:from-primary/30 hover:to-accent/30 transition-all duration-300"
+                              >
+                                {contributor.assetCount} Contributions
+                              </Badge>
+                            </motion.div>
                           )}
-                        </div>
+                        </motion.div>
 
                         {/* Name */}
-                        <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                        <motion.h3
+                          className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300"
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ duration: 0.2 }}
+                        >
                           {contributor.namaContributor}
-                        </h3>
+                        </motion.h3>
 
                         {/* Role with Icon */}
-                        <div className="flex items-center gap-2 mb-3">
-                          <RoleIcon className="w-4 h-4 text-primary" />
-                          <span className="text-lg font-medium text-primary">
-                            {contributor.expertiseArea}
-                          </span>
-                        </div>
+                        {contributor.expertiseArea && (
+                          <motion.div
+                            className="flex items-center gap-2 mb-3"
+                            initial={{ opacity: 0.8 }}
+                            whileHover={{ opacity: 1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <motion.div
+                              whileHover={{
+                                rotate: [0, -10, 10, 0],
+                                scale: 1.2
+                              }}
+                              transition={{ duration: 0.3 }}
+                            >
+                              <RoleIcon className="w-4 h-4 text-primary group-hover:text-primary/80 transition-colors duration-300" />
+                            </motion.div>
+                            <span className="text-lg font-medium text-primary group-hover:text-primary/90 transition-colors duration-300">
+                              {contributor.expertiseArea}
+                            </span>
+                          </motion.div>
+                        )}
 
                         {/* Institution */}
                         {contributor.institusi && (
-                          <div className="flex items-start gap-2 mb-3">
-                            <Building2 className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <span className="text-lg text-muted-foreground">
+                          <motion.div
+                            className="flex items-start gap-2 mb-3"
+                            whileHover={{ x: 4 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <motion.div
+                              whileHover={{ scale: 1.1 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <Building2 className="w-4 h-4 text-muted-foreground group-hover:text-primary/60 transition-colors duration-300 mt-0.5 flex-shrink-0" />
+                            </motion.div>
+                            <span className="text-lg text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">
                               {contributor.institusi}
                             </span>
-                          </div>
+                          </motion.div>
                         )}
 
                         {/* Email */}
                         {contributor.email && (
-                          <div className="flex items-center gap-2 pt-3 border-t border-border/50">
-                            <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                            <a 
+                          <motion.div
+                            className="flex items-center gap-2 pt-3 border-t border-border/50 border-opacity-50 group-hover:border-primary/30 transition-colors duration-300"
+                            whileHover={{ x: 4 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <motion.div
+                              whileHover={{ scale: 1.1 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <Mail className="w-4 h-4 text-muted-foreground group-hover:text-primary/60 transition-colors duration-300 flex-shrink-0" />
+                            </motion.div>
+                            <motion.a
                               href={`mailto:${contributor.email}`}
                               className="text-lg text-muted-foreground hover:text-primary transition-colors truncate"
+                              whileHover={{ color: "var(--primary)" }}
+                              transition={{ duration: 0.2 }}
+                              whileTap={{ scale: 0.98 }}
                             >
                               {contributor.email}
-                            </a>
-                          </div>
+                            </motion.a>
+                          </motion.div>
                         )}
 
                         {/* Registration Date */}
                         {contributor.registeredAt && (
-                          <div className="mt-3 text-lg text-muted-foreground">
-                            Joined: {new Date(contributor.registeredAt).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'long'
-                            })}
-                          </div>
+                          <motion.div
+                            className="mt-3 text-lg text-muted-foreground group-hover:text-foreground/70 transition-colors duration-300"
+                            initial={{ opacity: 0.7 }}
+                            whileHover={{ opacity: 1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <motion.span
+                              initial={{ x: 0 }}
+                              whileHover={{ x: 2 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              Joined: {new Date(contributor.registeredAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long'
+                              })}
+                            </motion.span>
+                          </motion.div>
                         )}
+
+                        {/* Interactive Sparkle Effect */}
+                        <motion.div
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100"
+                          initial={{ scale: 0, rotate: 0 }}
+                          animate={{ scale: [0, 1, 0.8, 1], rotate: [0, 180, 360] }}
+                          transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 2 }}
+                        >
+                          <div className="w-2 h-2 bg-gradient-to-r from-primary to-accent rounded-full animate-pulse" />
+                        </motion.div>
                       </CardContent>
+
+                      {/* Bottom Wave Effect */}
+                      <motion.div
+                        className={`absolute bottom-0 left-0 w-full h-1 ${neonBorder} opacity-0 group-hover:opacity-80 transition-opacity duration-500`}
+                        initial={{ scaleX: 0 }}
+                        whileHover={{ scaleX: 1 }}
+                        transition={{ duration: 0.3 }}
+                        style={{
+                          background: `linear-gradient(90deg, transparent 0%, var(--primary) 20%, var(--accent) 50%, var(--primary) 80%, transparent 100%)`
+                        }}
+                      />
                     </Card>
                   </motion.div>
                 )

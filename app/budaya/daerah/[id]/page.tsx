@@ -611,20 +611,23 @@ export default function RegionDetailPage() {
             const lexicons = result.data;
             // Filter for only PUBLISHED entries
             const publishedLexicons = lexicons.filter((entry: any) => entry.status === "PUBLISHED");
-            const mappedItems = publishedLexicons.map((entry: any) => ({
-              ...entry,
-              term: entry.kataLeksikon,
-              definition:
-                entry.commonMeaning || entry.translation || entry.maknaKultural,
-              category: entry.domainKodifikasi?.namaDomain || "",
-              region: entry.domainKodifikasi?.subculture?.namaSubculture || "",
-              slug: entry.kataLeksikon
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, "-")
-                .replace(/(^-|-$)/g, ""),
-            }));
+            const mappedItems = publishedLexicons.map((entry: any) => {
+              const katalekiskon = String(entry.kataLeksikon || '').trim();
+              return {
+                ...entry,
+                term: katalekiskon,
+                definition:
+                  entry.commonMeaning || entry.translation || entry.maknaKultural,
+                category: entry.domainKodifikasi?.namaDomain || "",
+                region: entry.domainKodifikasi?.subculture?.namaSubculture || "",
+                slug: katalekiskon
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, "-")
+                  .replace(/(^-|-$)/g, ""),
+              };
+            }).filter((item: { term: string; slug: string }) => item.term && item.slug); // Filter out empty entries
 
             setLexiconItems(mappedItems);
           } else {

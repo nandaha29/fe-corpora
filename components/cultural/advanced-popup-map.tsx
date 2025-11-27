@@ -513,7 +513,7 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
                 <div className="bg-card p-3 text-center">
                   <Award className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
                   <h3 className="text-lg font-semibold text-foreground">
-                    {apiRegionData ? apiRegionData.highlights.length : currentRegion.highlights.length}
+                  {apiRegionData?.highlights ? apiRegionData.highlights.length : currentRegion?.highlights?.length || 0}
                   </h3>
                   <h3 className="text-lg text-muted-foreground">Highlights</h3>
                 </div>
@@ -551,7 +551,7 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
                         <span className="text-lg font-bold text-foreground uppercase tracking-wide">Key Features</span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        {(apiRegionData ? apiRegionData.highlights : currentRegion.highlights).map((highlight: string, idx: number) => (
+                        {(apiRegionData?.highlights || currentRegion?.highlights || []).map((highlight: string, idx: number) => (
                           <div
                             key={`${currentRegion.id}-${idx}`}
                             className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/50 bg-muted/30 hover:bg-muted/50 transition-colors duration-200"
