@@ -63,9 +63,9 @@ interface LandingData {
     createdAt: string
     asset: {
       assetId: number
-      namaFile: string
-      tipe: string
-      penjelasan: string
+      fileName: string
+      fileType: string
+      description: string
       url: string
       fileSize: string
       hashChecksum: string
@@ -76,8 +76,8 @@ interface LandingData {
     }
     contributor: {
       contributorId: number
-      namaContributor: string
-      institusi: string
+      contributorName: string
+      institution: string
       email: string
       expertiseArea: string
       contactInfo: string
