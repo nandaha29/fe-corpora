@@ -287,7 +287,7 @@ export default function RegionDetailPage() {
 
   // Gallery images from GALLERY role assets
   const galleryImages = useMemo(() => {
-    console.log('🔍 Building gallery images from subcultureAssets');
+    // console.log('🔍 Building gallery images from subcultureAssets');
     if (subcultureData?.subcultureAssets && subcultureData.subcultureAssets.length > 0) {
       // Filter assets with GALLERY role and image type
       const galleryAssets = subcultureData.subcultureAssets.filter(
