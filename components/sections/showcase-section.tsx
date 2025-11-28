@@ -11,9 +11,9 @@ interface ShowcaseSectionProps {
     createdAt: string
     asset: {
       assetId: number
-      namaFile: string
-      tipe: string
-      penjelasan: string
+      fileName: string
+      fileType: string
+      description: string
       url: string
       fileSize: string
       hashChecksum: string
@@ -24,8 +24,8 @@ interface ShowcaseSectionProps {
     }
     contributor: {
       contributorId: number
-      namaContributor: string
-      institusi: string
+      contributorName: string
+      institution: string
       email: string
       expertiseArea: string
       contactInfo: string
@@ -42,9 +42,9 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
   const displayAssets = collaborationAssets && collaborationAssets.length > 0 
     ? collaborationAssets.map(ca => ({
         src: ca.asset.url,
-        alt: ca.asset.namaFile,
-        contributor: ca.contributor.namaContributor,
-        description: ca.asset.penjelasan
+        alt: ca.asset.fileName,
+        contributor: ca.contributor.contributorName,
+        description: ca.asset.description
       })) 
     : defaultImages
 
