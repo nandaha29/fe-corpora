@@ -228,6 +228,7 @@ export default function AllCulturalWordsPage() {
   // ✅ FIX: Gunakan ref untuk track query yang sedang di-process
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const currentQueryRef = useRef<string>("");
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const referrer = searchParams.get("from");
 
@@ -377,28 +378,47 @@ export default function AllCulturalWordsPage() {
     []
   );
 
-  // ✅ FIX: Improved search with better state management
+  // ✅ FIX: Improved search with better state management and proper debounce
   useEffect(() => {
+    // Cancel previous abort controller
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
     // Clear previous timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
 
-    // Update current query ref
-    currentQueryRef.current = searchQuery;
+    // Capture current query value in closure
+    const queryAtStart = searchQuery;
+    const trimmedQueryAtStart = queryAtStart.trim();
 
     const performSearch = async () => {
-      const trimmedQuery = searchQuery.trim();
+      // Create new AbortController for this search
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+
+      const trimmedQuery = queryAtStart.trim();
+
+      // ✅ CRITICAL: Check if query changed before starting search
+      if (currentQueryRef.current !== queryAtStart) {
+        console.log("⚠️ Query changed before search started, skipping");
+        return;
+      }
+
+      // Update current query ref
+      currentQueryRef.current = queryAtStart;
 
       console.log("🔍 Search Effect:", {
-        searchQuery,
+        searchQuery: queryAtStart,
         trimmedQuery,
         trimmedLength: trimmedQuery.length,
         currentQueryRef: currentQueryRef.current,
         region,
       });
 
-      // ✅ CRITICAL FIX: Check if query is empty
+      // ✅ CRITICAL FIX: Check if query is empty (also through debounce)
       if (trimmedQuery.length === 0) {
         console.log("📋 EMPTY QUERY - Resetting to all data");
         setIsSearching(false);
@@ -407,7 +427,11 @@ export default function AllCulturalWordsPage() {
         const results = applyFilters([...allLexicons], region, domain);
 
         console.log("✅ Reset complete:", results.length, "results");
-        setFilteredLexicons(results);
+        
+        // ✅ CRITICAL: Only update if query hasn't changed
+        if (currentQueryRef.current === queryAtStart) {
+          setFilteredLexicons(results);
+        }
         return;
       }
 
@@ -425,11 +449,12 @@ export default function AllCulturalWordsPage() {
             headers: {
               "Content-Type": "application/json",
             },
+            signal: abortController.signal,
           }
         );
 
         // ✅ CRITICAL: Check if query changed during API call
-        if (currentQueryRef.current.trim() !== trimmedQuery) {
+        if (currentQueryRef.current !== queryAtStart) {
           console.log("⚠️ Query changed during API call, ignoring results");
           return;
         }
@@ -441,67 +466,91 @@ export default function AllCulturalWordsPage() {
         const result = await response.json();
 
         // ✅ CRITICAL: Double check query hasn't changed
-        if (currentQueryRef.current.trim() !== trimmedQuery) {
+        if (currentQueryRef.current !== queryAtStart) {
           console.log("⚠️ Query changed after API response, ignoring results");
           return;
         }
 
         if (result.success && Array.isArray(result.data)) {
+          // ✅ CRITICAL: Check query again before processing results
+          if (currentQueryRef.current !== queryAtStart) {
+            console.log("⚠️ Query changed before processing results, ignoring");
+            return;
+          }
+
           // 🔧 FIX: Cast result.data sebagai LexiconEntry[] dan apply region and domain filter
           const searchResults = result.data as LexiconEntry[];
           const results = applyFilters(searchResults, region, domain);
 
           console.log("✅ API Results:", results.length);
-          setFilteredLexicons(results);
+          
+          // ✅ CRITICAL: Only update if query hasn't changed
+          if (currentQueryRef.current === queryAtStart) {
+            setFilteredLexicons(results);
+          }
 
-          // Fetch translations for search results
-          const entriesToFetch = results.filter((entry: LexiconEntry) => {
-            const lexiconId = getLexiconId(entry);
-            return lexiconId !== null && !lexiconTranslations[lexiconId.toString()];
-          });
+          // Fetch translations for search results (only if query hasn't changed)
+          if (currentQueryRef.current === queryAtStart) {
+            const entriesToFetch = results.filter((entry: LexiconEntry) => {
+              const lexiconId = getLexiconId(entry);
+              return lexiconId !== null && !lexiconTranslations[lexiconId.toString()];
+            });
 
-          if (entriesToFetch.length > 0) {
-            // Fetch translations in parallel
-            Promise.all(
-              entriesToFetch.map(async (entry: LexiconEntry) => {
-                const lexiconId = getLexiconId(entry);
-                if (!lexiconId) return null;
-                try {
-                  const detailResponse = await fetch(
-                    `${API_BASE_URL}lexicons/${lexiconId}`
-                  );
-                  if (!detailResponse.ok) return null;
-                  const detailResult = await detailResponse.json();
-                  if (detailResult.success && detailResult.data) {
-                    const translation = detailResult.data.details?.translation || "";
-                    return { lexiconId: lexiconId.toString(), translation };
+            if (entriesToFetch.length > 0) {
+              // Fetch translations in parallel
+              Promise.all(
+                entriesToFetch.map(async (entry: LexiconEntry) => {
+                  const lexiconId = getLexiconId(entry);
+                  if (!lexiconId) return null;
+                  try {
+                    const detailResponse = await fetch(
+                      `${API_BASE_URL}lexicons/${lexiconId}`
+                    );
+                    if (!detailResponse.ok) return null;
+                    const detailResult = await detailResponse.json();
+                    if (detailResult.success && detailResult.data) {
+                      const translation = detailResult.data.details?.translation || "";
+                      return { lexiconId: lexiconId.toString(), translation };
+                    }
+                  } catch (error) {
+                    console.error(`Error fetching translation for ${lexiconId}:`, error);
                   }
-                } catch (error) {
-                  console.error(`Error fetching translation for ${lexiconId}:`, error);
-                }
-                return null;
-              })
-            ).then((translations) => {
-              const translationMap: Record<string, string> = {};
-              translations.forEach((t) => {
-                if (t) {
-                  translationMap[t.lexiconId] = t.translation;
+                  return null;
+                })
+              ).then((translations) => {
+                // ✅ CRITICAL: Check query again before updating translations
+                if (currentQueryRef.current === queryAtStart) {
+                  const translationMap: Record<string, string> = {};
+                  translations.forEach((t) => {
+                    if (t) {
+                      translationMap[t.lexiconId] = t.translation;
+                    }
+                  });
+                  if (Object.keys(translationMap).length > 0) {
+                    setLexiconTranslations((prev) => ({ ...prev, ...translationMap }));
+                  }
                 }
               });
-              if (Object.keys(translationMap).length > 0) {
-                setLexiconTranslations((prev) => ({ ...prev, ...translationMap }));
-              }
-            });
+            }
           }
         } else {
           console.log("⚠️ API returned no results");
-          setFilteredLexicons([]);
+          // ✅ CRITICAL: Only update if query hasn't changed
+          if (currentQueryRef.current === queryAtStart) {
+            setFilteredLexicons([]);
+          }
         }
       } catch (err) {
+        // ✅ Handle AbortError (request was cancelled)
+        if (err instanceof Error && err.name === 'AbortError') {
+          console.log("🚫 Search request was cancelled");
+          return;
+        }
+
         console.error("Search error:", err);
 
         // ✅ Check query hasn't changed before applying fallback
-        if (currentQueryRef.current.trim() !== trimmedQuery) {
+        if (currentQueryRef.current !== queryAtStart) {
           console.log("⚠️ Query changed during error, skipping fallback");
           return;
         }
@@ -575,10 +624,14 @@ export default function AllCulturalWordsPage() {
         results = applyFilters(results, region, domain);
 
         console.log("✅ Fallback Results:", results.length);
-        setFilteredLexicons(results);
+        
+        // ✅ CRITICAL: Only update if query hasn't changed
+        if (currentQueryRef.current === queryAtStart) {
+          setFilteredLexicons(results);
+        }
       } finally {
         // ✅ Only stop loading if query hasn't changed
-        if (currentQueryRef.current.trim() === trimmedQuery) {
+        if (currentQueryRef.current === queryAtStart) {
           setIsSearching(false);
         }
       }
@@ -591,6 +644,10 @@ export default function AllCulturalWordsPage() {
     return () => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
+      }
+      // Cancel any ongoing requests
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
     };
   }, [searchQuery, region, domain, allLexicons, applyFilters]);

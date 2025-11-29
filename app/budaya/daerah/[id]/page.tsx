@@ -476,7 +476,7 @@ export default function RegionDetailPage() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/lexicons/${slug}`
+        `${API_BASE_URL}lexicons/${slug}`
       );
 
       if (!response.ok) {
@@ -612,24 +612,29 @@ export default function RegionDetailPage() {
             // Filter for only PUBLISHED entries
             const publishedLexicons = lexicons.filter((entry: any) => entry.status === "PUBLISHED");
             const mappedItems = publishedLexicons.map((entry: any) => {
-              const katalekiskon = String(entry.kataLeksikon || '').trim();
+              // Use lexiconWord from API response, fallback to kataLeksikon for backward compatibility
+              const lexiconWord = String(entry.lexiconWord || entry.kataLeksikon || '').trim();
+              // Use slug from API response if available, otherwise generate from lexiconWord
+              const entrySlug = entry.slug || lexiconWord
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/(^-|-$)/g, "");
+              
               return {
                 ...entry,
-                term: katalekiskon,
+                term: lexiconWord,
                 definition:
-                  entry.commonMeaning || entry.translation || entry.maknaKultural,
-                category: entry.domainKodifikasi?.namaDomain || "",
-                region: entry.domainKodifikasi?.subculture?.namaSubculture || "",
-                slug: katalekiskon
-                  .normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-                  .toLowerCase()
-                  .replace(/[^a-z0-9]+/g, "-")
-                  .replace(/(^-|-$)/g, ""),
+                  entry.commonMeaning || entry.translation || entry.culturalMeaning || entry.maknaKultural,
+                category: entry.codificationDomain?.domainName || entry.domainKodifikasi?.namaDomain || "",
+                region: entry.codificationDomain?.subculture?.subcultureName || entry.domainKodifikasi?.subculture?.namaSubculture || "",
+                slug: entrySlug,
               };
             }).filter((item: { term: string; slug: string }) => item.term && item.slug); // Filter out empty entries
 
             setLexiconItems(mappedItems);
+            await fetchTranslationsForItems(mappedItems);
           } else {
             setLexiconItems([]);
           }
@@ -661,20 +666,27 @@ export default function RegionDetailPage() {
           const lexicons = result.data;
           // Filter for only PUBLISHED entries
           const publishedLexicons = lexicons.filter((entry: any) => entry.status === "PUBLISHED");
-          const mappedItems = publishedLexicons.map((entry: any) => ({
-            ...entry,
-            term: entry.kataLeksikon,
-            definition:
-              entry.commonMeaning || entry.translation || entry.maknaKultural,
-            category: entry.domainKodifikasi?.namaDomain || "",
-            region: entry.domainKodifikasi?.subculture?.namaSubculture || "",
-            slug: entry.kataLeksikon
+          const mappedItems = publishedLexicons.map((entry: any) => {
+            // Use lexiconWord from API response, fallback to kataLeksikon for backward compatibility
+            const lexiconWord = String(entry.lexiconWord || entry.kataLeksikon || '').trim();
+            // Use slug from API response if available, otherwise generate from lexiconWord
+            const entrySlug = entry.slug || lexiconWord
               .normalize("NFD")
               .replace(/[\u0300-\u036f]/g, "")
               .toLowerCase()
               .replace(/[^a-z0-9]+/g, "-")
-              .replace(/(^-|-$)/g, ""),
-          }));
+              .replace(/(^-|-$)/g, "");
+            
+            return {
+              ...entry,
+              term: lexiconWord,
+              definition:
+                entry.commonMeaning || entry.translation || entry.culturalMeaning || entry.maknaKultural,
+              category: entry.codificationDomain?.domainName || entry.domainKodifikasi?.namaDomain || "",
+              region: entry.codificationDomain?.subculture?.subcultureName || entry.domainKodifikasi?.subculture?.namaSubculture || "",
+              slug: entrySlug,
+            };
+          }).filter((item: { term: string; slug: string }) => item.term && item.slug); // Filter out empty entries
 
           setLexiconItems(mappedItems);
           await fetchTranslationsForItems(mappedItems);
