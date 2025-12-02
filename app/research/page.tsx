@@ -40,73 +40,64 @@ interface Contributor {
 export default function ResearchPage() {
   const router = useRouter()
   const { handleNavClick } = useNavigation()
-  const [contributors, setContributors] = useState<Contributor[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterRole, setFilterRole] = useState<string>("all")
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 12
 
-  useEffect(() => {
-    const fetchContributors = async () => {
-      try {
-        setLoading(true)
-        // Fetch dari landing API untuk mendapatkan contributor data
-        const response = await fetch(`${API_BASE_URL}landing`)
-        if (!response.ok) throw new Error('Failed to fetch contributors data')
-        
-        const result = await response.json()
-        if (result.success) {
-          // Ekstrak unique contributors dari collaborationAssets
-          const contributorMap = new Map<number, Contributor>()
-          
-          if (result.data.collaborationAssets) {
-            result.data.collaborationAssets.forEach((ca: any) => {
-              const contributor = ca.contributor
-              if (!contributorMap.has(contributor.contributorId)) {
-                contributorMap.set(contributor.contributorId, {
-                  ...contributor,
-                  assetCount: 1
-                })
-              } else {
-                const existing = contributorMap.get(contributor.contributorId)!
-                existing.assetCount = (existing.assetCount || 0) + 1
-              }
-            })
-          }
+  // Use SWR hook for data fetching
+  const { 
+    data: landingData, 
+    error: fetchError, 
+    isLoading: isLoadingData 
+  } = useLandingData();
 
-          // Tambahkan team scientists jika ada
-          if (result.data.teamScientis) {
-            result.data.teamScientis.forEach((scientist: any, index: number) => {
-              const id = 1000 + index // ID sementara untuk team scientists
-              if (!contributorMap.has(id)) {
-                contributorMap.set(id, {
-                  contributorId: id,
-                  namaContributor: scientist.contributorName,
-                  institusi: scientist.institusi || "Universitas Brawijaya",
-                  email: scientist.email || "",
-                  expertiseArea: scientist.expertiseArea,
-                  contactInfo: "",
-                  registeredAt: new Date().toISOString(),
-                  assetCount: 0
-                })
-              }
-            })
-          }
-
-          const contributorsList = Array.from(contributorMap.values())
-          setContributors(contributorsList)
+  // Process contributors from landing data
+  const contributors = useMemo<Contributor[]>(() => {
+    if (!landingData) return [];
+    
+    const contributorMap = new Map<number, Contributor>()
+    
+    // Ekstrak unique contributors dari collaborationAssets
+    if (landingData.collaborationAssets) {
+      landingData.collaborationAssets.forEach((ca: any) => {
+        const contributor = ca.contributor
+        if (contributor && !contributorMap.has(contributor.contributorId)) {
+          contributorMap.set(contributor.contributorId, {
+            ...contributor,
+            assetCount: 1
+          })
+        } else if (contributor) {
+          const existing = contributorMap.get(contributor.contributorId)!
+          existing.assetCount = (existing.assetCount || 0) + 1
         }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
-      } finally {
-        setLoading(false)
-      }
+      })
     }
 
-    fetchContributors()
-  }, [])
+    // Tambahkan team scientists jika ada
+    if (landingData.teamScientis) {
+      landingData.teamScientis.forEach((scientist: any, index: number) => {
+        const id = 1000 + index // ID sementara untuk team scientists
+        if (!contributorMap.has(id)) {
+          contributorMap.set(id, {
+            contributorId: id,
+            namaContributor: scientist.contributorName,
+            institusi: scientist.institusi || "Universitas Brawijaya",
+            email: scientist.email || "",
+            expertiseArea: scientist.expertiseArea,
+            contactInfo: "",
+            registeredAt: new Date().toISOString(),
+            assetCount: 0
+          })
+        }
+      })
+    }
+
+    return Array.from(contributorMap.values())
+  }, [landingData]);
+
+  const loading = isLoadingData;
+  const error = fetchError ? (fetchError instanceof Error ? fetchError.message : 'An error occurred') : null;
 
   // Get unique roles for filter
   const roles = Array.from(new Set(contributors.map(c => c.expertiseArea))).filter(Boolean)

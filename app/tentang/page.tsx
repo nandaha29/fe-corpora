@@ -1,7 +1,7 @@
 // // app/tentang/page.tsx
 // "use client"
 
-// import { useState, useEffect } from "react"
+// import { useState, useEffect, useMemo } from "react"
 // import { Badge } from "@/components/ui/badge"
 // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 // import {
@@ -381,7 +381,7 @@
 // app/tentang/page.tsx
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -405,7 +405,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import ScrollToTopButton from "@/components/common/scroll-to-top"
-import { API_BASE_URL } from "@/lib/config"
+import { useLandingData } from "@/hooks/use-api"
 import {
   subcultureData,
   heroImageUrl,
@@ -448,8 +448,6 @@ interface LandingData {
 
 export default function AboutPage() {
   const { handleNavClick } = useNavigation()
-  const [landingData, setLandingData] = useState<LandingData | null>(null)
-  const [loading, setLoading] = useState(true)
   const [activeSection, setActiveSection] = useState<string>("overview")
 
   const [isNavSticky, setIsNavSticky] = useState(false)
@@ -465,24 +463,20 @@ export default function AboutPage() {
     "/Rapat 2025_11_14.jpg"
   ]
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}landing`)
-        if (!response.ok) throw new Error('Failed to fetch data')
-        const result = await response.json()
-        if (result.success) {
-          setLandingData(result.data)
-        }
-      } catch (err) {
-        console.error('Error fetching landing data:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
+  // Use SWR hook for data fetching
+  const { 
+    data: fetchedLandingData, 
+    error: fetchError, 
+    isLoading: isLoadingData 
+  } = useLandingData();
 
-    fetchData()
-  }, [])
+  // Process landing data
+  const landingData = useMemo<LandingData | null>(() => {
+    if (!fetchedLandingData) return null;
+    return fetchedLandingData as LandingData;
+  }, [fetchedLandingData]);
+
+  const loading = isLoadingData;
 
   useEffect(() => {
     const handleScroll = () => {

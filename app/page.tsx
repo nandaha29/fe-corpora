@@ -10,8 +10,8 @@ import { Footer } from "@/components/layout/footer"
 import { useNavigation } from "@/hooks/use-navigation"
 import { ShowcaseSection } from "@/components/sections/showcase-section"
 import { NewsletterSection } from "@/components/sections/newsletter-section"
-import { useState, useEffect } from "react"
-import { API_BASE_URL } from "@/lib/config"
+import { useMemo } from "react"
+import { useLandingData, useSubcultures } from "@/hooks/use-api"
 
 interface LandingData {
   heroSection: {
@@ -99,57 +99,37 @@ interface LandingData {
 
 export default function CulturalHeritagePage() {
   const { handleNavClick, handleCategoryNavigation } = useNavigation()
-  const [landingData, setLandingData] = useState<LandingData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  
+  // Use SWR hooks for data fetching
+  const { 
+    data: landingDataRaw, 
+    error: landingError, 
+    isLoading: landingLoading 
+  } = useLandingData()
+  
+  const { 
+    data: subculturesData, 
+    error: subculturesError 
+  } = useSubcultures()
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch landing and subcultures in parallel. We prefer the /subcultures
-        // endpoint for populating the galleries section (so landing page
-        // uses the same list as /budaya page).
-        const [landingRes, subculturesRes] = await Promise.all([
-          fetch(`${API_BASE_URL}landing`),
-          fetch(`${API_BASE_URL}subcultures`),
-        ])
-
-        if (!landingRes.ok) {
-          throw new Error('Failed to fetch landing data')
-        }
-        if (!subculturesRes.ok) {
-          // we'll still try to use landing data if subcultures endpoint fails
-          // but surface a warning via the error state
-          throw new Error('Failed to fetch subcultures data')
-        }
-
-        const landingJson = await landingRes.json()
-        const subculturesJson = await subculturesRes.json()
-
-        if (!landingJson.success) {
-          throw new Error(landingJson.message || 'Failed to fetch landing data')
-        }
-
-        // Base landing data
-        const mergedData = { ...landingJson.data }
-
-        // Use subcultureSection from landing API if available, otherwise try subcultures endpoint
-        if (landingJson.data.subcultureSection) {
-          mergedData.subcultures = landingJson.data.subcultureSection
-        } else if (subculturesJson && subculturesJson.success) {
-          mergedData.subcultures = subculturesJson.data
-        }
-
-        setLandingData(mergedData)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
-      } finally {
-        setLoading(false)
-      }
+  // Merge landing data with subcultures
+  const landingData = useMemo<LandingData | null>(() => {
+    if (!landingDataRaw) return null
+    
+    const mergedData: LandingData = { ...landingDataRaw }
+    
+    // Use subcultureSection from landing API if available, otherwise use subcultures endpoint
+    if (landingDataRaw.subcultureSection) {
+      mergedData.subcultures = landingDataRaw.subcultureSection
+    } else if (subculturesData) {
+      mergedData.subcultures = subculturesData
     }
+    
+    return mergedData
+  }, [landingDataRaw, subculturesData])
 
-    fetchData()
-  }, [])
+  const loading = landingLoading
+  const error = landingError || subculturesError
 
   const handleCategoryClick = (category: string) => {
     handleCategoryNavigation(category)

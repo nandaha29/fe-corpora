@@ -40,6 +40,7 @@ import { RichTextViewer } from "@/components/rich-text/rich-text-viewer";
 import { convertSubcultureHistory } from "@/lib/rich-text-helpers";
 import { REGIONS } from "@/components/cultural/advanced-popup-map";
 import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config";
+import { useRegionDetail } from "@/hooks/use-api";
 
 interface SearchResult {
   leksikonId: number;
@@ -161,17 +162,29 @@ export default function RegionDetailPage() {
 
   const { handleNavClick } = useNavigation();
 
+  // Find the region to determine its type
+  const region = REGIONS.find((r) => r.id === regionId);
+  const regionType = region?.type === 'subculture' ? 'subculture' : 'region';
+
+  // Use SWR hook for data fetching
+  const { 
+    data: fetchedSubcultureData, 
+    error: fetchError, 
+    isLoading: isLoadingData 
+  } = useRegionDetail(regionId, regionType);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [subcultureData, setSubcultureData] = useState<SubcultureData | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [errorDetails, setErrorDetails] = useState<{
-    statusCode?: number;
-    technicalError?: string;
-  } | null>(null);
+  
+  // Use fetched data from SWR
+  const subcultureData = fetchedSubcultureData as SubcultureData | null;
+  
+  const loading = isLoadingData;
+  const error = fetchError ? (fetchError instanceof Error ? fetchError.message : "An error occurred") : null;
+  const errorDetails = fetchError ? {
+    statusCode: (fetchError as any).status,
+    technicalError: fetchError instanceof Error ? fetchError.toString() : "Unknown error",
+  } : null;
 
   const [isNavSticky, setIsNavSticky] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("region-profile");
@@ -198,89 +211,13 @@ export default function RegionDetailPage() {
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
   const AUTOPLAY_DURATION = 5000;
 
-  // Fetch subculture data
+  // Handle region not found
   useEffect(() => {
-    const fetchSubcultureData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        setErrorDetails(null);
-
-        // Find the region to determine its type
-        const region = REGIONS.find((r) => r.id === regionId);
-        if (!region) {
-          setError(`Region ${regionId} not found`);
-          setSubcultureData(null);
-          return;
-        }
-
-        // Use different endpoints based on region type
-        const endpoint = region.type === 'subculture'
-          ? `${API_BASE_URL}subcultures/${regionId}`
-          : `${API_BASE_URL}regions/${regionId}`;
-
-        const response = await fetch(endpoint);
-
-        const result: ApiResponse = await response.json();
-
-        if (!result.success) {
-          const errorResponse = result as ApiErrorResponse;
-          setError(errorResponse.message || "Failed to fetch subculture data");
-          setErrorDetails({
-            statusCode: errorResponse.statusCode || response.status,
-            technicalError: errorResponse.error,
-          });
-          setSubcultureData(null);
-          return;
-        }
-
-        if (!response.ok) {
-          setError(
-            result.message ||
-              `HTTP Error: ${response.status} ${response.statusText}`
-          );
-          setErrorDetails({
-            statusCode: response.status,
-          });
-          setSubcultureData(null);
-          return;
-        }
-
-        const successResponse = result as ApiSuccessResponse;
-        setSubcultureData(successResponse.data);
-        setError(null);
-        setErrorDetails(null);
-      } catch (err) {
-        console.error("Fetch error:", err);
-
-        if (err instanceof TypeError && err.message.includes("fetch")) {
-          setError(
-            "Network error: Unable to connect to the server. Please check your internet connection."
-          );
-        } else if (err instanceof SyntaxError) {
-          setError(
-            "Data parsing error: Received invalid response from server."
-          );
-        } else {
-          setError(
-            err instanceof Error ? err.message : "An unexpected error occurred"
-          );
-        }
-
-        setErrorDetails({
-          technicalError:
-            err instanceof Error ? err.toString() : "Unknown error",
-        });
-        setSubcultureData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (regionId) {
-      fetchSubcultureData();
+    if (!region && regionId) {
+      // Region not found in REGIONS constant
+      // This will be handled by SWR error
     }
-  }, [regionId]);
+  }, [region, regionId]);
 
   const handleRetry = () => {
     setLoading(true);

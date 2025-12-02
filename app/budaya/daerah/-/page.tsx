@@ -1,7 +1,7 @@
 // app/budaya/daerah/-/page.tsx
 "use client";
 
-import { use, useState, useEffect, useRef, useCallback } from "react";
+import { use, useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config";
+import { useLexicons, useLexiconDetailById } from "@/hooks/use-api";
 
 interface LexiconAsset {
   leksikonId: number;
@@ -214,13 +215,41 @@ export default function AllCulturalWordsPage() {
   const [region, setRegion] = useState<string>("all");
   const [domain, setDomain] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  // 🔧 FIX: Ubah tipe state dari OriginalLexiconEntry[] menjadi LexiconEntry[]
-  const [allLexicons, setAllLexicons] = useState<LexiconEntry[]>([]);
-  const [filteredLexicons, setFilteredLexicons] = useState<LexiconEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [lexiconTranslations, setLexiconTranslations] = useState<Record<string, string>>({});
+
+  // Use SWR hook for fetching all lexicons
+  const { 
+    data: fetchedLexicons, 
+    error: fetchError, 
+    isLoading: isLoadingLexicons 
+  } = useLexicons();
+
+  // Process and filter lexicons
+  const allLexicons = useMemo<LexiconEntry[]>(() => {
+    if (!fetchedLexicons) return [];
+    if (Array.isArray(fetchedLexicons)) {
+      return fetchedLexicons.filter(
+        (item: any) =>
+          item && typeof (item.term || item.kataLeksikon) === "string" && 
+          (item.term || item.kataLeksikon).trim() !== ""
+      ) as LexiconEntry[];
+    }
+    // If response has data property
+    if (fetchedLexicons.data && Array.isArray(fetchedLexicons.data)) {
+      return fetchedLexicons.data.filter(
+        (item: any) =>
+          item && typeof (item.term || item.kataLeksikon) === "string" && 
+          (item.term || item.kataLeksikon).trim() !== ""
+      ) as LexiconEntry[];
+    }
+    return [];
+  }, [fetchedLexicons]);
+
+  const [filteredLexicons, setFilteredLexicons] = useState<LexiconEntry[]>([]);
+  
+  const loading = isLoadingLexicons;
+  const error = fetchError ? (fetchError instanceof Error ? fetchError.message : "Failed to load lexicons") : null;
 
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
@@ -256,97 +285,59 @@ export default function AllCulturalWordsPage() {
     return "Back";
   };
 
-  // Fetch all lexicons on initial load
+  // Fetch translations for all lexicons when data is loaded
   useEffect(() => {
-    const fetchAllLexicons = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    if (!allLexicons || allLexicons.length === 0) {
+      setFilteredLexicons([]);
+      return;
+    }
 
-        const response = await fetch(
-          `${API_BASE_URL}lexicons`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+    // Set filtered lexicons initially
+    setFilteredLexicons(allLexicons);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+    // Fetch translations for all lexicons
+    const entriesToFetch = allLexicons.filter((entry: LexiconEntry) => {
+      const lexiconId = getLexiconId(entry);
+      return lexiconId !== null;
+    });
 
-        const result = await response.json();
-
-        if (result.success && Array.isArray(result.data)) {
-          const validLexicons = result.data.filter(
-            (item: any) =>
-              item && typeof item.term === "string" && item.term.trim() !== ""
-          );
-          // 🔧 FIX: Langsung simpan sebagai LexiconEntry[]
-          setAllLexicons(validLexicons as LexiconEntry[]);
-          setFilteredLexicons(validLexicons as LexiconEntry[]);
-
-          // Fetch translations for all lexicons BEFORE setting loading to false
-          const entriesToFetch = validLexicons.filter((entry: LexiconEntry) => {
-            const lexiconId = getLexiconId(entry);
-            return lexiconId !== null;
-          });
-
-          if (entriesToFetch.length > 0) {
-            // Fetch translations in parallel and wait for all to complete
-            const translations = await Promise.all(
-              entriesToFetch.map(async (entry: LexiconEntry) => {
-                const lexiconId = getLexiconId(entry);
-                if (!lexiconId) return null;
-                try {
-                  const detailResponse = await fetch(
-                    `${API_BASE_URL}lexicons/${lexiconId}`
-                  );
-                  if (!detailResponse.ok) return null;
-                  const detailResult = await detailResponse.json();
-                  if (detailResult.success && detailResult.data) {
-                    const translation = detailResult.data.details?.translation || "";
-                    return { lexiconId: lexiconId.toString(), translation };
-                  }
-                } catch (error) {
-                  console.error(`Error fetching translation for ${lexiconId}:`, error);
-                }
-                return null;
-              })
+    if (entriesToFetch.length > 0) {
+      // Fetch translations in parallel
+      Promise.all(
+        entriesToFetch.map(async (entry: LexiconEntry) => {
+          const lexiconId = getLexiconId(entry);
+          if (!lexiconId) return null;
+          try {
+            const detailResponse = await fetch(
+              `${API_BASE_URL}lexicons/${lexiconId}`
             );
-
-            // Build translation map
-            const translationMap: Record<string, string> = {};
-            translations.forEach((t) => {
-              if (t) {
-                translationMap[t.lexiconId] = t.translation;
-              }
-            });
-            
-            // Set translations before setting loading to false
-            if (Object.keys(translationMap).length > 0) {
-              setLexiconTranslations(translationMap);
+            if (!detailResponse.ok) return null;
+            const detailResult = await detailResponse.json();
+            if (detailResult.success && detailResult.data) {
+              const translation = detailResult.data.details?.translation || "";
+              return { lexiconId: lexiconId.toString(), translation };
             }
+          } catch (error) {
+            console.error(`Error fetching translation for ${lexiconId}:`, error);
           }
-        } else {
-          throw new Error("Invalid data format");
+          return null;
+        })
+      ).then((translations) => {
+        // Build translation map
+        const translationMap: Record<string, string> = {};
+        translations.forEach((t) => {
+          if (t) {
+            translationMap[t.lexiconId] = t.translation;
+          }
+        });
+        
+        // Set translations
+        if (Object.keys(translationMap).length > 0) {
+          setLexiconTranslations(translationMap);
         }
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to load lexicons"
-        );
-        setAllLexicons([]);
-        setFilteredLexicons([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAllLexicons();
-  }, []);
+      });
+    }
+  }, [allLexicons]);
 
   // ✅ FIX: Function untuk apply filter by region and domain
   const applyFilters = useCallback(

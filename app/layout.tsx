@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import { Manrope } from "next/font/google"
 import { EB_Garamond } from "next/font/google"
 import TransitionProvider from "@/components/ux/transition-provider"
+import { SWRProvider } from "@/components/providers/swr-provider"
 import "./globals.css"
 
 const manrope = Manrope({
@@ -46,7 +47,9 @@ export default function RootLayout({
         className={`${ebGaramond.className} ${ebGaramond.variable} ${GeistSans.variable} ${GeistMono.variable} ${manrope.variable}`}
         suppressHydrationWarning
       >
-        <TransitionProvider>{children}</TransitionProvider>
+        <SWRProvider>
+          <TransitionProvider>{children}</TransitionProvider>
+        </SWRProvider>
       </body>
     </html>
   )

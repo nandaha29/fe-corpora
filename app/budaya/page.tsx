@@ -1,7 +1,7 @@
 // app/budaya/page.tsx
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Search, ArrowLeft, Home, ChevronLeft, ChevronRight } from "lucide-react"
@@ -12,7 +12,7 @@ import { useNavigation } from "@/hooks/use-navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
-import { API_BASE_URL } from "@/lib/config"
+import { useSubcultures } from "@/hooks/use-api"
 
 interface SubcultureData {
   id: string
@@ -27,9 +27,6 @@ interface SubcultureData {
 
 export default function SubculturesGalleryPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [subcultures, setSubcultures] = useState<SubcultureData[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const { handleNavClick, handleCategoryNavigation } = useNavigation()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -37,58 +34,49 @@ export default function SubculturesGalleryPage() {
   // ===== PAGINATION STATE =====
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 8
-  const [pagination, setPagination] = useState<{
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  } | null>(null)
 
   // Get referrer from URL params
   const referrer = searchParams.get('from')
 
+  // Use SWR hook for data fetching
+  const { 
+    data: subculturesResponse, 
+    error: fetchError, 
+    isLoading: isLoadingData 
+  } = useSubcultures(searchQuery, currentPage, ITEMS_PER_PAGE);
+
+  // Extract data and pagination from response
+  const subcultures = useMemo<SubcultureData[]>(() => {
+    if (!subculturesResponse) return [];
+    // Check if response has data array or is the data itself
+    if (Array.isArray(subculturesResponse)) {
+      return subculturesResponse;
+    }
+    // If response has data property
+    if (subculturesResponse.data && Array.isArray(subculturesResponse.data)) {
+      return subculturesResponse.data;
+    }
+    return [];
+  }, [subculturesResponse]);
+
+  const pagination = useMemo(() => {
+    if (!subculturesResponse) return null;
+    // Check if response has pagination property
+    if (subculturesResponse.pagination) {
+      return subculturesResponse.pagination;
+    }
+    return null;
+  }, [subculturesResponse]);
+
+  const loading = isLoadingData;
+  const error = fetchError ? (fetchError instanceof Error ? fetchError.message : 'An error occurred') : null;
+
+  // Sync currentPage with server response
   useEffect(() => {
-    const fetchSubcultures = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const params = new URLSearchParams();
-        if (searchQuery.trim()) {
-          params.append('search', searchQuery.trim());
-        }
-        params.append('page', currentPage.toString());
-        params.append('limit', ITEMS_PER_PAGE.toString());
-
-                const response = await fetch(`${API_BASE_URL}subcultures?${params.toString()}`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-
-        if (result.success && result.data) {
-          setSubcultures(result.data || []);
-          setPagination(result.pagination);
-          // Sync currentPage with server response
-          if (result.pagination && result.pagination.page !== currentPage) {
-            setCurrentPage(result.pagination.page);
-          }
-        } else {
-          throw new Error(result.message || 'Failed to fetch data');
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        setSubcultures([]);
-        setPagination(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSubcultures();
-  }, [searchQuery, currentPage]);
+    if (pagination && pagination.page !== currentPage) {
+      setCurrentPage(pagination.page);
+    }
+  }, [pagination, currentPage]);
 
   // Smart back navigation
   const handleBack = () => {

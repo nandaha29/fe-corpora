@@ -1,7 +1,7 @@
 // app/resources/page.tsx
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,7 +13,7 @@ import { Camera, Image as ImageIcon, Loader2, Search, Library } from "lucide-rea
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
-import { API_BASE_URL } from "@/lib/config"
+import { useReferences } from "@/hooks/use-api"
 
 interface GalleryAsset {
   referensiId: number
@@ -30,47 +30,39 @@ interface GalleryAsset {
 export default function ResourcePage() {
   const router = useRouter()
   const { handleNavClick } = useNavigation()
-  const [assets, setAssets] = useState<GalleryAsset[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  useEffect(() => {
-    const fetchResourceAssets = async () => {
-      try {
-        setLoading(true)
-        // Fetch references dari backend API
-        const response = await fetch(`${API_BASE_URL}references`)
-        if (!response.ok) throw new Error('Failed to fetch resource data')
-        
-        const result = await response.json()
-        if (result.success && result.data) {
-          // Process references data
-          const references = result.data.map((ref: any) => ({
-            referensiId: ref.referensiId,
-            judul: ref.judul,
-            tipeReferensi: ref.tipeReferensi,
-            penjelasan: ref.penjelasan,
-            url: ref.url,
-            penulis: ref.penulis,
-            tahunTerbit: ref.tahunTerbit,
-            createdAt: ref.createdAt,
-            updatedAt: ref.updatedAt
-          }))
-          
-          setAssets(references)
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
-      } finally {
-        setLoading(false)
-      }
-    }
+  // Use SWR hook for data fetching
+  const { 
+    data: referencesData, 
+    error: fetchError, 
+    isLoading: isLoadingData 
+  } = useReferences();
 
-    fetchResourceAssets()
-  }, [])
+  // Process references data
+  const assets = useMemo<GalleryAsset[]>(() => {
+    if (!referencesData) return [];
+    
+    // Check if response is array or has data property
+    const data = Array.isArray(referencesData) ? referencesData : (referencesData.data || []);
+    
+    return data.map((ref: any) => ({
+      referensiId: ref.referensiId,
+      judul: ref.judul,
+      tipeReferensi: ref.tipeReferensi,
+      penjelasan: ref.penjelasan,
+      url: ref.url,
+      penulis: ref.penulis,
+      tahunTerbit: ref.tahunTerbit,
+      createdAt: ref.createdAt,
+      updatedAt: ref.updatedAt
+    }));
+  }, [referencesData]);
+
+  const loading = isLoadingData;
+  const error = fetchError ? (fetchError instanceof Error ? fetchError.message : 'An error occurred') : null;
 
   // Filter assets based on search
   const filteredAssets = assets.filter((asset) =>

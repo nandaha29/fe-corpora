@@ -1,7 +1,7 @@
 // app/budaya/daerah/-/[term]/page.tsx/page.tsx
 "use client"
 
-import { use, useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
+import { use, useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,7 +36,7 @@ import { YouTubeSection } from "@/components/sections/youtube-section";
 import { Model3DSection } from "@/components/sections/model-3d-section";
 import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
 import ScrollToTopButton from '@/components/common/scroll-to-top';
-import { API_BASE_URL } from "@/lib/config";
+import { useLexiconDetail } from "@/hooks/use-api";
 
 interface LexiconAsset {
   leksikonId: number;
@@ -154,9 +154,14 @@ export default function CulturalWordDetailPage({
   const metadataRef = useRef<HTMLDivElement | null>(null);
   const [sourcesTop, setSourcesTop] = useState<number | undefined>(96); // undefined when not sticky
   const [isLarge, setIsLarge] = useState<boolean>(typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : false);
-  const [entry, setEntry] = useState<LexiconEntry | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+  // Use SWR hook for data fetching
+  const { 
+    data: fetchedEntry, 
+    error: fetchError, 
+    isLoading: isLoadingEntry 
+  } = useLexiconDetail(resolvedParams.term);
+  
   const [translation, setTranslation] = useState<string>("");
 
   // Audio states
@@ -179,168 +184,144 @@ export default function CulturalWordDetailPage({
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [models3D, setModels3D] = useState<Model3D[]>([]);
 
-  useEffect(() => {
-    const fetchEntry = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Process entry data from SWR
+  const entry = useMemo<LexiconEntry | null>(() => {
+    return fetchedEntry as LexiconEntry | null;
+  }, [fetchedEntry]);
 
-        // Use the new endpoint: /api/v1/public/lexicons/{termSlug}
-        const response = await fetch(
-          `${API_BASE_URL}lexicons/${resolvedParams.term}`
+  // Process media data from entry
+  useEffect(() => {
+    if (!entry) return;
+
+    // Set translation
+    const fetchedTranslation = entry.details?.translation || "";
+    setTranslation(fetchedTranslation);
+
+    const processedImages: GalleryImage[] = [];
+
+    if (entry.galleryImages && Array.isArray(entry.galleryImages)) {
+      const directImages: GalleryImage[] = entry.galleryImages.map((img: any, idx: number) => ({
+        url: img.url || img,
+        description: img.description || `${entry.term} - Image ${idx + 1}`,
+        caption: img.caption || `Cultural heritage of ${entry.term}`,
+      }));
+      processedImages.push(...directImages);
+    }
+
+    if (entry.leksikonAssets && Array.isArray(entry.leksikonAssets)) {
+      const audioAsset = entry.leksikonAssets.find(
+        (asset: LexiconAsset) =>
+          asset.assetRole === "PRONUNCIATION" &&
+          asset.asset.tipe === "AUDIO"
+      );
+
+      if (audioAsset && audioAsset.asset.url) {
+        setHasAudioFile(true);
+        setAudioUrl(audioAsset.asset.url);
+      }
+
+      const imageAssets = entry.leksikonAssets.filter(
+        (asset: LexiconAsset) => {
+          const isImageType = 
+            asset.asset.tipe === "FOTO" || 
+            asset.asset.tipe === "IMAGE" ||
+            asset.asset.tipe === "GAMBAR" ||
+            asset.asset.tipe === "PHOTO";
+          
+          const isGalleryRole = 
+            asset.assetRole === "GALLERY" || 
+            asset.assetRole === "FOTO" ||
+            asset.assetRole === "IMAGE" ||
+            asset.assetRole === "PHOTO";
+          
+          return isImageType || isGalleryRole;
+        }
+      );
+
+      const assetImages: GalleryImage[] = imageAssets.map((asset: LexiconAsset) => ({
+        url: asset.asset.url,
+        description: asset.asset.namaFile || entry.term,
+        caption: asset.asset.penjelasan || `Cultural heritage of ${entry.term}`,
+        assetId: asset.asset.assetId,
+      }));
+
+      processedImages.push(...assetImages);
+
+      const videoAssets = entry.leksikonAssets.filter(
+        (asset: LexiconAsset) => asset.asset.tipe === "VIDEO"
+      );
+
+      const videos: YouTubeVideo[] = videoAssets
+        .map((asset: LexiconAsset): YouTubeVideo | null => {
+          const videoId = extractYouTubeId(asset.asset.url);
+          if (videoId) {
+            return {
+              videoId: videoId,
+              title: asset.asset.namaFile || "Video",
+              description: asset.asset.penjelasan || "",
+              thumbnail: getYouTubeThumbnail(videoId, "maxres"),
+              duration: "",
+            };
+          }
+          return null;
+        })
+        .filter(
+          (video: YouTubeVideo | null): video is YouTubeVideo =>
+            video !== null
         );
 
-        if (!response.ok) {
-          if (response.status === 404) {
-            notFound();
-            return;
-          }
-          throw new Error(`Failed to fetch lexicon: ${response.statusText}`);
-        }
+      setYoutubeVideos(videos);
 
-        const result = await response.json();
+      const modelAssets = entry.leksikonAssets.filter(
+        (asset: LexiconAsset) => asset.asset.tipe === "MODEL_3D"
+      );
 
-        if (result.success && result.data) {
-          const foundEntry = result.data;
-          setEntry(foundEntry);
-
-          // Set translation from the detail data
-          const fetchedTranslation = foundEntry.details?.translation || "";
-          setTranslation(fetchedTranslation);
-
-          const processedImages: GalleryImage[] = [];
-
-          if (foundEntry.galleryImages && Array.isArray(foundEntry.galleryImages)) {
-            const directImages: GalleryImage[] = foundEntry.galleryImages.map((img: any, idx: number) => ({
-              url: img.url || img,
-              description: img.description || `${foundEntry.term} - Image ${idx + 1}`,
-              caption: img.caption || `Cultural heritage of ${foundEntry.term}`,
-            }));
-            processedImages.push(...directImages);
-          }
-
-          if (
-            foundEntry.leksikonAssets &&
-            Array.isArray(foundEntry.leksikonAssets)
-          ) {
-            const audioAsset = foundEntry.leksikonAssets.find(
-              (asset: LexiconAsset) =>
-                asset.assetRole === "PRONUNCIATION" &&
-                asset.asset.tipe === "AUDIO"
-            );
-
-            if (audioAsset && audioAsset.asset.url) {
-              setHasAudioFile(true);
-              setAudioUrl(audioAsset.asset.url);
-            }
-
-            const imageAssets = foundEntry.leksikonAssets.filter(
-              (asset: LexiconAsset) => {
-                const isImageType = 
-                  asset.asset.tipe === "FOTO" || 
-                  asset.asset.tipe === "IMAGE" ||
-                  asset.asset.tipe === "GAMBAR" ||
-                  asset.asset.tipe === "PHOTO";
-                
-                const isGalleryRole = 
-                  asset.assetRole === "GALLERY" || 
-                  asset.assetRole === "FOTO" ||
-                  asset.assetRole === "IMAGE" ||
-                  asset.assetRole === "PHOTO";
-                
-                return isImageType || isGalleryRole;
-              }
-            );
-
-            const assetImages: GalleryImage[] = imageAssets.map((asset: LexiconAsset) => ({
-              url: asset.asset.url,
-              description: asset.asset.namaFile || foundEntry.term,
-              caption: asset.asset.penjelasan || `Cultural heritage of ${foundEntry.term}`,
-              assetId: asset.asset.assetId,
-            }));
-
-            processedImages.push(...assetImages);
-
-            const videoAssets = foundEntry.leksikonAssets.filter(
-              (asset: LexiconAsset) => asset.asset.tipe === "VIDEO"
-            );
-
-            const videos: YouTubeVideo[] = videoAssets
-              .map((asset: LexiconAsset): YouTubeVideo | null => {
-                const videoId = extractYouTubeId(asset.asset.url);
-                if (videoId) {
-                  return {
-                    videoId: videoId,
-                    title: asset.asset.namaFile || "Video",
-                    description: asset.asset.penjelasan || "",
-                    thumbnail: getYouTubeThumbnail(videoId, "maxres"),
-                    duration: "",
-                  };
-                }
-                return null;
-              })
-              .filter(
-                (video: YouTubeVideo | null): video is YouTubeVideo =>
-                  video !== null
-              );
-
-            setYoutubeVideos(videos);
-
-            const modelAssets = foundEntry.leksikonAssets.filter(
-              (asset: LexiconAsset) => asset.asset.tipe === "MODEL_3D"
-            );
-
-            const models: Model3D[] = modelAssets.map(
-              (asset: LexiconAsset) => {
-                const urlMatch = asset.asset.url.match(
-                  /\/3d-models\/[^/]+-([a-f0-9]+)/
-                );
-                const sketchfabId = urlMatch ? urlMatch[1] : "";
-
-                return {
-                  id: sketchfabId || asset.asset.assetId.toString(),
-                  title: asset.asset.namaFile || "3D Model",
-                  description: asset.asset.penjelasan || "",
-                  artifactType: "Cultural Artifact",
-                  tags: [],
-                };
-              }
-            );
-
-            setModels3D(models);
-          }
-
-          const uniqueImages = processedImages.filter((img, index, self) =>
-            index === self.findIndex((t) => t.url === img.url)
+      const models: Model3D[] = modelAssets.map(
+        (asset: LexiconAsset) => {
+          const urlMatch = asset.asset.url.match(
+            /\/3d-models\/[^/]+-([a-f0-9]+)/
           );
+          const sketchfabId = urlMatch ? urlMatch[1] : "";
 
-          setGalleryImages(uniqueImages);
-
-          if (uniqueImages.length === 0) {
-            setGalleryImages([
-              {
-                url: "/placeholder.svg",
-                description: foundEntry.term,
-                caption: `Cultural heritage of ${foundEntry.term}`,
-              }
-            ]);
-          }
-        } else {
-          throw new Error(result.message || "Failed to fetch data");
+          return {
+            id: sketchfabId || asset.asset.assetId.toString(),
+            title: asset.asset.namaFile || "3D Model",
+            description: asset.asset.penjelasan || "",
+            artifactType: "Cultural Artifact",
+            tags: [],
+          };
         }
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError(err instanceof Error ? err.message : "An error occurred");
-        if (err instanceof Error && err.message.includes("404")) {
-          notFound();
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+      );
 
-    fetchEntry();
-  }, [resolvedParams.term]);
+      setModels3D(models);
+    }
+
+    const uniqueImages = processedImages.filter((img, index, self) =>
+      index === self.findIndex((t) => t.url === img.url)
+    );
+
+    setGalleryImages(uniqueImages);
+
+    if (uniqueImages.length === 0) {
+      setGalleryImages([
+        {
+          url: "/placeholder.svg",
+          description: entry.term,
+          caption: `Cultural heritage of ${entry.term}`,
+        }
+      ]);
+    }
+  }, [entry]);
+
+  // Handle 404 error
+  useEffect(() => {
+    if (fetchError && (fetchError as any).status === 404) {
+      notFound();
+    }
+  }, [fetchError]);
+
+  const loading = isLoadingEntry;
+  const error = fetchError ? (fetchError instanceof Error ? fetchError.message : "An error occurred") : null;
 
   useLayoutEffect(() => {
     const baseTop = 96; // Tailwind `top-24` -> 6rem -> 96px
