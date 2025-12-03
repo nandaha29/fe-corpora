@@ -68,6 +68,7 @@ interface LexiconReference {
     referenceId: number;
     title: string;
     referenceType: string;
+    topicCategory: string | null;
     description: string | null;
     url: string | null;
     authors: string | null;
@@ -1066,11 +1067,11 @@ export default function CulturalWordDetailPage({
                           )}
                           <div className="flex gap-1 flex-wrap ">
                             <Badge variant="outline" className="text-sm">
-                              {ref.reference.referenceType}
+                              {capitalize(ref.reference.referenceType || '')}
                             </Badge>
-                            {/* <Badge variant="outline" className="text-sm">
-                              {ref.citationNote}
-                            </Badge> */}
+                            <Badge variant="outline" className="text-sm">
+                              {capitalize(ref.reference.topicCategory || '')}
+                            </Badge>
                           </div>
                         </div>
                       ))}
