@@ -80,7 +80,7 @@ export function GlobeSection() {
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-muted-foreground text-xl">
-                      <strong className="text-foreground">11 Sub-Cultures:</strong> Explore the cultural diversity across 11 unique sub-cultures in East Java, each with distinct heritage and artistry.
+                      <strong className="text-foreground">10 Sub-Cultures:</strong> Explore the cultural diversity across 10 unique sub-cultures in East Java, each with distinct heritage and artistry.
                     </p>
                   </div>
 
