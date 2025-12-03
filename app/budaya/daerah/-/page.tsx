@@ -24,7 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import { API_BASE_URL } from "@/lib/config";
-import { useLexicons } from "@/hooks/use-api";
+import { useLexicons, useDomainSearch } from "@/hooks/use-api";
 
 interface LexiconAsset {
   leksikonId: number;
@@ -231,9 +231,51 @@ export default function AllCulturalWordsPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Use SWR hook with filtering and search parameters
-  // If domain filter is active, we need to fetch all data (no pagination) for client-side filtering
-  // Otherwise, use server-side pagination
+  // Create mapping from domain name to domain_id
+  // First, fetch all lexicons to build the mapping (only when domain filter is active)
+  const { 
+    data: allLexiconsForMapping, 
+    error: mappingError 
+  } = useLexicons(
+    region !== "all" ? region : undefined,
+    undefined, // No search query for mapping
+    undefined, // No pagination for mapping
+    undefined // No limit for mapping
+  );
+
+  // Build domain name to domain_id mapping
+  const domainIdMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    if (allLexiconsForMapping?.data) {
+      const lexicons = Array.isArray(allLexiconsForMapping.data) 
+        ? allLexiconsForMapping.data 
+        : allLexiconsForMapping.data;
+      
+      lexicons.forEach((entry: any) => {
+        if (entry.domainKodifikasi?.domainKodifikasiId && entry.domainKodifikasi?.namaDomain) {
+          map[entry.domainKodifikasi.namaDomain] = entry.domainKodifikasi.domainKodifikasiId;
+        }
+      });
+    }
+    return map;
+  }, [allLexiconsForMapping]);
+
+  // Get domain_id from selected domain
+  const selectedDomainId = domain !== "all" ? domainIdMap[domain] : null;
+
+  // Use domain search endpoint when domain filter is active
+  const { 
+    data: domainSearchResponse, 
+    error: domainSearchError, 
+    isLoading: isLoadingDomainSearch 
+  } = useDomainSearch(
+    selectedDomainId || undefined,
+    debouncedSearchQuery || undefined,
+    domain !== "all" ? currentPage : undefined,
+    domain !== "all" ? ITEMS_PER_PAGE : undefined
+  );
+
+  // Use regular lexicons endpoint when domain filter is not active
   const { 
     data: lexiconsResponse, 
     error: fetchError, 
@@ -241,21 +283,35 @@ export default function AllCulturalWordsPage() {
   } = useLexicons(
     region !== "all" ? region : undefined,
     debouncedSearchQuery || undefined,
-    domain === "all" ? currentPage : undefined, // Only paginate if domain filter is not active
-    domain === "all" ? ITEMS_PER_PAGE : undefined // Only limit if domain filter is not active
+    domain === "all" ? currentPage : undefined,
+    domain === "all" ? ITEMS_PER_PAGE : undefined
   );
 
   // Extract data and pagination from response
+  // Use domain search response if domain filter is active, otherwise use regular lexicons response
   const lexiconsData = useMemo(() => {
-    if (!lexiconsResponse) return { data: [], pagination: null };
-    if (Array.isArray(lexiconsResponse)) {
-      return { data: lexiconsResponse, pagination: null };
+    if (domain !== "all" && selectedDomainId) {
+      // Use domain search response
+      if (!domainSearchResponse) return { data: [], pagination: null };
+      if (Array.isArray(domainSearchResponse)) {
+        return { data: domainSearchResponse, pagination: null };
+      }
+      return {
+        data: domainSearchResponse.data || [],
+        pagination: domainSearchResponse.pagination || null,
+      };
+    } else {
+      // Use regular lexicons response
+      if (!lexiconsResponse) return { data: [], pagination: null };
+      if (Array.isArray(lexiconsResponse)) {
+        return { data: lexiconsResponse, pagination: null };
+      }
+      return {
+        data: lexiconsResponse.data || [],
+        pagination: lexiconsResponse.pagination || null,
+      };
     }
-    return {
-      data: lexiconsResponse.data || [],
-      pagination: lexiconsResponse.pagination || null,
-    };
-  }, [lexiconsResponse]);
+  }, [domain, selectedDomainId, domainSearchResponse, lexiconsResponse]);
 
   // Process lexicons
   const allLexicons = useMemo<LexiconEntry[]>(() => {
@@ -267,19 +323,15 @@ export default function AllCulturalWordsPage() {
     ) as LexiconEntry[];
   }, [lexiconsData.data]);
 
-  // Apply domain filter (client-side since API doesn't support domain filter yet)
-  const filteredLexicons = useMemo(() => {
-    if (domain === "all") return allLexicons;
-    return allLexicons.filter((entry) => {
-      if (isAdvancedEntry(entry)) {
-        return entry.domainKodifikasi?.namaDomain === domain;
-      }
-      return entry.domain === domain;
-    });
-  }, [allLexicons, domain]);
+  // No need for client-side domain filtering anymore since we use domain search endpoint
+  const filteredLexicons = allLexicons;
   
-  const loading = isLoadingLexicons;
-  const error = fetchError ? (fetchError instanceof Error ? fetchError.message : "Failed to load lexicons") : null;
+  const loading = domain !== "all" && selectedDomainId 
+    ? isLoadingDomainSearch 
+    : isLoadingLexicons;
+  const error = domain !== "all" && selectedDomainId
+    ? (domainSearchError ? (domainSearchError instanceof Error ? domainSearchError.message : "Failed to load lexicons") : null)
+    : (fetchError ? (fetchError instanceof Error ? fetchError.message : "Failed to load lexicons") : null);
 
 
   const referrer = searchParams.get("from");
@@ -392,31 +444,11 @@ export default function AllCulturalWordsPage() {
     setCurrentPage(1);
   }, [region, debouncedSearchQuery, domain]);
 
-  // Handle pagination based on whether domain filter is active
-  // If domain filter is active, we need client-side pagination since API doesn't support it
-  // Otherwise, use server-side pagination from API
-  const paginatedEntries = useMemo(() => {
-    if (domain === "all") {
-      // Server-side pagination: API already paginated the data
-      return filteredLexicons;
-    } else {
-      // Client-side pagination: need to paginate after domain filter
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      return filteredLexicons.slice(startIndex, endIndex);
-    }
-  }, [filteredLexicons, domain, currentPage, ITEMS_PER_PAGE]);
+  // Server-side pagination: API already paginated the data for both cases
+  const paginatedEntries = filteredLexicons;
   
-  // Calculate total pages
+  // Calculate total pages - use server-side pagination from API
   const totalPages = useMemo(() => {
-    // If domain filter is active, use client-side pagination
-    if (domain !== "all") {
-      if (filteredLexicons.length === 0) return 0;
-      const pages = Math.ceil(filteredLexicons.length / ITEMS_PER_PAGE);
-      return Math.max(1, pages);
-    }
-    
-    // Server-side pagination: use API pagination info
     if (lexiconsData.pagination) {
       // Try to use totalPages first
       if (lexiconsData.pagination.totalPages && lexiconsData.pagination.totalPages > 0) {
@@ -429,9 +461,7 @@ export default function AllCulturalWordsPage() {
     }
     
     // Fallback: if we have exactly ITEMS_PER_PAGE items, assume there might be more pages
-    // This is a heuristic - if API returns exactly limit items, there's likely more data
     if (filteredLexicons.length === ITEMS_PER_PAGE) {
-      // Show at least 2 pages to allow navigation
       return 2;
     }
     
@@ -439,7 +469,7 @@ export default function AllCulturalWordsPage() {
     if (filteredLexicons.length === 0) return 0;
     const calculatedPages = Math.ceil(filteredLexicons.length / ITEMS_PER_PAGE);
     return Math.max(1, calculatedPages);
-  }, [domain, lexiconsData.pagination, filteredLexicons.length, ITEMS_PER_PAGE]);
+  }, [lexiconsData.pagination, filteredLexicons.length, ITEMS_PER_PAGE]);
 
   // Debug: log pagination info (remove in production)
   useEffect(() => {
@@ -802,7 +832,7 @@ export default function AllCulturalWordsPage() {
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {searchQuery.trim()
-                    ? `Tidak ada leksikon yang cocok dengan "${searchQuery.trim()}"`
+                    ? ` There are no lexicons that match "${searchQuery.trim()}"`
                     : "Coba kata kunci atau filter yang berbeda"}
                 </p>
                 {(debouncedSearchQuery || region !== "all" || domain !== "all") && (

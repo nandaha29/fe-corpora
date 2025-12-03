@@ -153,6 +153,60 @@ export function useReferences() {
   return useSWR(`${API_BASE_URL}references`, fetcher);
 }
 
+// Domain search hook - Mencari lexicons dalam domain tertentu
+export function useDomainSearch(
+  domainId: number | string | null | undefined,
+  query?: string,
+  page?: number,
+  limit?: number
+) {
+  const params = new URLSearchParams();
+  if (query?.trim()) {
+    params.append('query', query.trim());
+  }
+  if (page) {
+    params.append('page', page.toString());
+  }
+  if (limit) {
+    params.append('limit', limit.toString());
+  }
+  
+  const key = domainId 
+    ? `${API_BASE_URL}domains/${domainId}/search${params.toString() ? `?${params}` : ''}`
+    : null;
+  
+  // Custom fetcher untuk handle response dengan pagination
+  const customFetcher = async (url: string) => {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const error = new Error('Failed to fetch');
+      (error as any).status = res.status;
+      throw error;
+    }
+    const json = await res.json();
+    if (!json.success) {
+      const error = new Error(json.message || 'Failed to fetch');
+      (error as any).status = res.status;
+      throw error;
+    }
+    // Return both data and pagination if available
+    // API returns pagination info at root level (total, page, limit, totalPages)
+    const pagination = json.pagination || (json.total !== undefined ? {
+      totalItems: json.total,
+      currentPage: json.page,
+      limit: json.limit,
+      totalPages: json.totalPages,
+    } : null);
+    
+    return {
+      data: json.data || [],
+      pagination: pagination,
+    };
+  };
+  
+  return useSWR(key, customFetcher);
+}
+
 // Helper untuk fetch multiple lexicon details (for translations)
 export function useMultipleLexiconDetails(ids: (number | string)[]) {
   // SWR tidak support multiple keys langsung, jadi kita gunakan Promise.all
