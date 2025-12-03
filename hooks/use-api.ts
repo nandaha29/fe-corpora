@@ -56,9 +56,71 @@ export function useSubcultures(query?: string, page?: number, limit?: number) {
   return useSWR(key, customFetcher);
 }
 
-// All lexicons hook
-export function useLexicons() {
-  return useSWR(`${API_BASE_URL}lexicons`, fetcher);
+// All lexicons hook dengan filtering dan search
+export function useLexicons(
+  regionFilter?: string,
+  searchQuery?: string,
+  page?: number,
+  limit?: number
+) {
+  const params = new URLSearchParams();
+  if (regionFilter && regionFilter !== 'all') {
+    params.append('regionFilter', regionFilter);
+  }
+  if (searchQuery?.trim()) {
+    params.append('searchQuery', searchQuery.trim());
+  }
+  if (page) {
+    params.append('page', page.toString());
+  }
+  if (limit) {
+    params.append('limit', limit.toString());
+  }
+  
+  const key = `${API_BASE_URL}lexicons${params.toString() ? `?${params}` : ''}`;
+  
+  // Custom fetcher untuk handle response dengan pagination
+  const customFetcher = async (url: string) => {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const error = new Error('Failed to fetch');
+      (error as any).status = res.status;
+      throw error;
+    }
+    const json = await res.json();
+    if (!json.success) {
+      const error = new Error(json.message || 'Failed to fetch');
+      (error as any).status = res.status;
+      throw error;
+    }
+    // Return both data and pagination if available
+    // API returns pagination info at root level (total, page, limit, totalPages)
+    // Check if pagination exists in nested object first, then check root level
+    const pagination = json.pagination || (json.total !== undefined ? {
+      totalItems: json.total,
+      currentPage: json.page,
+      limit: json.limit,
+      totalPages: json.totalPages,
+    } : null);
+    
+    // Debug: log pagination info
+    if (pagination) {
+      console.log('📄 API Pagination:', {
+        totalItems: pagination.totalItems,
+        currentPage: pagination.currentPage,
+        limit: pagination.limit,
+        totalPages: pagination.totalPages,
+        rawResponse: { total: json.total, page: json.page, limit: json.limit, totalPages: json.totalPages }
+      });
+    }
+    
+    return {
+      data: json.data || [],
+      pagination: pagination,
+    };
+  };
+  
+  return useSWR(key, customFetcher);
 }
 
 // Lexicon detail hook by termSlug

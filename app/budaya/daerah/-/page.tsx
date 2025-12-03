@@ -1,7 +1,7 @@
 // app/budaya/daerah/-/page.tsx
 "use client";
 
-import { use, useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,8 +23,8 @@ import { useNavigation } from "@/hooks/use-navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
-import { API_BASE_URL, API_SEARCH_URL } from "@/lib/config";
-import { useLexicons, useLexiconDetailById } from "@/hooks/use-api";
+import { API_BASE_URL } from "@/lib/config";
+import { useLexicons } from "@/hooks/use-api";
 
 interface LexiconAsset {
   leksikonId: number;
@@ -215,49 +215,72 @@ export default function AllCulturalWordsPage() {
   const [region, setRegion] = useState<string>("all");
   const [domain, setDomain] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isSearching, setIsSearching] = useState(false);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>("");
   const [lexiconTranslations, setLexiconTranslations] = useState<Record<string, string>>({});
-
-  // Use SWR hook for fetching all lexicons
-  const { 
-    data: fetchedLexicons, 
-    error: fetchError, 
-    isLoading: isLoadingLexicons 
-  } = useLexicons();
-
-  // Process and filter lexicons
-  const allLexicons = useMemo<LexiconEntry[]>(() => {
-    if (!fetchedLexicons) return [];
-    if (Array.isArray(fetchedLexicons)) {
-      return fetchedLexicons.filter(
-        (item: any) =>
-          item && typeof (item.term || item.kataLeksikon) === "string" && 
-          (item.term || item.kataLeksikon).trim() !== ""
-      ) as LexiconEntry[];
-    }
-    // If response has data property
-    if (fetchedLexicons.data && Array.isArray(fetchedLexicons.data)) {
-      return fetchedLexicons.data.filter(
-        (item: any) =>
-          item && typeof (item.term || item.kataLeksikon) === "string" && 
-          (item.term || item.kataLeksikon).trim() !== ""
-      ) as LexiconEntry[];
-    }
-    return [];
-  }, [fetchedLexicons]);
-
-  const [filteredLexicons, setFilteredLexicons] = useState<LexiconEntry[]>([]);
-  
-  const loading = isLoadingLexicons;
-  const error = fetchError ? (fetchError instanceof Error ? fetchError.message : "Failed to load lexicons") : null;
 
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
-  // ✅ FIX: Gunakan ref untuk track query yang sedang di-process
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const currentQueryRef = useRef<string>("");
-  const abortControllerRef = useRef<AbortController | null>(null);
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setCurrentPage(1); // Reset to page 1 when search changes
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Use SWR hook with filtering and search parameters
+  // If domain filter is active, we need to fetch all data (no pagination) for client-side filtering
+  // Otherwise, use server-side pagination
+  const { 
+    data: lexiconsResponse, 
+    error: fetchError, 
+    isLoading: isLoadingLexicons 
+  } = useLexicons(
+    region !== "all" ? region : undefined,
+    debouncedSearchQuery || undefined,
+    domain === "all" ? currentPage : undefined, // Only paginate if domain filter is not active
+    domain === "all" ? ITEMS_PER_PAGE : undefined // Only limit if domain filter is not active
+  );
+
+  // Extract data and pagination from response
+  const lexiconsData = useMemo(() => {
+    if (!lexiconsResponse) return { data: [], pagination: null };
+    if (Array.isArray(lexiconsResponse)) {
+      return { data: lexiconsResponse, pagination: null };
+    }
+    return {
+      data: lexiconsResponse.data || [],
+      pagination: lexiconsResponse.pagination || null,
+    };
+  }, [lexiconsResponse]);
+
+  // Process lexicons
+  const allLexicons = useMemo<LexiconEntry[]>(() => {
+    if (!lexiconsData.data) return [];
+    return lexiconsData.data.filter(
+      (item: any) =>
+        item && typeof (item.term || item.kataLeksikon) === "string" && 
+        (item.term || item.kataLeksikon).trim() !== ""
+    ) as LexiconEntry[];
+  }, [lexiconsData.data]);
+
+  // Apply domain filter (client-side since API doesn't support domain filter yet)
+  const filteredLexicons = useMemo(() => {
+    if (domain === "all") return allLexicons;
+    return allLexicons.filter((entry) => {
+      if (isAdvancedEntry(entry)) {
+        return entry.domainKodifikasi?.namaDomain === domain;
+      }
+      return entry.domain === domain;
+    });
+  }, [allLexicons, domain]);
+  
+  const loading = isLoadingLexicons;
+  const error = fetchError ? (fetchError instanceof Error ? fetchError.message : "Failed to load lexicons") : null;
+
 
   const referrer = searchParams.get("from");
 
@@ -285,20 +308,16 @@ export default function AllCulturalWordsPage() {
     return "Back";
   };
 
-  // Fetch translations for all lexicons when data is loaded
+  // Fetch translations for lexicons when data is loaded
   useEffect(() => {
-    if (!allLexicons || allLexicons.length === 0) {
-      setFilteredLexicons([]);
+    if (!filteredLexicons || filteredLexicons.length === 0) {
       return;
     }
 
-    // Set filtered lexicons initially
-    setFilteredLexicons(allLexicons);
-
-    // Fetch translations for all lexicons
-    const entriesToFetch = allLexicons.filter((entry: LexiconEntry) => {
+    // Fetch translations for lexicons that don't have translations yet
+    const entriesToFetch = filteredLexicons.filter((entry: LexiconEntry) => {
       const lexiconId = getLexiconId(entry);
-      return lexiconId !== null;
+      return lexiconId !== null && !lexiconTranslations[lexiconId.toString()];
     });
 
     if (entriesToFetch.length > 0) {
@@ -331,317 +350,14 @@ export default function AllCulturalWordsPage() {
           }
         });
         
-        // Set translations
+        // Set translations (merge with existing)
         if (Object.keys(translationMap).length > 0) {
-          setLexiconTranslations(translationMap);
+          setLexiconTranslations((prev) => ({ ...prev, ...translationMap }));
         }
       });
     }
-  }, [allLexicons]);
+  }, [filteredLexicons, lexiconTranslations]);
 
-  // ✅ FIX: Function untuk apply filter by region and domain
-  const applyFilters = useCallback(
-    (data: LexiconEntry[], regionFilter: string, domainFilter: string): LexiconEntry[] => {
-      let filtered = data;
-
-      // Apply region filter
-      if (regionFilter !== "all") {
-        filtered = filtered.filter((entry) => {
-          if (isAdvancedEntry(entry)) {
-            return entry.domainKodifikasi?.subculture?.slug === regionFilter;
-          }
-          return entry.regionKey === regionFilter;
-        });
-      }
-
-      // Apply domain filter
-      if (domainFilter !== "all") {
-        filtered = filtered.filter((entry) => {
-          if (isAdvancedEntry(entry)) {
-            return entry.domainKodifikasi?.namaDomain === domainFilter;
-          }
-          return entry.domain === domainFilter;
-        });
-      }
-
-      return filtered;
-    },
-    []
-  );
-
-  // ✅ FIX: Improved search with better state management and proper debounce
-  useEffect(() => {
-    // Cancel previous abort controller
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    // Clear previous timer
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    // Capture current query value in closure
-    const queryAtStart = searchQuery;
-    const trimmedQueryAtStart = queryAtStart.trim();
-
-    const performSearch = async () => {
-      // Create new AbortController for this search
-      const abortController = new AbortController();
-      abortControllerRef.current = abortController;
-
-      const trimmedQuery = queryAtStart.trim();
-
-      // ✅ CRITICAL: Check if query changed before starting search
-      if (currentQueryRef.current !== queryAtStart) {
-        console.log("⚠️ Query changed before search started, skipping");
-        return;
-      }
-
-      // Update current query ref
-      currentQueryRef.current = queryAtStart;
-
-      console.log("🔍 Search Effect:", {
-        searchQuery: queryAtStart,
-        trimmedQuery,
-        trimmedLength: trimmedQuery.length,
-        currentQueryRef: currentQueryRef.current,
-        region,
-      });
-
-      // ✅ CRITICAL FIX: Check if query is empty (also through debounce)
-      if (trimmedQuery.length === 0) {
-        console.log("📋 EMPTY QUERY - Resetting to all data");
-        setIsSearching(false);
-
-        // Apply region and domain filter to all data
-        const results = applyFilters([...allLexicons], region, domain);
-
-        console.log("✅ Reset complete:", results.length, "results");
-        
-        // ✅ CRITICAL: Only update if query hasn't changed
-        if (currentQueryRef.current === queryAtStart) {
-          setFilteredLexicons(results);
-        }
-        return;
-      }
-
-      // ✅ Only search if query has content
-      console.log("🌐 Performing search for:", trimmedQuery);
-      setIsSearching(true);
-
-      try {
-        const response = await fetch(
-          `${API_SEARCH_URL}advanced?kata=${encodeURIComponent(
-            trimmedQuery
-          )}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            signal: abortController.signal,
-          }
-        );
-
-        // ✅ CRITICAL: Check if query changed during API call
-        if (currentQueryRef.current !== queryAtStart) {
-          console.log("⚠️ Query changed during API call, ignoring results");
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error(`Search failed: ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        // ✅ CRITICAL: Double check query hasn't changed
-        if (currentQueryRef.current !== queryAtStart) {
-          console.log("⚠️ Query changed after API response, ignoring results");
-          return;
-        }
-
-        if (result.success && Array.isArray(result.data)) {
-          // ✅ CRITICAL: Check query again before processing results
-          if (currentQueryRef.current !== queryAtStart) {
-            console.log("⚠️ Query changed before processing results, ignoring");
-            return;
-          }
-
-          // 🔧 FIX: Cast result.data sebagai LexiconEntry[] dan apply region and domain filter
-          const searchResults = result.data as LexiconEntry[];
-          const results = applyFilters(searchResults, region, domain);
-
-          console.log("✅ API Results:", results.length);
-          
-          // ✅ CRITICAL: Only update if query hasn't changed
-          if (currentQueryRef.current === queryAtStart) {
-            setFilteredLexicons(results);
-          }
-
-          // Fetch translations for search results (only if query hasn't changed)
-          if (currentQueryRef.current === queryAtStart) {
-            const entriesToFetch = results.filter((entry: LexiconEntry) => {
-              const lexiconId = getLexiconId(entry);
-              return lexiconId !== null && !lexiconTranslations[lexiconId.toString()];
-            });
-
-            if (entriesToFetch.length > 0) {
-              // Fetch translations in parallel
-              Promise.all(
-                entriesToFetch.map(async (entry: LexiconEntry) => {
-                  const lexiconId = getLexiconId(entry);
-                  if (!lexiconId) return null;
-                  try {
-                    const detailResponse = await fetch(
-                      `${API_BASE_URL}lexicons/${lexiconId}`
-                    );
-                    if (!detailResponse.ok) return null;
-                    const detailResult = await detailResponse.json();
-                    if (detailResult.success && detailResult.data) {
-                      const translation = detailResult.data.details?.translation || "";
-                      return { lexiconId: lexiconId.toString(), translation };
-                    }
-                  } catch (error) {
-                    console.error(`Error fetching translation for ${lexiconId}:`, error);
-                  }
-                  return null;
-                })
-              ).then((translations) => {
-                // ✅ CRITICAL: Check query again before updating translations
-                if (currentQueryRef.current === queryAtStart) {
-                  const translationMap: Record<string, string> = {};
-                  translations.forEach((t) => {
-                    if (t) {
-                      translationMap[t.lexiconId] = t.translation;
-                    }
-                  });
-                  if (Object.keys(translationMap).length > 0) {
-                    setLexiconTranslations((prev) => ({ ...prev, ...translationMap }));
-                  }
-                }
-              });
-            }
-          }
-        } else {
-          console.log("⚠️ API returned no results");
-          // ✅ CRITICAL: Only update if query hasn't changed
-          if (currentQueryRef.current === queryAtStart) {
-            setFilteredLexicons([]);
-          }
-        }
-      } catch (err) {
-        // ✅ Handle AbortError (request was cancelled)
-        if (err instanceof Error && err.name === 'AbortError') {
-          console.log("🚫 Search request was cancelled");
-          return;
-        }
-
-        console.error("Search error:", err);
-
-        // ✅ Check query hasn't changed before applying fallback
-        if (currentQueryRef.current !== queryAtStart) {
-          console.log("⚠️ Query changed during error, skipping fallback");
-          return;
-        }
-
-        // Fallback to client-side search
-        const query = trimmedQuery.toLowerCase();
-        let results = allLexicons.filter((entry) => {
-          // 🔧 FIX: Gunakan normalized entry untuk consistent search
-          const normalized = normalizeLexiconEntry(entry);
-
-          const termMatch = normalized.term?.toLowerCase().includes(query);
-          const definitionMatch = normalized.definition
-            ?.toLowerCase()
-            .includes(query);
-          const domainMatch = normalized.domain?.toLowerCase().includes(query);
-          const subcultureMatch = normalized.subcultureName
-            ?.toLowerCase()
-            .includes(query);
-          const contributorMatch = normalized.contributor
-            ?.toLowerCase()
-            .includes(query);
-
-          // Untuk AdvancedEntry, search di field tambahan
-          if (isAdvancedEntry(entry)) {
-            const transliterasiMatch = entry.transliterasi
-              ?.toLowerCase()
-              .includes(query);
-            const ipaMatch = entry.ipa?.toLowerCase().includes(query);
-            const kulturalMatch = entry.maknaKultural
-              ?.toLowerCase()
-              .includes(query);
-
-            return (
-              termMatch ||
-              definitionMatch ||
-              domainMatch ||
-              subcultureMatch ||
-              contributorMatch ||
-              transliterasiMatch ||
-              ipaMatch ||
-              kulturalMatch
-            );
-          }
-
-          // Untuk OriginalEntry, search di details
-          const transliterationMatch = entry.details?.transliteration
-            ?.toLowerCase()
-            .includes(query);
-          const ipaMatch = entry.details?.ipa?.toLowerCase().includes(query);
-          const commonMeaningMatch = entry.details?.commonMeaning
-            ?.toLowerCase()
-            .includes(query);
-          const culturalMeaningMatch = entry.details?.culturalMeaning
-            ?.toLowerCase()
-            .includes(query);
-
-          return (
-            termMatch ||
-            definitionMatch ||
-            transliterationMatch ||
-            ipaMatch ||
-            domainMatch ||
-            subcultureMatch ||
-            commonMeaningMatch ||
-            culturalMeaningMatch ||
-            contributorMatch
-          );
-        });
-
-        // Apply region and domain filter
-        results = applyFilters(results, region, domain);
-
-        console.log("✅ Fallback Results:", results.length);
-        
-        // ✅ CRITICAL: Only update if query hasn't changed
-        if (currentQueryRef.current === queryAtStart) {
-          setFilteredLexicons(results);
-        }
-      } finally {
-        // ✅ Only stop loading if query hasn't changed
-        if (currentQueryRef.current === queryAtStart) {
-          setIsSearching(false);
-        }
-      }
-    };
-
-    // Set new debounce timer
-    debounceTimerRef.current = setTimeout(performSearch, 300);
-
-    // Cleanup
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      // Cancel any ongoing requests
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, [searchQuery, region, domain, allLexicons, applyFilters]);
 
   // 🔧 FIX: Get unique regions dari allLexicons dengan proper type handling
   const regions = Array.from(
@@ -674,13 +390,92 @@ export default function AllCulturalWordsPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [region, domain, searchQuery]);
+  }, [region, debouncedSearchQuery, domain]);
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredLexicons.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedEntries = filteredLexicons.slice(startIndex, endIndex);
+  // Handle pagination based on whether domain filter is active
+  // If domain filter is active, we need client-side pagination since API doesn't support it
+  // Otherwise, use server-side pagination from API
+  const paginatedEntries = useMemo(() => {
+    if (domain === "all") {
+      // Server-side pagination: API already paginated the data
+      return filteredLexicons;
+    } else {
+      // Client-side pagination: need to paginate after domain filter
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIndex = startIndex + ITEMS_PER_PAGE;
+      return filteredLexicons.slice(startIndex, endIndex);
+    }
+  }, [filteredLexicons, domain, currentPage, ITEMS_PER_PAGE]);
+  
+  // Calculate total pages
+  const totalPages = useMemo(() => {
+    // If domain filter is active, use client-side pagination
+    if (domain !== "all") {
+      if (filteredLexicons.length === 0) return 0;
+      const pages = Math.ceil(filteredLexicons.length / ITEMS_PER_PAGE);
+      return Math.max(1, pages);
+    }
+    
+    // Server-side pagination: use API pagination info
+    if (lexiconsData.pagination) {
+      // Try to use totalPages first
+      if (lexiconsData.pagination.totalPages && lexiconsData.pagination.totalPages > 0) {
+        return lexiconsData.pagination.totalPages;
+      }
+      // Fallback: calculate from totalItems
+      if (lexiconsData.pagination.totalItems && lexiconsData.pagination.totalItems > 0) {
+        return Math.ceil(lexiconsData.pagination.totalItems / ITEMS_PER_PAGE);
+      }
+    }
+    
+    // Fallback: if we have exactly ITEMS_PER_PAGE items, assume there might be more pages
+    // This is a heuristic - if API returns exactly limit items, there's likely more data
+    if (filteredLexicons.length === ITEMS_PER_PAGE) {
+      // Show at least 2 pages to allow navigation
+      return 2;
+    }
+    
+    // Otherwise, calculate from current data
+    if (filteredLexicons.length === 0) return 0;
+    const calculatedPages = Math.ceil(filteredLexicons.length / ITEMS_PER_PAGE);
+    return Math.max(1, calculatedPages);
+  }, [domain, lexiconsData.pagination, filteredLexicons.length, ITEMS_PER_PAGE]);
+
+  // Debug: log pagination info (remove in production)
+  useEffect(() => {
+    if (!loading && filteredLexicons.length > 0) {
+      console.log('🔍 Pagination Debug:', {
+        totalPages,
+        filteredLexiconsLength: filteredLexicons.length,
+        currentPage,
+        ITEMS_PER_PAGE,
+        hasPagination: !!lexiconsData.pagination,
+        pagination: lexiconsData.pagination,
+        domain,
+        shouldShow: totalPages > 1
+      });
+    }
+  }, [totalPages, filteredLexicons.length, currentPage, loading, lexiconsData.pagination, domain]);
+  
+  // Calculate display info
+  const startIndex = useMemo(() => {
+    if (domain === "all" && lexiconsData.pagination) {
+      return (currentPage - 1) * ITEMS_PER_PAGE + 1;
+    } else {
+      return (currentPage - 1) * ITEMS_PER_PAGE + 1;
+    }
+  }, [domain, lexiconsData.pagination, currentPage, ITEMS_PER_PAGE]);
+  
+  const endIndex = useMemo(() => {
+    if (domain === "all" && lexiconsData.pagination) {
+      return Math.min(
+        currentPage * ITEMS_PER_PAGE,
+        lexiconsData.pagination.totalItems || filteredLexicons.length
+      );
+    } else {
+      return Math.min(currentPage * ITEMS_PER_PAGE, filteredLexicons.length);
+    }
+  }, [domain, lexiconsData.pagination, currentPage, ITEMS_PER_PAGE, filteredLexicons.length]);
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -725,11 +520,9 @@ export default function AllCulturalWordsPage() {
     return pages;
   };
 
-  // ✅ FIX: Clear search handler
+  // Clear search handler
   const handleClearSearch = () => {
-    console.log("🧹 Clearing search - setting to empty string");
     setSearchQuery("");
-    currentQueryRef.current = "";
   };
 
   return (
@@ -831,7 +624,7 @@ export default function AllCulturalWordsPage() {
               className="pl-10 pr-10 bg-background/50 border-border focus:ring-primary/20"
             />
             {/* Clear button - only show when there's text */}
-            {searchQuery.length > 0 && !isSearching && (
+            {searchQuery.length > 0 && searchQuery === debouncedSearchQuery && (
               <button
                 onClick={handleClearSearch}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer z-10"
@@ -842,7 +635,7 @@ export default function AllCulturalWordsPage() {
               </button>
             )}
             {/* Loading indicator */}
-            {isSearching && (
+            {loading && searchQuery !== debouncedSearchQuery && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none z-10">
                 <Loader2 className="w-4 h-4 animate-spin text-primary" />
               </div>
@@ -853,17 +646,28 @@ export default function AllCulturalWordsPage() {
         {/* Results info */}
         {!loading && (
           <div className="mt-4 text-lg text-muted-foreground">
-            {isSearching ? (
+            {searchQuery !== debouncedSearchQuery ? (
               <span className="flex items-center justify-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Search...
+                Searching...
               </span>
             ) : (
               <>
-                Show {filteredLexicons.length} result
-                {searchQuery.trim() && ` untuk "${searchQuery.trim()}"`}
-                {region !== "all" && ` di ${region}`}
-                {domain !== "all" && ` dalam domain ${domain}`}
+                {lexiconsData.pagination ? (
+                  <>
+                    Showing {startIndex}-{endIndex} of {lexiconsData.pagination.totalItems || filteredLexicons.length} results
+                    {debouncedSearchQuery && ` for "${debouncedSearchQuery}"`}
+                    {region !== "all" && ` in ${region}`}
+                    {domain !== "all" && ` domain ${domain}`}
+                  </>
+                ) : (
+                  <>
+                    Showing {filteredLexicons.length} result
+                    {debouncedSearchQuery && ` untuk "${debouncedSearchQuery}"`}
+                    {region !== "all" && ` di ${region}`}
+                    {domain !== "all" && ` dalam domain ${domain}`}
+                  </>
+                )}
               </>
             )}
           </div>
@@ -1001,13 +805,12 @@ export default function AllCulturalWordsPage() {
                     ? `Tidak ada leksikon yang cocok dengan "${searchQuery.trim()}"`
                     : "Coba kata kunci atau filter yang berbeda"}
                 </p>
-                {(searchQuery || region !== "all" || domain !== "all") && (
+                {(debouncedSearchQuery || region !== "all" || domain !== "all") && (
                   <Button
                     onClick={() => {
                       setSearchQuery("");
                       setRegion("all");
                       setDomain("all");
-                      currentQueryRef.current = "";
                     }}
                     variant="outline"
                     className="mt-4 cursor-pointer"
@@ -1018,23 +821,43 @@ export default function AllCulturalWordsPage() {
               </div>
             )}
 
-            {/* Pagination */}
-            {filteredLexicons.length > 0 && totalPages > 1 && (
+            {/* Pagination - Show if there's data and (more than 1 page OR exactly ITEMS_PER_PAGE items which suggests more pages) */}
+            {!loading && filteredLexicons.length > 0 && totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border text-lg">
                 <div className="text-lg text-muted-foreground order-2 sm:order-1">
-                  Show{" "}
-                  <span className="font-medium text-foreground">
-                    {startIndex + 1}
-                  </span>
-                  -
-                  <span className="font-medium text-foreground">
-                    {Math.min(endIndex, filteredLexicons.length)}
-                  </span>{" "}
-                  of{" "}
-                  <span className="font-medium text-foreground">
-                    {filteredLexicons.length}
-                  </span>{" "}
-                  Lexicon
+                  {lexiconsData.pagination ? (
+                    <>
+                      Showing{" "}
+                      <span className="font-medium text-foreground">
+                        {startIndex}
+                      </span>
+                      -
+                      <span className="font-medium text-foreground">
+                        {endIndex}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-medium text-foreground">
+                        {lexiconsData.pagination.totalItems || filteredLexicons.length}
+                      </span>{" "}
+                      Lexicons
+                    </>
+                  ) : (
+                    <>
+                      Showing{" "}
+                      <span className="font-medium text-foreground">
+                        {startIndex}
+                      </span>
+                      -
+                      <span className="font-medium text-foreground">
+                        {endIndex}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-medium text-foreground">
+                        {filteredLexicons.length}
+                      </span>{" "}
+                      Lexicons
+                    </>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 order-1 sm:order-2 text-lg">
