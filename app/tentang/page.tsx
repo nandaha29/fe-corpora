@@ -1,382 +1,3 @@
-// // app/tentang/page.tsx
-// "use client"
-
-// import { useState, useEffect } from "react"
-// import { Badge } from "@/components/ui/badge"
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-// import {
-//   Heart,
-//   Users,
-//   BookOpen,
-//   Globe,
-//   Award,
-//   Sparkles,
-//   ArrowLeft,
-//   Play,
-//   Library,
-//   ExternalLink
-// } from "lucide-react"
-// import { AnimatedReveal } from "@/components/common/animated-reveal"
-// import { Navigation } from "@/components/layout/navigation"
-// import { Footer } from "@/components/layout/footer"
-// import { useNavigation } from "@/hooks/use-navigation"
-// import Image from "next/image"
-// import { Button } from "@/components/ui/button"
-// import Link from "next/link"
-// import { motion } from "framer-motion"
-// import ScrollToTopButton from "@/components/common/scroll-to-top"
-// import { aboutPageData } from "@/data/about-page"
-// import {
-//   AboutHero,
-//   AboutOverview,
-//   AboutContent,
-//   AboutSteps,
-//   AboutProcess,
-//   AboutRoadmap,
-//   AboutFeatures,
-//   AboutTeam,
-//   AboutGallery,
-//   AboutCTA
-// } from "@/components/sections/about"
-
-// interface LandingData {
-//   visiMisiSection: {
-//     publishedCultures: number
-//     publishedSubcultures: number
-//     publishedLeksikons: number
-//     totalContributors: number
-//     totalAssets: number
-//   }
-//   teamScientis: Array<{
-//     namaContributor: string
-//     expertiseArea: string
-//     institusi?: string
-//     email?: string
-//   }>
-//   collaborationAssets: Array<{
-//     asset: {
-//       url: string
-//       namaFile: string
-//       penjelasan: string
-//       tipe: string
-//     }
-//     contributor: {
-//       namaContributor: string
-//       institusi: string
-//     }
-//   }>
-// }
-
-// export default function AboutPage() {
-//   const { handleNavClick } = useNavigation()
-//   const [landingData, setLandingData] = useState<LandingData | null>(null)
-//   const [loading, setLoading] = useState(true)
-//   const [activeSection, setActiveSection] = useState<string>("overview")
-
-//   const [isNavSticky, setIsNavSticky] = useState(false)
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const response = await fetch('https://be-corpora.vercel.app/api/v1/public/landing')
-//         if (!response.ok) throw new Error('Failed to fetch data')
-//         const result = await response.json()
-//         if (result.success) {
-//           setLandingData(result.data)
-//         }
-//       } catch (err) {
-//         console.error('Error fetching landing data:', err)
-//       } finally {
-//         setLoading(false)
-//       }
-//     }
-
-//     fetchData()
-//   }, [])
-
-//   useEffect(() => {
-//     const handleScroll = () => {
-//       const headerHeight = 64
-//       setIsNavSticky(window.scrollY > headerHeight)
-
-//       const sections = ["overview", "about", "steps", "process", "roadmap", "features", "team", "gallery", "video"]
-//       for (const sectionId of sections) {
-//         const element = document.getElementById(sectionId)
-//         if (element) {
-//           const rect = element.getBoundingClientRect()
-//           if (rect.top <= 200) {
-//             setActiveSection(sectionId)
-//           }
-//         }
-//       }
-//     }
-
-//     window.addEventListener("scroll", handleScroll, { passive: true })
-//     return () => window.removeEventListener("scroll", handleScroll)
-//   }, [])
-
-//   const scrollToSection = (sectionId: string) => {
-//     const element = document.getElementById(sectionId)
-//     if (element) {
-//       const navbarHeight = 80
-//       const elementPosition = element.offsetTop - navbarHeight
-//       window.scrollTo({
-//         top: elementPosition,
-//         behavior: "smooth",
-//       })
-//     }
-//   }
-
-//   const handleSectionClick = (sectionId: string) => {
-//     setActiveSection(sectionId)
-
-//     const element = document.getElementById(sectionId)
-//     if (element) {
-//       const navbarHeight = 96
-//       const elementPosition = element.offsetTop - navbarHeight
-
-//       window.scrollTo({
-//         top: elementPosition,
-//         behavior: "smooth",
-//       })
-//     }
-//   }
-
-//   // Filter gallery images from collaboration assets
-//   const galleryImages = landingData?.collaborationAssets
-//     .filter(ca => ca.asset.tipe === 'image')
-//     .map(ca => ({
-//       url: ca.asset.url,
-//       alt: ca.asset.namaFile,
-//       description: ca.asset.penjelasan,
-//       contributor: ca.contributor.namaContributor,
-//       institution: ca.contributor.institusi
-//     })) || []
-
-//   // Filter videos from collaboration assets
-//   const videos = landingData?.collaborationAssets
-//     .filter(ca => ca.asset.tipe === 'video')
-//     .map(ca => ({
-//       url: ca.asset.url,
-//       title: ca.asset.namaFile,
-//       description: ca.asset.penjelasan,
-//       thumbnail: ca.asset.url.replace(/\.[^/.]+$/, ".jpg"), // Simple thumbnail assumption
-//       duration: "00:00", // Placeholder
-//       contributor: ca.contributor.namaContributor,
-//       institution: ca.contributor.institusi
-//     })) || []
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-//       <Navigation onNavClick={handleNavClick} />
-
-//       {/* Hero Section */}
-//       <AboutHero data={aboutPageData.hero} />
-
-//       {/* Navigation Tabs - Similar to Subculture */}
-//       <nav
-//         aria-label="Page subsections"
-//         className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 border-b border-border transition-shadow duration-200 ${isNavSticky ? "shadow-md" : ""
-//           }`}
-//       >
-//         <div className="container mx-auto px-4">
-//           <ul className="flex gap-2 overflow-x-auto py-2 no-scrollbar items-center">
-//             <li>
-//               <button
-//                 onClick={() => handleSectionClick("overview")}
-//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "overview"
-//                     ? "bg-primary/20 text-primary font-medium"
-//                     : "hover:bg-accent/20 text-foreground"
-//                   }`}
-//               >
-//                 <div className="text-xl">
-//                   Overview
-//                 </div>
-//               </button>
-//             </li>
-//             <li aria-hidden="true" className="text-muted-foreground">
-//               /
-//             </li>
-//             <li>
-//               <button
-//                 onClick={() => handleSectionClick("about")}
-//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "about"
-//                     ? "bg-primary/20 text-primary font-medium"
-//                     : "hover:bg-accent/20 text-foreground"
-//                   }`}
-//               >
-//                 <div className="text-xl">
-//                   About UB Corpora
-//                 </div>
-//               </button>
-//             </li>
-//             <li aria-hidden="true" className="text-muted-foreground">
-//               /
-//             </li>
-//             <li>
-//               <button
-//                 onClick={() => handleSectionClick("steps")}
-//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "steps"
-//                     ? "bg-primary/20 text-primary font-medium"
-//                     : "hover:bg-accent/20 text-foreground"
-//                   }`}
-//               >
-//                 <div className="text-xl">
-//                   Project Steps
-//                 </div>
-//               </button>
-//             </li>
-//             <li aria-hidden="true" className="text-muted-foreground">
-//               /
-//             </li>
-//             <li>
-//               <button
-//                 onClick={() => handleSectionClick("process")}
-//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "process"
-//                     ? "bg-primary/20 text-primary font-medium"
-//                     : "hover:bg-accent/20 text-foreground"
-//                   }`}
-//               >
-//                 <div className="text-xl">
-//                   Process
-//                 </div>
-//               </button>
-//             </li>
-//             <li aria-hidden="true" className="text-muted-foreground">
-//               /
-//             </li>
-//             <li>
-//               <button
-//                 onClick={() => handleSectionClick("roadmap")}
-//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "roadmap"
-//                     ? "bg-primary/20 text-primary font-medium"
-//                     : "hover:bg-accent/20 text-foreground"
-//                   }`}
-//               >
-//                 <div className="text-xl">
-//                   Roadmap
-//                 </div>
-//               </button>
-//             </li>
-//             <li aria-hidden="true" className="text-muted-foreground">
-//               /
-//             </li>
-//             <li>
-//               <button
-//                 onClick={() => handleSectionClick("features")}
-//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "features"
-//                     ? "bg-primary/20 text-primary font-medium"
-//                     : "hover:bg-accent/20 text-foreground"
-//                   }`}
-//               >
-//                 <div className="text-xl">
-//                   Features
-//                 </div>
-//               </button>
-//             </li>
-//             <li aria-hidden="true" className="text-muted-foreground">
-//               /
-//             </li>
-//             <li>
-//               <button
-//                 onClick={() => handleSectionClick("team")}
-//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "team"
-//                     ? "bg-primary/20 text-primary font-medium"
-//                     : "hover:bg-accent/20 text-foreground"
-//                   }`}
-//               >
-//                 <div className="text-xl">
-//                   Team
-//                 </div>
-//               </button>
-//             </li>
-//             <li aria-hidden="true" className="text-muted-foreground">
-//               /
-//             </li>
-//             <li>
-//               <button
-//                 onClick={() => handleSectionClick("gallery")}
-//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "gallery"
-//                     ? "bg-primary/20 text-primary font-medium"
-//                     : "hover:bg-accent/20 text-foreground"
-//                   }`}
-//               >
-//                 <div className="text-xl">
-//                   Gallery
-//                 </div>
-//               </button>
-//             </li>
-//             <li aria-hidden="true" className="text-muted-foreground">
-//               /
-//             </li>
-//             <li>
-//               <button
-//                 onClick={() => handleSectionClick("video")}
-//                 className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${activeSection === "video"
-//                     ? "bg-primary/20 text-primary font-medium"
-//                     : "hover:bg-accent/20 text-foreground"
-//                   }`}
-//               >
-//                 <div className="text-xl">
-//                   Video
-//                 </div>
-//               </button>
-//             </li>
-//           </ul>
-//         </div>
-//       </nav>
-
-//       <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
-//         {/* Overview Section */}
-//         <AboutOverview
-//           data={aboutPageData.overview}
-//           stats={landingData?.visiMisiSection}
-//         />
-
-//         {/* About UB Corpora Section */}
-//         <AboutContent data={aboutPageData.about} />
-
-//         {/* Project Steps Section */}
-//         <AboutSteps data={aboutPageData.steps} />
-
-//         {/* Process Section */}
-//         <AboutProcess data={aboutPageData.process} />
-
-//         {/* Roadmap Section */}
-//         <AboutRoadmap data={aboutPageData.roadmap} />
-
-//         {/* Features Section */}
-//         <AboutFeatures data={aboutPageData.features} />
-
-//         {/* Team Section */}
-//         <AboutTeam
-//           data={aboutPageData.team}
-//           loading={loading}
-//         />
-
-//         {/* Gallery Section */}
-//         <AboutGallery
-//           data={aboutPageData.gallery}
-//           galleryImages={galleryImages}
-//         />
-
-//         {/* Video Section */}
-//         <AboutVideo
-//           data={{
-//             ...aboutPageData.video,
-//             emptyMessage: "No videos available at the moment."
-//           }}
-//           videos={videos}
-//         />
-
-//       </main>
-
-//       <Footer onNavClick={handleNavClick} />
-//       <ScrollToTopButton />
-//     </div>
-//   )
-// }
-
 
 // app/tentang/page.tsx
 "use client"
@@ -408,12 +29,7 @@ import ScrollToTopButton from "@/components/common/scroll-to-top"
 import { API_BASE_URL } from "@/lib/config"
 import {
   subcultureData,
-  heroImageUrl,
-  academicReferences,
-  projectSteps,
-  projectProcess,
-  projectRoadmap,
-  platformFeatures
+  heroImageUrl
 } from "@/data/about"
 import { YouTubeSection, type YouTubeVideo } from "@/components/sections/youtube-section"
 import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils"
@@ -444,6 +60,42 @@ interface LandingData {
       institusi: string
     }
   }>
+  academicReferences: Array<{
+    judul: string
+    penulis: string
+    tahunTerbit: string
+    tipeReferensi: string
+    citationNote: string
+    topicCategory: string
+    penjelasan: string
+  }>
+  projectSteps: Array<{
+    title: string
+    description: string
+  }>
+  projectProcess: Array<{
+    icon: string
+    title: string
+    description: string
+  }>
+  projectRoadmap: Array<{
+    year: string
+    title: string
+    items: string[]
+  }>
+  platformFeatures: Array<{
+    icon: string
+    title: string
+    description: string
+  }>
+  youtubeVideos: Array<{
+    videoId: string
+    title: string
+    description: string
+    thumbnail: string
+    duration: string
+  }>
+  galleryPhotos: string[]
 }
 
 export default function AboutPage() {
@@ -457,25 +109,19 @@ export default function AboutPage() {
   // Gallery slideshow state
   const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0)
 
-  const galleryPhotos = [
-    "DSC08518.JPG",
-    "/WhatsApp_Image_2025-09-21_at_20.07.38 2.jpeg",
-    "/WhatsApp Image 2025-11-08 at 10.20.47 PM.jpeg",
-    "/Rapat_2025_08_12.jpg",
-    "/Rapat 2025_11_14.jpg"
-  ]
+  const galleryPhotos = landingData?.galleryPhotos || []
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}landing`)
+        const response = await fetch('http://localhost:8000/api/v1/public/about')
         if (!response.ok) throw new Error('Failed to fetch data')
         const result = await response.json()
         if (result.success) {
           setLandingData(result.data)
         }
       } catch (err) {
-        console.error('Error fetching landing data:', err)
+        console.error('Error fetching about data:', err)
       } finally {
         setLoading(false)
       }
@@ -543,11 +189,17 @@ export default function AboutPage() {
     }
   }
 
-
+function capitalize(input: string): string {
+  if (!input) return input;
+  return input
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
 
   // Filter gallery images from collaboration assets
   const galleryImages = landingData?.collaborationAssets
-    .filter(ca => ca.asset.tipe === 'image')
+    ?.filter(ca => ca.asset.tipe === 'photo')
     .map(ca => ({
       url: ca.asset.url,
       alt: ca.asset.namaFile,
@@ -556,16 +208,8 @@ export default function AboutPage() {
       institution: ca.contributor.institusi
     })) || []
 
-  // YouTube video data
-  const youtubeVideos: YouTubeVideo[] = [
-    {
-      videoId: "p3S3Tu-cMXk",
-      title: "PROFILE BRAWIJAYA CORPORA PROJECT 2025",
-      description: "Watch the introduction video to understand UB Corpora's vision, mission, and impact in preserving East Java's culture.",
-      thumbnail: getYouTubeThumbnail("p3S3Tu-cMXk", "maxres"),
-      duration: "",
-    }
-  ]
+  // YouTube video data from API
+  const youtubeVideos: YouTubeVideo[] = landingData?.youtubeVideos || []
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
@@ -891,58 +535,7 @@ export default function AboutPage() {
 
                 </h3>
               </div>
-              {/* Sources Section */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <Card className="bg-card/60">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
-                        <Library className="w-5 h-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg text-xl font-semibold">Key References</CardTitle>
-                        <h3 className="text-xl text-muted-foreground">{academicReferences.length} academic sources</h3>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
-                      {academicReferences.map((ref, idx) => (
-                        <div
-                          key={idx}
-                          className="p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group"
-                        >
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="font-semibold text-xl text-foreground line-clamp-2 flex-1">
-                              {ref.judul}
-                            </h4>
-                          </div>
-                          <h3 className="text-xl text-muted-foreground mb-2">
-                            {ref.penulis} • {ref.tahunTerbit}
-                          </h3>
-                          {ref.penjelasan && (
-                            <h3 className="text-xl text-muted-foreground mb-2 line-clamp-2">
-                              {ref.penjelasan}
-                            </h3>
-                          )}
-                          <div className="flex gap-1 flex-wrap">
-                            <Badge variant="outline" className="text-xl">
-                              {ref.tipeReferensi}
-                            </Badge>
-                            <Badge variant="outline" className="text-xl">
-                              {ref.citationNote}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+       
             </div>
           </div>
         </section>
@@ -961,129 +554,17 @@ export default function AboutPage() {
             <div className="absolute left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-purple-500"></div>
 
             <div className="space-y-12">
-              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
-                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
-                  1
+              {landingData?.projectSteps?.map((step, index) => (
+                <div key={index} className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
+                  <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
+                    {index + 1}
+                  </div>
+                  <h3 className="text-2xl font-bold mb-3 text-blue-400">{step.title}</h3>
+                  <div className="text-xl text-white/80 leading-relaxed">
+                    {step.description}
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold mb-3 text-blue-400">Focus Area</h3>
-                <div className="text-xl text-white/80 leading-relaxed">
-                  The project began by focusing on culture-specific and language-specific expressions
-                  found in East Java subcultures, such as Tengger and Panaraga.
-                </div>
-              </div>
-
-              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
-                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
-                  2
-                </div>
-                <h3 className="text-2xl font-bold mb-3 text-blue-400">Data Collection</h3>
-                <div className="text-xl text-white/80 leading-relaxed">
-                  Cultural expressions were collected through extensive and systematic literature reviews:
-                  <ul className="mt-4 space-y-2 list-none">
-                    <li className="flex items-start gap-3">
-                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span className="text-xl">Early 20th century (colonial scholars' journals and reports)</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span className="text-xl">Mid-20th century scholarly works</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span className="text-xl">Early 21st century contemporary research</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
-                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
-                  3
-                </div>
-                <h3 className="text-2xl font-bold mb-3 text-blue-400">Expert Consultation</h3>
-                <div className="text-xl text-white/80 leading-relaxed">
-                  The team regularly consults with scholars and cultural activists specializing
-                  in the studied subcultures to ensure accuracy and cultural sensitivity.
-                </div>
-              </div>
-
-              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
-                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
-                  4
-                </div>
-                <h3 className="text-2xl font-bold mb-3 text-blue-400">Data Categorization</h3>
-                <div className="text-xl text-white/80 leading-relaxed">
-                  Collected data are divided into types or domains based on unique characteristics:
-                  <ul className="mt-4 space-y-2 list-none">
-                    <li className="flex items-start gap-3">
-                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Tenggerese and Nature</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span >Tenggerese Ritual Performance</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Daily Language and Expressions</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span>Traditional Arts and Crafts</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
-                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
-                  5
-                </div>
-                <h3 className="text-2xl font-bold mb-3 text-blue-400">Digital Platform Development</h3>
-                <div className="text-xl text-white/80 leading-relaxed">
-                  Designed a comprehensive digital platform featuring:
-                  <ul className="mt-4 space-y-2 list-none">
-                    <li className="flex items-start gap-3">
-                      <span className=" text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span className="text-xl">Cultural-specific expressions (words and phrases)</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span className="text-xl">Glosses from academic sources</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span className="text-xl">Commentaries and annotations</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-xl text-blue-400 font-bold mt-0.5">→</span>
-                      <span className="text-xl">Photos, videos, and 3D models for each artifact</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
-                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
-                  6
-                </div>
-                <h3 className="text-2xl font-bold mb-3 text-blue-400">Field Documentation</h3>
-                <div className="text-xl text-white/80 leading-relaxed">
-                  Conducted cultural trips to document real-life cultural events using advanced
-                  media technology including 4K video, 360° photography, and 3D scanning.
-                </div>
-              </div>
-
-              <div className="relative bg-white/5 border border-white/10 rounded-2xl p-8 transition-all hover:bg-white/8 hover:border-white/20 hover:translate-x-2">
-                <div className="absolute -left-24 top-8 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg shadow-lg">
-                  7
-                </div>
-                <h3 className="text-2xl font-bold mb-3 text-blue-400">Objective</h3>
-                <div className="text-xl text-white/80 leading-relaxed">
-                  To present the complexity of cultural artifacts and their context in a digital,
-                  user-friendly form accessible to both experts and the general public.
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
@@ -1097,71 +578,17 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
-              <CardContent className="p-6 text-center">
-                <div className="text-4xl mb-4">👥</div>
-                <h3 className="text-xl font-semibold mb-3">Specialist Teams</h3>
-                <h3 className="text-xl text-muted-foreground leading-relaxed">
-                  Each stage is handled by dedicated specialist teams ensuring smooth
-                  and accurate execution of all project components.
-                </h3>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
-              <CardContent className="p-6 text-center">
-                <div className="text-4xl mb-4">📝</div>
-                <h3 className="text-xl font-semibold mb-3">Textual Analysis</h3>
-                <h3 className="text-xl text-muted-foreground leading-relaxed">
-                  Comprehensive transcription, transliteration, translation, and
-                  annotation of cultural texts and expressions.
-                </h3>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
-              <CardContent className="p-6 text-center">
-                <div className="text-4xl mb-4">🎭</div>
-                <h3 className="text-xl font-semibold mb-3">Physical Analysis</h3>
-                <h3 className="text-xl text-muted-foreground leading-relaxed">
-                  Body movement analysis through biomechanical methods to understand
-                  traditional dance and performance art.
-                </h3>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
-              <CardContent className="p-6 text-center">
-                <div className="text-4xl mb-4">🎵</div>
-                <h3 className="text-xl font-semibold mb-3">Auditory Analysis</h3>
-                <h3 className="text-xl text-muted-foreground leading-relaxed">
-                  Documentation and analysis of sounds and music embedded in
-                  cultural performances and rituals.
-                </h3>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
-              <CardContent className="p-6 text-center">
-                <div className="text-4xl mb-4">📊</div>
-                <h3 className="text-xl font-semibold mb-3">Data Integration</h3>
-                <h3 className="text-xl text-muted-foreground leading-relaxed">
-                  Systematic organization of multi-modal data into a unified,
-                  searchable digital database.
-                </h3>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
-              <CardContent className="p-6 text-center">
-                <div className="text-4xl mb-4">🌐</div>
-                <h3 className="text-xl font-semibold mb-3">Public Access</h3>
-                <h3 className="text-xl text-muted-foreground leading-relaxed">
-                  Development of user-friendly interfaces for scholars, students,
-                  and the general public to access cultural data.
-                </h3>
-              </CardContent>
-            </Card>
+            {landingData?.projectProcess?.map((process, index) => (
+              <Card key={index} className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl mb-4">{process.icon}</div>
+                  <h3 className="text-xl font-semibold mb-3">{process.title}</h3>
+                  <h3 className="text-xl text-muted-foreground leading-relaxed">
+                    {process.description}
+                  </h3>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </section>
         {/* Project Roadmap Section */}
@@ -1175,110 +602,24 @@ export default function AboutPage() {
 
           <div className="max-w-4xl mx-auto">
             <div className="grid md:grid-cols-3 gap-6">
-                <Card className="group border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full hover:from-primary/10 hover:to-primary/5 transition-all duration-300">
+              {landingData?.projectRoadmap?.map((phase, index) => (
+                <Card key={index} className="group border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full hover:from-primary/10 hover:to-primary/5 transition-all duration-300">
                   <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-muted-foreground mb-2 group-hover:text-primary transition-colors duration-300">2025</div>
-                  <div className="text-xl font-semibold mb-4">Phase 1: Foundation</div>
-                  <div className="text-left">
-                    <ul className="space-y-2 text-lg text-muted-foreground">
-                      <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                       <h3 className="text-xl">
-                        Database development
-                       </h3>
-                      </li>
-                      <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                       <h3 className="text-xl">
-                        Preliminary website launch
-                       </h3>
-                      </li>
-                      <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                        <h3 className="text-xl">
-                        Initial data collection
-                        </h3>
-                      </li>
-                      <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                       <h3 className="text-xl">
-                        Team formation
-                       </h3>
-                      </li>
-                    </ul>
-                  </div>
-                </CardContent>
+                    <div className="text-3xl font-bold text-muted-foreground mb-2 group-hover:text-primary transition-colors duration-300">{phase.year}</div>
+                    <div className="text-xl font-semibold mb-4">{phase.title}</div>
+                    <div className="text-left">
+                      <ul className="space-y-2 text-lg text-muted-foreground">
+                        {phase.items.map((item, itemIndex) => (
+                          <li key={itemIndex} className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
+                            <h3 className="text-xl">{item}</h3>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
                 </Card>
-
-                <Card className="group border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full hover:from-primary/10 hover:to-primary/5 transition-all duration-300">
-                  <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-muted-foreground mb-2 group-hover:text-primary transition-colors duration-300">2026</div>
-                  <div className="text-xl font-semibold mb-4">Phase 2: Expansion</div>
-                  <div className="text-left">
-                    <ul className="space-y-2 text-lg text-muted-foreground">
-                      <li className="flex items-center gap-2">
-                        <div className=" w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                        <h3 className="text-xl">
-                        Database expansion
-                        </h3>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                        <h3 className="text-xl">
-                        Full website establishment
-                        </h3>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                        <h3 className="text-xl">
-                        Additional subcultures
-                        </h3>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                        <h3 className="text-xl">
-                        Public beta testing
-                        </h3>
-                      </li>
-                    </ul>
-                  </div>
-                </CardContent>
-                </Card>
-
-                <Card className="group border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full hover:from-primary/10 hover:to-primary/5 transition-all duration-300">
-                  <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-muted-foreground mb-2 group-hover:text-primary transition-colors duration-300">2027</div>
-                  <div className="text-xl font-semibold mb-4">Phase 3: Institutionalization</div>
-                  <div className="text-left">
-                    <ul className="space-y-2 text-lg text-muted-foreground">
-                      <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                        <h3 className="text-xl">
-                        Brawijaya Corpora established
-                        </h3>
-                      </li>
-                      <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                        <h3 className="text-xl">
-                        Special task unit formation
-                        </h3>
-                      </li>
-                      <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                        <h3 className="text-xl">
-                        University integration
-                        </h3>
-                      </li>
-                      <li className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full hover:bg-primary transition-colors duration-300"></div>
-                       <h3 className="text-xl">
-                        Long-term sustainability
-                       </h3>
-                      </li>
-                    </ul>
-                  </div>
-                </CardContent>
-                </Card>
+              ))}
             </div>
           </div>
         </section>
@@ -1293,49 +634,17 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
-              <CardContent className="p-6">
-                <div className="text-4xl mb-4">🗂️</div>
-                <h3 className="text-xl font-semibold mb-3">Comprehensive Database</h3>
-                <h3 className="text-xl text-muted-foreground leading-relaxed">
-                  Systematic organization of cultural expressions with multi-layered annotations,
-                  glosses, and contextual information from verified academic sources.
-                </h3>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
-              <CardContent className="p-6">
-                <div className="text-4xl mb-4">📸</div>
-                <h3 className="text-xl font-semibold mb-3">Rich Media Documentation</h3>
-                <h3 className="text-xl text-muted-foreground leading-relaxed">
-                  High-quality photos, 4K videos, 360° panoramas, and 3D models accompanying
-                  each cultural artifact for immersive exploration.
-                </h3>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
-              <CardContent className="p-6">
-                <div className="text-4xl mb-4">🔍</div>
-                <h3 className="text-xl font-semibold mb-3">Advanced Search</h3>
-                <h3 className="text-xl text-muted-foreground leading-relaxed">
-                  Powerful search capabilities across multiple parameters: subculture, domain,
-                  time period, artifact type, and linguistic features.
-                </h3>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
-              <CardContent className="p-6">
-                <div className="text-4xl mb-4">🎓</div>
-                <h3 className="text-xl font-semibold mb-3">Academic Resources</h3>
-                <h3 className="text-xl text-muted-foreground leading-relaxed">
-                  Curated references, scholarly annotations, and citation tools for researchers
-                  and students conducting cultural studies.
-                </h3>
-              </CardContent>
-            </Card>
+            {landingData?.platformFeatures?.map((feature, index) => (
+              <Card key={index} className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+                <CardContent className="p-6">
+                  <div className="text-4xl mb-4">{feature.icon}</div>
+                  <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                  <h3 className="text-xl text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </h3>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </section>
 
@@ -1474,6 +783,62 @@ export default function AboutPage() {
             </Button>
           </div>
         </section> */}
+
+               {/* Sources Section */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Card className="bg-card/60">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                        <Library className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg text-xl font-semibold">Source References</CardTitle>
+                        <h3 className="text-xl text-muted-foreground">{landingData?.academicReferences?.length || 0} academic sources</h3>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
+                      {landingData?.academicReferences?.map((ref, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group"
+                        >
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <h4 className="font-semibold text-xl text-foreground line-clamp-2 flex-1">
+                              {ref.judul}
+                            </h4>
+                          </div>
+                          <h3 className="text-xl text-muted-foreground mb-2">
+                            {ref.penulis} • {ref.tahunTerbit}
+                          </h3>
+                          {ref.penjelasan && (
+                            <h3 className="text-xl text-muted-foreground mb-2 line-clamp-2">
+                              {ref.penjelasan}
+                            </h3>
+                          )}
+                          <div className="flex gap-1 flex-wrap">
+                            <Badge variant="outline" className="text-xl capitalize">
+                              {capitalize(ref.tipeReferensi)}
+                            </Badge>
+                            {/* <Badge variant="outline" className="text-xl capitalize">
+                              {capitalize(ref.citationNote)}
+                            </Badge> */}
+                            <Badge variant="outline" className="text-xl capitalize">
+                              {capitalize(ref.topicCategory)}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
       </main>
 
       <Footer onNavClick={handleNavClick} />
