@@ -927,20 +927,20 @@ export default function CulturalWordDetailPage({
                               </a>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">
+                          <p className="text-lg text-muted-foreground mb-2">
                             {ref.reference.authors} • {ref.reference.publicationYear}
                           </p>
                           {ref.reference.description && (
-                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                            <p className="text-lg text-muted-foreground mb-2 line-clamp-2">
                               {ref.reference.description}
                             </p>
                           )}
                           <div className="flex gap-1 flex-wrap">
-                            <Badge variant="outline" className="text-sm">
+                            <Badge variant="outline" className="text-lg">
                               {ref.reference.referenceType}
                             </Badge>
                             {ref.reference.citationNote && (
-                              <Badge variant="outline" className="text-sm">
+                              <Badge variant="outline" className="text-lg">
                                 {ref.reference.citationNote}
                               </Badge>
                             )}

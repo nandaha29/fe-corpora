@@ -123,20 +123,19 @@ export function useLexicons(
   return useSWR(key, customFetcher);
 }
 
-// Lexicon detail hook by termSlug
-export function useLexiconDetail(termSlug: string | null | undefined) {
+// Lexicon detail hook - accepts term/slug/ID as identifier
+// Endpoint: GET /api/v1/public/lexicons/:identifier
+export function useLexiconDetail(identifier: string | number | null | undefined) {
   return useSWR(
-    termSlug ? `${API_BASE_URL}lexicons/${termSlug}` : null,
+    identifier ? `${API_BASE_URL}lexicons/${identifier}` : null,
     fetcher
   );
 }
 
+// Alias for backward compatibility - use useLexiconDetail instead
 // Lexicon detail by ID (for translations)
 export function useLexiconDetailById(lexiconId: number | string | null | undefined) {
-  return useSWR(
-    lexiconId ? `${API_BASE_URL}lexicons/${lexiconId}` : null,
-    fetcher
-  );
+  return useLexiconDetail(lexiconId);
 }
 
 // Region/Subculture detail hook
