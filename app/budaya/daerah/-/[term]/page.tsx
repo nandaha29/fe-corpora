@@ -39,15 +39,15 @@ import ScrollToTopButton from '@/components/common/scroll-to-top';
 import { useLexiconDetail } from "@/hooks/use-api";
 
 interface LexiconAsset {
-  leksikonId: number;
-  assetId: number;
+  lexiconId: string | number;
+  assetId: string | number;
   assetRole: string;
   createdAt: string;
   asset: {
-    assetId: number;
-    namaFile: string;
-    tipe: string;
-    penjelasan: string;
+    assetId: string | number;
+    fileName: string;
+    fileType: string;
+    description: string;
     url: string;
     fileSize: string;
     hashChecksum: string;
@@ -59,18 +59,21 @@ interface LexiconAsset {
 }
 
 interface LexiconReference {
-  leksikonId: number;
-  referensiId: number;
-  citationNote: string;
+  lexiconId: string | number;
+  referenceId: string | number;
+  referenceRole: string;
+  displayOrder: string | number;
   createdAt: string;
-  referensi: {
-    referensiId: number;
-    judul: string;
-    tipeReferensi: string;
-    penjelasan: string;
+  reference: {
+    referenceId: string | number;
+    title: string;
+    referenceType: string;
+    description: string;
     url: string;
-    penulis: string;
-    tahunTerbit: string;
+    authors: string;
+    publicationYear: string;
+    topicCategory: string;
+    citationNote: string;
     status: string;
     createdAt: string;
     updatedAt: string;
@@ -106,8 +109,8 @@ interface LexiconEntry {
     otherDescription: string;
   };
   galleryImages?: GalleryImage[];
-  leksikonAssets?: LexiconAsset[];
-  leksikonReferensis?: LexiconReference[];
+  lexiconAssets?: LexiconAsset[];
+  lexiconReferences?: LexiconReference[];
 }
 
 interface YouTubeVideo {
@@ -208,11 +211,11 @@ export default function CulturalWordDetailPage({
       processedImages.push(...directImages);
     }
 
-    if (entry.leksikonAssets && Array.isArray(entry.leksikonAssets)) {
-      const audioAsset = entry.leksikonAssets.find(
+    if (entry.lexiconAssets && Array.isArray(entry.lexiconAssets)) {
+      const audioAsset = entry.lexiconAssets.find(
         (asset: LexiconAsset) =>
           asset.assetRole === "PRONUNCIATION" &&
-          asset.asset.tipe === "AUDIO"
+          asset.asset.fileType === "AUDIO"
       );
 
       if (audioAsset && audioAsset.asset.url) {
@@ -220,13 +223,13 @@ export default function CulturalWordDetailPage({
         setAudioUrl(audioAsset.asset.url);
       }
 
-      const imageAssets = entry.leksikonAssets.filter(
+      const imageAssets = entry.lexiconAssets.filter(
         (asset: LexiconAsset) => {
           const isImageType = 
-            asset.asset.tipe === "FOTO" || 
-            asset.asset.tipe === "IMAGE" ||
-            asset.asset.tipe === "GAMBAR" ||
-            asset.asset.tipe === "PHOTO";
+            asset.asset.fileType === "FOTO" || 
+            asset.asset.fileType === "IMAGE" ||
+            asset.asset.fileType === "GAMBAR" ||
+            asset.asset.fileType === "PHOTO";
           
           const isGalleryRole = 
             asset.assetRole === "GALLERY" || 
@@ -240,15 +243,15 @@ export default function CulturalWordDetailPage({
 
       const assetImages: GalleryImage[] = imageAssets.map((asset: LexiconAsset) => ({
         url: asset.asset.url,
-        description: asset.asset.namaFile || entry.term,
-        caption: asset.asset.penjelasan || `Cultural heritage of ${entry.term}`,
-        assetId: asset.asset.assetId,
+        description: asset.asset.fileName || entry.term,
+        caption: asset.asset.description || `Cultural heritage of ${entry.term}`,
+        assetId: typeof asset.asset.assetId === 'number' ? asset.asset.assetId : parseInt(asset.asset.assetId as string),
       }));
 
       processedImages.push(...assetImages);
 
-      const videoAssets = entry.leksikonAssets.filter(
-        (asset: LexiconAsset) => asset.asset.tipe === "VIDEO"
+      const videoAssets = entry.lexiconAssets.filter(
+        (asset: LexiconAsset) => asset.asset.fileType === "VIDEO"
       );
 
       const videos: YouTubeVideo[] = videoAssets
@@ -257,8 +260,8 @@ export default function CulturalWordDetailPage({
           if (videoId) {
             return {
               videoId: videoId,
-              title: asset.asset.namaFile || "Video",
-              description: asset.asset.penjelasan || "",
+              title: asset.asset.fileName || "Video",
+              description: asset.asset.description || "",
               thumbnail: getYouTubeThumbnail(videoId, "maxres"),
               duration: "",
             };
@@ -272,8 +275,8 @@ export default function CulturalWordDetailPage({
 
       setYoutubeVideos(videos);
 
-      const modelAssets = entry.leksikonAssets.filter(
-        (asset: LexiconAsset) => asset.asset.tipe === "MODEL_3D"
+      const modelAssets = entry.lexiconAssets.filter(
+        (asset: LexiconAsset) => asset.asset.fileType === "MODEL_3D"
       );
 
       const models: Model3D[] = modelAssets.map(
@@ -285,8 +288,8 @@ export default function CulturalWordDetailPage({
 
           return {
             id: sketchfabId || asset.asset.assetId.toString(),
-            title: asset.asset.namaFile || "3D Model",
-            description: asset.asset.penjelasan || "",
+            title: asset.asset.fileName || "3D Model",
+            description: asset.asset.description || "",
             artifactType: "Cultural Artifact",
             tags: [],
           };
@@ -882,7 +885,7 @@ export default function CulturalWordDetailPage({
               </motion.div>
 
               {/* Information Sources - Scrollable */}
-              {entry.leksikonReferensis && entry.leksikonReferensis.length > 0 && (
+              {entry.lexiconReferences && entry.lexiconReferences.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -896,24 +899,24 @@ export default function CulturalWordDetailPage({
                       </div>
                       <div>
                         <CardTitle className="text-base">Sources</CardTitle>
-                        <p className="text-lg text-muted-foreground">{entry.leksikonReferensis.length} references</p>
+                        <p className="text-lg text-muted-foreground">{entry.lexiconReferences.length} references</p>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
-                      {entry.leksikonReferensis.map((ref, idx) => (
+                      {entry.lexiconReferences.map((ref, idx) => (
                         <div
                           key={idx}
                           className="p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group text-base"
                         >
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <h4 className="font-semibold text-base text-foreground line-clamp-2 flex-1">
-                              {ref.referensi.judul}
+                              {ref.reference.title}
                             </h4>
-                            {ref.referensi.url && (
+                            {ref.reference.url && (
                               <a
-                                href={ref.referensi.url}
+                                href={ref.reference.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -925,20 +928,22 @@ export default function CulturalWordDetailPage({
                             )}
                           </div>
                           <p className="text-sm text-muted-foreground mb-2">
-                            {ref.referensi.penulis} • {ref.referensi.tahunTerbit}
+                            {ref.reference.authors} • {ref.reference.publicationYear}
                           </p>
-                          {ref.referensi.penjelasan && (
+                          {ref.reference.description && (
                             <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                              {ref.referensi.penjelasan}
+                              {ref.reference.description}
                             </p>
                           )}
                           <div className="flex gap-1 flex-wrap">
                             <Badge variant="outline" className="text-sm">
-                              {ref.referensi.tipeReferensi}
+                              {ref.reference.referenceType}
                             </Badge>
-                            {/* <Badge variant="outline" className="text-sm">
-                              {ref.citationNote}
-                            </Badge> */}
+                            {ref.reference.citationNote && (
+                              <Badge variant="outline" className="text-sm">
+                                {ref.reference.citationNote}
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       ))}
