@@ -49,9 +49,9 @@ interface LexiconAsset {
     fileType: string;
     description: string;
     url: string;
-    fileSize: string;
-    hashChecksum: string;
-    metadataJson: string;
+    fileSize: string | null;
+    hashChecksum: string | null;
+    metadataJson: string | null;
     status: string;
     createdAt: string;
     updatedAt: string;
@@ -59,25 +59,18 @@ interface LexiconAsset {
 }
 
 interface LexiconReference {
-  lexiconId: string | number;
-  referenceId: string | number;
-  referenceRole: string;
-  displayOrder: string | number;
+  referenceId: number;
+  title: string;
+  referenceType: string;
+  description: string;
+  url: string;
+  authors: string;
+  publicationYear: string;
+  topicCategory: string;
+  status: string;
   createdAt: string;
-  reference: {
-    referenceId: string | number;
-    title: string;
-    referenceType: string;
-    description: string;
-    url: string;
-    authors: string;
-    publicationYear: string;
-    topicCategory: string;
-    citationNote: string;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
-  };
+  updatedAt: string;
+  referenceRole: string;
 }
 
 interface GalleryImage {
@@ -88,6 +81,7 @@ interface GalleryImage {
 }
 
 interface LexiconEntry {
+  id: string;
   term: string;
   definition: string;
   regionKey: string;
@@ -905,48 +899,63 @@ export default function CulturalWordDetailPage({
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pr-2">
-                      {entry.lexiconReferences.map((ref, idx) => (
-                        <div
-                          key={idx}
-                          className="p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group text-base"
-                        >
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="font-semibold text-base text-foreground line-clamp-2 flex-1">
-                              {ref.reference.title}
-                            </h4>
-                            {ref.reference.url && (
-                              <a
-                                href={ref.reference.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                                  <ExternalLink className="w-3 h-3" />
-                                </Button>
-                              </a>
-                            )}
-                          </div>
-                          <p className="text-lg text-muted-foreground mb-2">
-                            {ref.reference.authors} • {ref.reference.publicationYear}
-                          </p>
-                          {ref.reference.description && (
-                            <p className="text-lg text-muted-foreground mb-2 line-clamp-2">
-                              {ref.reference.description}
-                            </p>
-                          )}
-                          <div className="flex gap-1 flex-wrap">
-                            <Badge variant="outline" className="text-lg">
-                              {ref.reference.referenceType}
-                            </Badge>
-                            {ref.reference.citationNote && (
-                              <Badge variant="outline" className="text-lg">
-                                {ref.reference.citationNote}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                      {entry.lexiconReferences
+                        .filter((ref) => ref && ref.title) // Filter out items without title
+                        .map((ref, idx) => {
+                          return (
+                            <div
+                              key={ref.referenceId || idx}
+                              className="p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group text-base"
+                            >
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <h4 className="font-semibold text-base text-foreground line-clamp-2 flex-1">
+                                  {ref.title || "Untitled Reference"}
+                                </h4>
+                                {ref.url && (
+                                  <a
+                                    href={ref.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                      <ExternalLink className="w-3 h-3" />
+                                    </Button>
+                                  </a>
+                                )}
+                              </div>
+                              {(ref.authors || ref.publicationYear) && (
+                                <p className="text-lg text-muted-foreground mb-2">
+                                  {ref.authors || "Unknown Author"}
+                                  {ref.authors && ref.publicationYear && " • "}
+                                  {ref.publicationYear || ""}
+                                </p>
+                              )}
+                              {ref.description && (
+                                <p className="text-lg text-muted-foreground mb-2 line-clamp-2">
+                                  {ref.description}
+                                </p>
+                              )}
+                              <div className="flex gap-1 flex-wrap">
+                                {ref.referenceType && (
+                                  <Badge variant="outline" className="text-lg">
+                                    {ref.referenceType}
+                                  </Badge>
+                                )}
+                                {ref.topicCategory && (
+                                  <Badge variant="outline" className="text-lg">
+                                    {ref.topicCategory}
+                                  </Badge>
+                                )}
+                                {ref.referenceRole && (
+                                  <Badge variant="secondary" className="text-lg">
+                                    {ref.referenceRole}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                     </div>
                   </CardContent>
                 </Card>

@@ -21,6 +21,10 @@ import {
   Maximize2,
   RefreshCw,
   MapPin,
+  BookOpen,
+  ExternalLink,
+  Calendar,
+  User,
 } from "lucide-react";
 import { Footer } from "@/components/layout/footer";
 import { useNavigation } from "@/hooks/use-navigation";
@@ -89,9 +93,6 @@ interface SubcultureData {
   profile: {
     displayName: string;
     history: string;
-    highlights: Array<{
-      url: string;
-    }>;
     salamKhas?: string;
     artiSalamKhas?: string;
   };
@@ -99,18 +100,19 @@ interface SubcultureData {
     url: string;
     description?: string;
     caption?: string;
+    lexiconTerm?: string | null;
   }>;
   model3dArray: Array<{
     sketchfabId: string;
     title: string;
     description: string;
     artifactType: string;
-    tags: any[];
   }>;
   lexicon: Array<{
     term: string;
     definition: string;
     category: string;
+    region: string;
     slug: string;
   }>;
   heroImage: string | null;
@@ -127,17 +129,31 @@ interface SubcultureData {
     createdAt: string;
     asset: {
       assetId: number;
-      namaFile: string;
-      tipe: string;
-      penjelasan: string;
+      fileName: string;
+      fileType: string;
+      description: string;
       url: string;
-      fileSize: string;
-      hashChecksum: string;
-      metadataJson: string;
+      fileSize: string | null;
+      hashChecksum: string | null;
+      metadataJson: string | null;
       status: string;
       createdAt: string;
       updatedAt: string;
     };
+  }>;
+  subcultureReferences?: Array<{
+    referenceId: number;
+    title: string;
+    referenceType: string;
+    description: string;
+    url: string;
+    authors: string;
+    publicationYear: string;
+    topicCategory: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    referenceRole: string;
   }>;
 }
 
@@ -170,7 +186,8 @@ export default function RegionDetailPage() {
   const { 
     data: fetchedSubcultureData, 
     error: fetchError, 
-    isLoading: isLoadingData 
+    isLoading: isLoadingData,
+    mutate: mutateRegionData
   } = useRegionDetail(regionId, regionType);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -220,10 +237,7 @@ export default function RegionDetailPage() {
   }, [region, regionId]);
 
   const handleRetry = () => {
-    setLoading(true);
-    setError(null);
-    setErrorDetails(null);
-    window.location.reload();
+    mutateRegionData();
   };
 
   // Gallery images from GALLERY role assets
@@ -234,24 +248,26 @@ export default function RegionDetailPage() {
       const galleryAssets = subcultureData.subcultureAssets.filter(
         (asset) =>
           asset.assetRole?.toUpperCase() === "GALLERY" &&
-          asset.asset?.tipe?.toLowerCase().includes('image')
+          (asset.asset?.fileType?.toLowerCase().includes('image') ||
+           asset.asset?.fileType?.toLowerCase().includes('photo') ||
+           asset.asset?.fileType?.toLowerCase().includes('foto'))
       );
 
       // console.log('📸 Found GALLERY assets:', galleryAssets.length);
       // console.log('📋 GALLERY asset details:', 
         galleryAssets.map(asset => ({
         role: asset.assetRole,
-        type: asset.asset?.tipe,
+        type: asset.asset?.fileType,
         url: asset.asset?.url,
-        name: asset.asset?.namaFile
+        name: asset.asset?.fileName
       }))
     // );
 
       if (galleryAssets.length > 0) {
         return galleryAssets.map((asset, idx) => ({
           url: asset.asset.url,
-          description: asset.asset.penjelasan || `${subcultureData.profile?.displayName} Gallery Image ${idx + 1}`,
-          caption: asset.asset.namaFile || `Cultural heritage image ${idx + 1}`,
+          description: asset.asset.description || `${subcultureData.profile?.displayName} Gallery Image ${idx + 1}`,
+          caption: asset.asset.fileName || `Cultural heritage image ${idx + 1}`,
         }));
       }
     }
@@ -380,7 +396,7 @@ export default function RegionDetailPage() {
         title: model.title,
         description: model.description,
         artifactType: model.artifactType,
-        tags: model.tags,
+        tags: [],
       }));
     }
     return [];
@@ -654,6 +670,7 @@ export default function RegionDetailPage() {
         "photo-gallery",
         "viewer-3d",
         "youtube-videos",
+        "references",
       ];
 
       const scrollPosition = window.scrollY + 200;
@@ -910,7 +927,7 @@ export default function RegionDetailPage() {
         assetRoleType: typeof asset.assetRole,
         assetId: asset.assetId,
         assetUrl: asset.asset?.url,
-        assetType: asset.asset?.tipe,
+        assetType: asset.asset?.fileType,
         fullAsset: asset
       })
     // )
@@ -1099,6 +1116,23 @@ export default function RegionDetailPage() {
                 >
                   <div className="text-xl">
                   YouTube Videos
+                  </div>
+                </button>
+              </li>
+              <li aria-hidden="true" className="text-muted-foreground">
+                /
+              </li>
+              <li>
+                <button
+                  onClick={() => handleSectionClick("references")}
+                  className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
+                    activeSection === "references"
+                      ? "bg-primary/20 text-primary font-medium"
+                      : "hover:bg-accent/20 text-foreground"
+                  }`}
+                >
+                  <div className="text-xl">
+                  References
                   </div>
                 </button>
               </li>
@@ -1466,6 +1500,138 @@ export default function RegionDetailPage() {
                 showThumbnails={true}
                 columns={3}
               />
+            </section>
+
+            {/* References Section */}
+            <section id="references" className="scroll-mt-24">
+              <Card className="bg-card/60 border-border">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+                    <BookOpen className="w-6 h-6" />
+                    References & Bibliography
+                  </CardTitle>
+                  <p className="text-lg text-muted-foreground mt-2">
+                    Academic references, publications, and sources related to{" "}
+                    {subcultureData.profile?.displayName}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  {subcultureData?.subcultureReferences &&
+                  subcultureData.subcultureReferences.length > 0 ? (
+                    <div className="space-y-4">
+                      {subcultureData.subcultureReferences
+                        .filter((ref) => ref && ref.title) // Filter out items without title
+                        .map((ref, index) => {
+                          return (
+                            <div
+                              key={`${ref.referenceId}-${index}`}
+                              className="bg-background/50 border border-border rounded-lg p-6 hover:shadow-md transition-shadow"
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1 space-y-3">
+                                  <div className="flex items-start gap-3">
+                                    <div className="mt-1">
+                                      <BookOpen className="w-5 h-5 text-primary" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <h3 className="text-xl font-semibold text-foreground mb-2">
+                                        {ref.title || "Untitled Reference"}
+                                      </h3>
+                                      
+                                      {ref.description && (
+                                        <p className="text-base text-muted-foreground mb-3 line-clamp-3">
+                                          {ref.description}
+                                        </p>
+                                      )}
+
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                                        {ref.authors && (
+                                          <div className="flex items-start gap-2">
+                                            <User className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                            <div>
+                                              <span className="text-sm font-medium text-muted-foreground">
+                                                Authors:
+                                              </span>
+                                              <p className="text-base text-foreground">
+                                                {ref.authors}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {ref.publicationYear && (
+                                          <div className="flex items-start gap-2">
+                                            <Calendar className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                            <div>
+                                              <span className="text-sm font-medium text-muted-foreground">
+                                                Year:
+                                              </span>
+                                              <p className="text-base text-foreground">
+                                                {ref.publicationYear}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {ref.referenceType && (
+                                          <div className="flex items-start gap-2">
+                                            <Badge variant="secondary" className="text-xs">
+                                              {ref.referenceType}
+                                            </Badge>
+                                          </div>
+                                        )}
+
+                                        {ref.topicCategory && (
+                                          <div className="flex items-start gap-2">
+                                            <Badge variant="outline" className="text-xs">
+                                              {ref.topicCategory}
+                                            </Badge>
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {ref.referenceRole && (
+                                        <div className="mt-2">
+                                          <Badge variant="outline" className="text-xs">
+                                            Role: {ref.referenceRole}
+                                          </Badge>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {ref.url && (
+                                  <div className="flex-shrink-0">
+                                    <a
+                                      href={ref.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors cursor-pointer"
+                                    >
+                                      <span className="text-sm font-medium">View Source</span>
+                                      <ExternalLink className="w-4 h-4" />
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <BookOpen className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                        No References Available
+                      </h3>
+                      <p className="text-base text-muted-foreground">
+                        References and bibliography for this subculture are not yet available.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </section>
           </main>
         ) : (
