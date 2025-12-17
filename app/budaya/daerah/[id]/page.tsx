@@ -658,13 +658,20 @@ export default function RegionDetailPage() {
     return () => clearTimeout(debounceTimer);
   }, [searchQuery, subcultureData?.subcultureId]);
 
+  // Use Intersection Observer for section detection (more efficient than scroll + offsetTop)
   useEffect(() => {
+    const headerHeight = 64;
+    
+    // Simple scroll handler for sticky nav (cheap operation)
     const handleScroll = () => {
-      const headerHeight = 64;
       setIsNavSticky(window.scrollY > headerHeight);
+    };
 
-      if (showLexiconOnly) return;
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
 
+    // Use Intersection Observer for section detection (avoids forced reflows)
+    if (!showLexiconOnly) {
       const sections = [
         "region-profile",
         "photo-gallery",
@@ -673,28 +680,43 @@ export default function RegionDetailPage() {
         "references",
       ];
 
-      const scrollPosition = window.scrollY + 200;
+      const observerOptions = {
+        root: null,
+        rootMargin: "-20% 0px -60% 0px", // Trigger when section is in viewport
+        threshold: 0,
+      };
 
-      let currentActive = "region-profile";
+      const observer = new IntersectionObserver((entries) => {
+        // Find the section that's most visible
+        let mostVisible = { id: "region-profile", ratio: 0 };
+        
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > mostVisible.ratio) {
+            mostVisible = {
+              id: entry.target.id,
+              ratio: entry.intersectionRatio,
+            };
+          }
+        });
 
-      for (const sectionId of sections) {
+        if (mostVisible.ratio > 0) {
+          setActiveSection(mostVisible.id);
+        }
+      }, observerOptions);
+
+      // Observe all sections
+      sections.forEach((sectionId) => {
         const element = document.getElementById(sectionId);
         if (element) {
-          const elementTop = element.offsetTop;
-          const elementBottom = elementTop + element.offsetHeight;
-
-          if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
-            currentActive = sectionId;
-            break;
-          }
+          observer.observe(element);
         }
-      }
+      });
 
-      setActiveSection(currentActive);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+        observer.disconnect();
+      };
+    }
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [showLexiconOnly]);
@@ -993,6 +1015,9 @@ export default function RegionDetailPage() {
             alt={`${regionId} cultural landscape`}
             className="h-[65vh] md:h-[80vh] w-full object-cover"
             crossOrigin="anonymous"
+            fetchPriority="high"
+            loading="eager"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
@@ -1195,6 +1220,8 @@ export default function RegionDetailPage() {
                           alt={currentGalleryImage.description}
                           className="w-full h-full object-cover"
                           crossOrigin="anonymous"
+                          loading="lazy"
+                          decoding="async"
                         />
 
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -1259,6 +1286,8 @@ export default function RegionDetailPage() {
                                   }
                                   className="w-full h-full object-cover"
                                   crossOrigin="anonymous"
+                                  loading="lazy"
+                                  decoding="async"
                                 />
                               </div>
 
@@ -1414,6 +1443,8 @@ export default function RegionDetailPage() {
                       src={currentGalleryImage.url || "/placeholder.svg"}
                       alt={currentGalleryImage.description}
                       className="w-full h-auto rounded-lg shadow-2xl"
+                      loading="eager"
+                      decoding="async"
                     />
 
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 rounded-b-lg">
@@ -1461,6 +1492,8 @@ export default function RegionDetailPage() {
                                   src={img.url || "/placeholder.svg"}
                                   alt={`Thumbnail ${idx + 1}`}
                                   className="w-full h-full object-cover"
+                                  loading="lazy"
+                                  decoding="async"
                                 />
                               </div>
                               {idx === currentGalleryIndex && (

@@ -431,3 +431,7 @@ iframe[allowfullscreen] {
 .rich-text-content iframe[src*="youtube"] {
   @apply w-full aspect-video rounded-lg my-4;
 }
+
+/* Font display optimization - ensure all fonts use swap */
+/* Note: Fonts loaded via next/font/google already have display: swap */
+/* For third-party fonts (Sketchfab), we can't directly control, but browser will use fallback */
