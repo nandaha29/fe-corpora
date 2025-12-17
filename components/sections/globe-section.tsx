@@ -5,9 +5,10 @@ import { Globe } from "lucide-react"
 import { AnimatedReveal } from "@/components/common/animated-reveal"
 import { useNavigation } from "@/hooks/use-navigation"
 import dynamic from "next/dynamic"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 
-// Dynamically import the globe component to avoid SSR issues
+// Dynamically import the globe component with lazy loading
+// Only load when component is visible (Intersection Observer)
 const InteractiveGlobe = dynamic(
   () => import("../three/interactive-globe").then((mod) => ({ default: mod.InteractiveGlobe })),
   {
@@ -26,6 +27,34 @@ const InteractiveGlobe = dynamic(
 export function GlobeSection() {
   const { handleGlobeNavigation } = useNavigation()
   const [showPopup, setShowPopup] = useState(false)
+  const [shouldLoadGlobe, setShouldLoadGlobe] = useState(false)
+  const globeContainerRef = useRef<HTMLDivElement>(null)
+
+  // Lazy load globe only when section is visible (Intersection Observer)
+  useEffect(() => {
+    if (!globeContainerRef.current) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoadGlobe(true)
+            observer.disconnect()
+          }
+        })
+      },
+      {
+        rootMargin: "200px", // Start loading 200px before section is visible
+        threshold: 0.1,
+      }
+    )
+
+    observer.observe(globeContainerRef.current)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
 
   return (
     <section id="eksplorasi" className="py-24 bg-muted/30 relative scroll-mt-16">
@@ -51,14 +80,24 @@ export function GlobeSection() {
           </div>
         </AnimatedReveal>
 
-        {/* Globe with hover popup */}
+        {/* Globe with hover popup - Lazy loaded */}
         <AnimatedReveal animation="scale-up" delay={200}>
           <div
+            ref={globeContainerRef}
             className="relative w-full h-[600px] flex items-center justify-center"
             onMouseEnter={() => setShowPopup(true)}
             onMouseLeave={() => setShowPopup(false)}
           >
-            <InteractiveGlobe onGlobeClick={handleGlobeNavigation} />
+            {shouldLoadGlobe ? (
+              <InteractiveGlobe onGlobeClick={handleGlobeNavigation} />
+            ) : (
+              <div className="h-96 lg:h-[600px] w-full relative flex items-center justify-center bg-muted/20 rounded-lg">
+                <div className="text-center space-y-4">
+                  <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
+                  <p className="text-base text-xl text-muted-foreground font-medium">Preparing 3D Globe...</p>
+                </div>
+              </div>
+            )}
 
             {/* Popup on hover */}
             {showPopup && (

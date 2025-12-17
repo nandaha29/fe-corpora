@@ -44,19 +44,24 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
     { src: "/partner-logo-6.png", alt: "National Museum of Culture" },
   ]
 
-  const displayAssets = collaborationAssets ? collaborationAssets.map(ca => ({
+  // Build display list, fall back to defaults when empty to avoid zero-length arrays
+  const mappedCollaborationAssets = collaborationAssets?.map(ca => ({
     src: ca.asset.url,
     alt: ca.asset.fileName,
     contributor: ca.contributor.namaContributor,
     description: ca.asset.description
-  })) : defaultLogos.map(logo => ({
-    ...logo,
-    contributor: '',
-    description: ''
-  }))
+  })) || []
+
+  const displayAssets = mappedCollaborationAssets.length > 0
+    ? mappedCollaborationAssets
+    : defaultLogos.map(logo => ({
+        ...logo,
+        contributor: '',
+        description: ''
+      }))
 
   // 🔧 Duplikasi logo minimal 8 kali untuk memastikan marquee penuh dan seamless
-  const minRepetitions = Math.max(8, Math.ceil(40 / displayAssets.length))
+  const minRepetitions = Math.max(8, Math.ceil(40 / displayAssets.length || 1))
   const repeatedLogos = Array(minRepetitions).fill(displayAssets).flat()
 
   return (

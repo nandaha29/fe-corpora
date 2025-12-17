@@ -34,6 +34,10 @@ export const metadata: Metadata = {
     ],
     shortcut: "/Logo.png",
   },
+  other: {
+    // Optimize CSS loading
+    "x-css-preload": "true",
+  },
 }
 
 export default function RootLayout({
