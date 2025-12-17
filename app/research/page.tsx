@@ -1,13 +1,14 @@
 // app/research/page.tsx
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Navigation } from "@/components/layout/navigation"
 import { Footer } from "@/components/layout/footer"
 import { useNavigation } from "@/hooks/use-navigation"
+import { useLandingData } from "@/hooks/use-api"
 import { AnimatedReveal } from "@/components/common/animated-reveal"
 import { 
   Users, 

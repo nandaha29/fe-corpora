@@ -1,5 +1,5 @@
-// // app/tentang/page.tsx
-// "use client"
+// app/tentang/page.tsx
+"use client"
 
 // import { useState, useEffect, useMemo } from "react"
 // import { Badge } from "@/components/ui/badge"
@@ -456,7 +456,7 @@ export default function AboutPage() {
   const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0)
 
   const galleryPhotos = [
-    "DSC08518.JPG",
+    "/DSC08518.JPG",
     "/WhatsApp_Image_2025-09-21_at_20.07.38 2.jpeg",
     "/WhatsApp Image 2025-11-08 at 10.20.47 PM.jpeg",
     "/Rapat_2025_08_12.jpg",
@@ -563,6 +563,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+      {/* LCPOptimizer removed - using next/image with priority instead */}
       <Navigation onNavClick={handleNavClick} />
 
       {/* Hero Section */}
@@ -1379,26 +1380,40 @@ export default function AboutPage() {
           </h3>
 
           <div className="relative">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentGalleryIndex}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.5 }}
-                className="rounded-xl overflow-hidden border border-border bg-background/50 shadow-lg"
-              >
-                <div className="aspect-video relative">
-                  <img
-                    src={galleryPhotos[currentGalleryIndex]}
-                    alt={`UB Corpora Activity ${currentGalleryIndex + 1}`}
-                    className="w-full h-full object-cover"
-                    crossOrigin="anonymous"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                </div>
-              </motion.div>
-            </AnimatePresence>
+            {/* Simplified gallery without AnimatePresence to reduce main-thread work */}
+            <div className="rounded-xl overflow-hidden border border-border bg-background/50 shadow-lg">
+              <div className="aspect-video relative">
+                {/* LCP Image: Always render with next/image for optimal performance */}
+                {/* This ensures LCP image is discoverable from initial HTML */}
+                <Image
+                  src="/DSC08518.JPG"
+                  alt="UB Corpora Activity"
+                  fill
+                  priority={true}
+                  quality={85}
+                  className={`object-cover transition-opacity duration-300 ${
+                    currentGalleryIndex === 0 ? 'opacity-100' : 'opacity-0 absolute inset-0 pointer-events-none'
+                  }`}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                  fetchPriority="high"
+                />
+                {/* Other images use regular img tag with lazy loading */}
+                {galleryPhotos.map((photo, index) => (
+                  index !== 0 && (
+                    <img
+                      key={index}
+                      src={photo}
+                      alt={`UB Corpora Activity ${index + 1}`}
+                      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+                        currentGalleryIndex === index ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                      }`}
+                      loading="lazy"
+                    />
+                  )
+                ))}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              </div>
+            </div>
 
             {/* Navigation Dots */}
             <div className="flex justify-center mt-4 space-x-2">

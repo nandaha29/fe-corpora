@@ -1,0 +1,16 @@
+# Target modern browsers only
+# This reduces legacy JavaScript polyfills
+
+> 0.5%
+last 2 versions
+not dead
+not IE 11
+not op_mini all
+
+# Modern browser features support:
+# - Array.prototype.at (Chrome 92+)
+# - Array.prototype.flat (Chrome 69+)
+# - Object.fromEntries (Chrome 73+)
+# - String.prototype.trimStart/trimEnd (Chrome 66+)
+# - Object.hasOwn (Chrome 93+)
+

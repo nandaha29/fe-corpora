@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Landmark, Mountain, Waves, Sparkles } from "lucide-react";
 import { AnimatedReveal } from "@/components/common/animated-reveal";
@@ -79,7 +80,7 @@ export function HeroSection({
 
   const carouselImages = highlightAssetsList.length > 0
     ? highlightAssetsList.map(h => h.asset.url)
-    : ["DSC08518.JPG","/WhatsApp_Image_2025-09-21_at_20.07.38 2.jpeg", "/WhatsApp Image 2025-11-08 at 10.20.47 PM.jpeg", "/Rapat_2025_08_12.jpg"];
+    : ["/DSC08518.JPG","/WhatsApp_Image_2025-09-21_at_20.07.38 2.jpeg", "/WhatsApp Image 2025-11-08 at 10.20.47 PM.jpeg", "/Rapat_2025_08_12.jpg"];
 
   useEffect(() => {
     if (carouselImages.length <= 1) return;
@@ -101,10 +102,11 @@ export function HeroSection({
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `linear-gradient(rgba(17, 24, 39, 0.8), rgba(17, 24, 39, 0.8)), url('${
-              bannerAssetUrl ||
-              (assets && assets.length > 0
-                ? assets[0]
-                : "/Pura Luhur POTEN.JPG")
+              bannerAssetUrl 
+                ? encodeURI(bannerAssetUrl)
+                : (assets && assets.length > 0
+                  ? encodeURI(assets[0])
+                  : encodeURI("/Pura Luhur POTEN.JPG"))
             }')`,
           }}
         />
@@ -152,15 +154,32 @@ export function HeroSection({
               {/* Card besar atas */}
               <div className="col-span-2 h-48 relative rounded-2xl overflow-hidden shadow-lg group">
                 <div className="absolute inset-0">
+                  {/* LCP Image: Always render first image with next/image */}
+                  <Image
+                    src="/DSC08518.JPG"
+                    alt="UB Corpora Activity"
+                    fill
+                    priority
+                    quality={85}
+                    fetchPriority="high"
+                    className={`object-cover transition-all duration-300 group-hover:scale-110 ${
+                      currentIndex === 0 ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                  {/* Other images with regular img tag */}
                   {carouselImages.map((src, index) => (
-                    <img
-                      key={src}
-                      src={src}
-                      alt="UB Corpora Activity"
-                      className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
-                        index === currentIndex ? 'opacity-100' : 'opacity-0'
-                      }`}
-                    />
+                    index !== 0 && (
+                      <img
+                        key={src}
+                        src={src}
+                        alt={`UB Corpora Activity ${index + 1}`}
+                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:scale-110 ${
+                          index === currentIndex ? 'opacity-100' : 'opacity-0'
+                        }`}
+                        loading="lazy"
+                      />
+                    )
                   ))}
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/40 to-indigo-500/40 mix-blend-multiply" />
@@ -173,10 +192,13 @@ export function HeroSection({
 
               {/* Card kiri bawah */}
               <div className="relative h-36 rounded-2xl overflow-hidden shadow-lg group">
-                <img
+                <Image
                   src="/C0433.00_00_00_08.Still006.png"
                   alt="Bromo Tengger Semeru"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  fill
+                  loading="lazy"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  sizes="(max-width: 768px) 50vw, 25vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/40 to-purple-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">
@@ -187,7 +209,7 @@ export function HeroSection({
 
               {/* Card kanan bawah */}
               <div className="relative h-36 rounded-2xl overflow-hidden shadow-lg group">
-                <img
+                <Image
                   src={
                     uniqueHighlightAssets.length > 1
                       ? uniqueHighlightAssets[1].asset.url
@@ -196,7 +218,10 @@ export function HeroSection({
                       : "/C0024.00_09_13_44.Still035.png"
                   }
                   alt="Bromo Tengger Semeru"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  fill
+                  loading="lazy"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  sizes="(max-width: 768px) 50vw, 25vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-indigo-500/40 mix-blend-multiply" />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white text-xl font-semibold">

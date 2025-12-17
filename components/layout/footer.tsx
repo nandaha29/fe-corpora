@@ -79,7 +79,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
                 height={75}
                 style={{ width: "auto", height: "auto" }}
                 className="object-contain max-w-full max-h-full"
-                priority
+                loading="lazy"
               />
             </div>
             <p className="text-lg text-muted-foreground text-pretty">

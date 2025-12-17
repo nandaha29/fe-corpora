@@ -115,7 +115,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
                   width={120}
                   height={60}
                   className="object-contain rounded-lg"
-                  priority
+                  loading="lazy"
                 />
               </div>
             </Link>

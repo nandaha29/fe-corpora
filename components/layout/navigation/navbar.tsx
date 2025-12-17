@@ -85,7 +85,7 @@ export function Navbar({ className }: NavbarProps) {
                   width={150}
                   height={75}
                   className="object-contain rounded-xl"
-                  priority
+                  loading="lazy"
                 />
               </div>
             </Link>
