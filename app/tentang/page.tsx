@@ -1394,7 +1394,7 @@ export default function AboutPage() {
                   className={`object-cover transition-opacity duration-300 ${
                     currentGalleryIndex === 0 ? 'opacity-100' : 'opacity-0 absolute inset-0 pointer-events-none'
                   }`}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, (max-width: 1024px) 800px, 1000px"
                   fetchPriority="high"
                 />
                 {/* Other images use regular img tag with lazy loading */}

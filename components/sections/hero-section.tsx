@@ -165,7 +165,7 @@ export function HeroSection({
                     className={`object-cover transition-all duration-300 group-hover:scale-110 ${
                       currentIndex === 0 ? 'opacity-100' : 'opacity-0'
                     }`}
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 548px, 548px"
                   />
                   {/* Other images with regular img tag */}
                   {carouselImages.map((src, index) => (

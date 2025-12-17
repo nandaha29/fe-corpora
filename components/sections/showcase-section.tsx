@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { AnimatedReveal } from "@/components/common/animated-reveal"
 
@@ -121,12 +122,14 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
                 key={`logo-${index}`}
                 className="flex-shrink-0 flex flex-col items-center opacity-85 hover:opacity-100 transition-opacity duration-200"
               >
-                <img
+                <Image
                   src={logo.src || "/placeholder.svg"}
                   alt={logo.alt}
                   height={64}
                   width={160}
                   className="h-16 w-[160px] object-contain"
+                  loading="lazy"
+                  quality={75}
                 />
                 <p className="mt-2 text-lg text-muted-foreground font-medium text-center max-w-[160px]">
                   {logo.alt}

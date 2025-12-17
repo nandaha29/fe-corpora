@@ -7,8 +7,9 @@ import { Manrope } from "next/font/google"
 import { EB_Garamond } from "next/font/google"
 import TransitionProvider from "@/components/ux/transition-provider"
 import { SWRProvider } from "@/components/providers/swr-provider"
-import { CSSLoader } from "@/components/optimization/css-loader"
+import { CriticalCSSLoader } from "@/components/optimization/critical-css-loader"
 import { PerformanceHints } from "@/components/optimization/performance-hints"
+import { LCPPreload } from "@/components/optimization/lcp-preload"
 import "./globals.css"
 
 const manrope = Manrope({
@@ -50,6 +51,12 @@ export default function RootLayout({
         {/* Performance hints for external resources */}
         <PerformanceHints />
         
+        {/* LCP Preload - eliminates 3,880ms resource load delay */}
+        <LCPPreload />
+        
+        {/* Critical CSS Loader - eliminates render-blocking CSS */}
+        <CriticalCSSLoader />
+        
         {/* CRITICAL: Preload fonts to break CSS dependency chain (10,026ms → ~500ms) */}
         {/* These fonts are the slowest loading resources according to Lighthouse */}
         <link
@@ -78,7 +85,6 @@ export default function RootLayout({
         className={`${ebGaramond.className} ${ebGaramond.variable} ${GeistSans.variable} ${GeistMono.variable} ${manrope.variable}`}
         suppressHydrationWarning
       >
-        <CSSLoader />
         <SWRProvider>
           <TransitionProvider>{children}</TransitionProvider>
         </SWRProvider>
