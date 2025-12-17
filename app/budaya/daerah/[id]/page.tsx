@@ -31,14 +31,20 @@ import { useNavigation } from "@/hooks/use-navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { SearchInput } from "@/components/search-input";
 import { Input } from "@/components/ui/input";
-import {
-  Model3DSection,
-  type Model3D,
-} from "@/components/sections/model-3d-section";
-import {
-  YouTubeSection,
-  type YouTubeVideo,
-} from "@/components/sections/youtube-section";
+import dynamic from "next/dynamic";
+import type { Model3D } from "@/components/sections/model-3d-section";
+import type { YouTubeVideo } from "@/components/sections/youtube-section";
+
+// Lazy load heavy 3D and video components to reduce initial bundle size
+const Model3DSection = dynamic(
+  () => import("@/components/sections/model-3d-section").then((mod) => ({ default: mod.Model3DSection })),
+  { ssr: false }
+);
+
+const YouTubeSection = dynamic(
+  () => import("@/components/sections/youtube-section").then((mod) => ({ default: mod.YouTubeSection })),
+  { ssr: false }
+);
 import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
 import { RichTextViewer } from "@/components/rich-text/rich-text-viewer";
 import { convertSubcultureHistory } from "@/lib/rich-text-helpers";
@@ -1082,6 +1088,7 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("region-profile")}
+                  aria-label="Navigate to Subculture Profile section"
                   className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
                     activeSection === "region-profile"
                       ? "bg-primary/20 text-primary font-medium"
@@ -1099,6 +1106,7 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("photo-gallery")}
+                  aria-label="Navigate to Photo Gallery section"
                   className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
                     activeSection === "photo-gallery"
                       ? "bg-primary/20 text-primary font-medium"
@@ -1116,6 +1124,7 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("viewer-3d")}
+                  aria-label="Navigate to 3D Models section"
                   className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
                     activeSection === "viewer-3d"
                       ? "bg-primary/20 text-primary font-medium"
@@ -1133,6 +1142,7 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("youtube-videos")}
+                  aria-label="Navigate to YouTube Videos section"
                   className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
                     activeSection === "youtube-videos"
                       ? "bg-primary/20 text-primary font-medium"
@@ -1150,6 +1160,7 @@ export default function RegionDetailPage() {
               <li>
                 <button
                   onClick={() => handleSectionClick("references")}
+                  aria-label="Navigate to References section"
                   className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
                     activeSection === "references"
                       ? "bg-primary/20 text-primary font-medium"
@@ -1172,6 +1183,7 @@ export default function RegionDetailPage() {
                     setCurrentPage(1);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
+                  aria-label="Navigate to Lexicons section"
                   className={`px-3 py-2 rounded-md text-xl transition-colors inline-block cursor-pointer ${
                     showLexiconOnly
                       ? "bg-primary/20 text-primary font-medium"
@@ -1200,9 +1212,9 @@ export default function RegionDetailPage() {
                   id="photo-gallery"
                   className="bg-card/60 rounded-xl shadow-sm border border-border p-6"
                 >
-                  <h3 className="text-2xl font-bold text-foreground mb-4">
+                  <h2 className="text-2xl font-bold text-foreground mb-4">
                     Gallery Of {subcultureData.profile?.displayName}
-                  </h3>
+                  </h2>
                   {/* Main Image Display */}
                   <div className="relative rounded-xl overflow-hidden border border-border bg-background/50 mb-3">
                     <AnimatePresence mode="wait">
@@ -1238,7 +1250,7 @@ export default function RegionDetailPage() {
                           </p>
                         </div>
 
-                        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium">
+                        <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium">
                           {currentGalleryIndex + 1} / {galleryImages.length}
                         </div>
                       </motion.div>
@@ -1272,11 +1284,17 @@ export default function RegionDetailPage() {
                             <button
                               key={idx}
                               onClick={() => goToImage(idx)}
-                              className={`relative rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                              className={`relative rounded-lg overflow-hidden border-2 transition-transform hover:scale-105 will-change-transform ${
                                 idx === currentGalleryIndex
-                                  ? "border-primary shadow-md ring-2 ring-primary/20"
+                                  ? "border-primary ring-2 ring-primary/20"
                                   : "border-border hover:border-primary/50"
                               }`}
+                              style={{
+                                boxShadow: idx === currentGalleryIndex 
+                                  ? '0 4px 6px -1px rgba(99, 102, 241, 0.3), 0 2px 4px -1px rgba(99, 102, 241, 0.2)' 
+                                  : 'none',
+                                transform: 'translateZ(0)', // Force GPU acceleration
+                              }}
                             >
                               <div className="aspect-video">
                                 <img
@@ -1297,7 +1315,7 @@ export default function RegionDetailPage() {
                                 </div>
                               )}
 
-                              <div className="absolute top-1 right-1 bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
+                              <div className="absolute top-1 right-1 bg-black/80 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-[10px] font-medium">
                                 {idx + 1}
                               </div>
                             </button>
@@ -1481,11 +1499,17 @@ export default function RegionDetailPage() {
                                 e.stopPropagation();
                                 goToImage(idx);
                               }}
-                              className={`relative rounded-md overflow-hidden border-2 transition-all flex-shrink-0 ${
+                              className={`relative rounded-md overflow-hidden border-2 transition-transform flex-shrink-0 will-change-transform ${
                                 idx === currentGalleryIndex
-                                  ? "border-white shadow-lg scale-110"
+                                  ? "border-white scale-110"
                                   : "border-white/30 hover:border-white/60"
                               }`}
+                              style={{
+                                boxShadow: idx === currentGalleryIndex 
+                                  ? '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.2)' 
+                                  : 'none',
+                                transform: 'translateZ(0)', // Force GPU acceleration
+                              }}
                             >
                               <div className="w-16 h-16">
                                 <img
@@ -1608,7 +1632,12 @@ export default function RegionDetailPage() {
 
                                         {ref.referenceType && (
                                           <div className="flex items-start gap-2">
-                                            <Badge variant="secondary" className="text-xs">
+                                            <Badge 
+                                              variant="secondary" 
+                                              className="text-xs" 
+                                              role="text"
+                                              aria-label={`Reference type: ${ref.referenceType}`}
+                                            >
                                               {ref.referenceType}
                                             </Badge>
                                           </div>
@@ -1616,7 +1645,12 @@ export default function RegionDetailPage() {
 
                                         {ref.topicCategory && (
                                           <div className="flex items-start gap-2">
-                                            <Badge variant="outline" className="text-xs">
+                                            <Badge 
+                                              variant="outline" 
+                                              className="text-xs" 
+                                              role="text"
+                                              aria-label={`Topic category: ${ref.topicCategory}`}
+                                            >
                                               {ref.topicCategory}
                                             </Badge>
                                           </div>
@@ -1625,7 +1659,12 @@ export default function RegionDetailPage() {
 
                                       {ref.referenceRole && (
                                         <div className="mt-2">
-                                          <Badge variant="outline" className="text-xs">
+                                          <Badge 
+                                            variant="outline" 
+                                            className="text-xs" 
+                                            role="text"
+                                            aria-label={`Reference role: ${ref.referenceRole}`}
+                                          >
                                             Role: {ref.referenceRole}
                                           </Badge>
                                         </div>
@@ -1640,10 +1679,11 @@ export default function RegionDetailPage() {
                                       href={ref.url}
                                       target="_blank"
                                       rel="noopener noreferrer"
+                                      aria-label={`View source for ${ref.title || 'reference'}`}
                                       className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors cursor-pointer"
                                     >
                                       <span className="text-sm font-medium">View Source</span>
-                                      <ExternalLink className="w-4 h-4" />
+                                      <ExternalLink className="w-4 h-4" aria-hidden="true" />
                                     </a>
                                   </div>
                                 )}

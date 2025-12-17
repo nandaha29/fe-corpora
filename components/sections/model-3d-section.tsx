@@ -42,7 +42,9 @@ export function Model3DSection({
 }: Model3DSectionProps) {
   const [currentModelIndex, setCurrentModelIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
+  const [shouldLoad, setShouldLoad] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   if (!models || models.length === 0) {
     return (
@@ -79,6 +81,27 @@ export function Model3DSection({
   useEffect(() => {
     setIsLoading(true)
   }, [currentModelIndex])
+
+  // Lazy load iframe when section is visible (Intersection Observer)
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true)
+            observer.disconnect()
+          }
+        })
+      },
+      { rootMargin: '100px' } // Start loading 100px before visible
+    )
+
+    observer.observe(containerRef.current)
+
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <section className={cn("space-y-6", className)}>
@@ -133,21 +156,31 @@ export function Model3DSection({
       >
         {/* Model Container */}
         <Card className="overflow-hidden border-border bg-card/60 backdrop-blur-sm">
-          <div className="relative w-full bg-gradient-to-br from-muted/50 to-muted/20">
+          <div ref={containerRef} className="relative w-full bg-gradient-to-br from-muted/50 to-muted/20">
             <div 
               className="relative w-full" 
               style={{ height }}
             >
-              <iframe
-                ref={iframeRef}
-                key={`model-${currentModel.id}`}
-                src={currentModel.embedUrl || getSketchfabEmbedUrl(currentModel.id)}
-                title={currentModel.title}
-                className="absolute top-0 left-0 w-full h-full border-0"
-                allow="autoplay; fullscreen; xr-spatial-tracking"
-                allowFullScreen
-                onLoad={handleIframeLoad}
-              />
+              {shouldLoad ? (
+                <iframe
+                  ref={iframeRef}
+                  key={`model-${currentModel.id}`}
+                  src={currentModel.embedUrl || getSketchfabEmbedUrl(currentModel.id)}
+                  title={currentModel.title}
+                  className="absolute top-0 left-0 w-full h-full border-0"
+                  allow="autoplay; fullscreen; xr-spatial-tracking"
+                  allowFullScreen
+                  onLoad={handleIframeLoad}
+                  loading="lazy"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-muted/20">
+                  <div className="text-center space-y-3">
+                    <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
+                    <p className="text-xs text-muted-foreground font-medium">3D Model will load when visible...</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Loading Indicator */}

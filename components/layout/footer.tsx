@@ -97,6 +97,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
                   href="https://www.facebook.com/brawijayacorpora"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Visit our Facebook page"
                 >
                   <Facebook className="h-4 w-4" />
                 </a>
@@ -111,6 +112,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
                   href="https://www.instagram.com/brawijayacorpora"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Visit our Instagram page"
                 >
                   <Instagram className="h-4 w-4" />
                 </a>
@@ -125,6 +127,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
                   href="https://x.com/BCP_CorporaUB"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Visit our X (Twitter) page"
                 >
                   <Twitter className="h-4 w-4" />
                 </a>

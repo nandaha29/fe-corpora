@@ -1,7 +1,7 @@
 // components/sections/youtube-section.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Play, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
 import { Card } from "@/components/ui/card"
@@ -41,6 +41,29 @@ export function YouTubeSection({
 }: YouTubeSectionProps) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(autoPlay)
+  const [shouldLoad, setShouldLoad] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Lazy load iframe when section is visible (Intersection Observer)
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true)
+            observer.disconnect()
+          }
+        })
+      },
+      { rootMargin: '100px' } // Start loading 100px before visible
+    )
+
+    observer.observe(containerRef.current)
+
+    return () => observer.disconnect()
+  }, [])
 
   if (!videos || videos.length === 0) {
     return (
@@ -134,16 +157,25 @@ export function YouTubeSection({
           className="space-y-3"
         >
           {/* Video Embed */}
-          <div className="relative w-full bg-black rounded-xl overflow-hidden shadow-xl border border-border">
+          <div ref={containerRef} className="relative w-full bg-black rounded-xl overflow-hidden shadow-xl border border-border">
             <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-              <iframe
-                src={getYouTubeEmbedUrl(currentVideo.videoId, isPlaying)}
-                title={currentVideo.title}
-                className="absolute top-0 left-0 w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                loading="lazy"
-              />
+              {shouldLoad ? (
+                <iframe
+                  src={getYouTubeEmbedUrl(currentVideo.videoId, isPlaying)}
+                  title={currentVideo.title}
+                  className="absolute top-0 left-0 w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  loading="lazy"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <div className="text-center space-y-3">
+                    <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto" />
+                    <p className="text-xs text-white/70 font-medium">Video will load when visible...</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
